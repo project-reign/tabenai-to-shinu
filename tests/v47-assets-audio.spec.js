@@ -391,6 +391,40 @@ test('毒・疲労・負傷を専用SEへroutingし、既存SEを含む全定義
   await context.close();
 });
 
+test('タイトルとゲーム内の管理メニューは実操作で専用SEを発音する', async ({ browser }) => {
+  const context = await browser.newContext({ serviceWorkers: 'block' });
+  await installWebAudioProbe(context);
+  const page = await context.newPage();
+  await openApp(page);
+  await waitForPresentation(page);
+  await page.evaluate(() => {
+    globalThis.__TABENAI_DEBUG__.screen('title');
+    const engine = globalThis.__TABENAI_PRESENTATION__;
+    const original = engine.cue.bind(engine);
+    globalThis.__V47_MENU_CUES__ = [];
+    engine.cue = key => {
+      globalThis.__V47_MENU_CUES__.push(key);
+      return original(key);
+    };
+  });
+
+  expect(await page.evaluate(() => globalThis.__V47_AUDIO_PROBE__.contexts)).toBe(0);
+  await page.locator('.title-manage > summary').click();
+  await expect.poll(() => page.evaluate(() => globalThis.__TABENAI_PRESENTATION__.snapshot().audioUnlocked)).toBe(true);
+  await expect.poll(() => page.evaluate(() => globalThis.__V47_MENU_CUES__)).toEqual(['se.menu']);
+  await expect(page.locator('html')).toHaveAttribute('data-last-presentation-action', 'menu');
+  const titleStarts = await page.evaluate(() => globalThis.__V47_AUDIO_PROBE__.oscillatorStarts);
+  expect(titleStarts).toBeGreaterThan(0);
+
+  await page.evaluate(() => globalThis.__TABENAI_DEBUG__.screen('game'));
+  await page.waitForTimeout(50);
+  await page.locator('#appMenu > summary').click();
+  await expect.poll(() => page.evaluate(() => globalThis.__V47_MENU_CUES__)).toEqual(['se.menu', 'se.menu']);
+  await expect.poll(() => page.evaluate(() => globalThis.__V47_AUDIO_PROBE__.oscillatorStarts)).toBeGreaterThan(titleStarts);
+  await expect(page.locator('html')).toHaveAttribute('data-last-presentation-action', 'menu');
+  await context.close();
+});
+
 test('画像404とSVG decode失敗でも本文・絵文字・常時二択で進行できる', async ({ browser }) => {
   for (const failure of ['404', 'decode']) {
     const context = await browser.newContext({ serviceWorkers: 'block' });

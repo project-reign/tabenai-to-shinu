@@ -1,9 +1,10 @@
 'use strict';
 
 const APP_VERSION = '4.7.0';
+const CACHE_REVISION = '4.7.0-r1';
 const CACHE_PREFIX = 'tabenai-to-shinu-';
-const CORE_CACHE_NAME = `${CACHE_PREFIX}core-${APP_VERSION}`;
-const PRESENTATION_CACHE_NAME = `${CACHE_PREFIX}presentation-${APP_VERSION}`;
+const CORE_CACHE_NAME = `${CACHE_PREFIX}core-${CACHE_REVISION}`;
+const PRESENTATION_CACHE_NAME = `${CACHE_PREFIX}presentation-${CACHE_REVISION}`;
 const ACTIVE_CACHE_NAMES = new Set([CORE_CACHE_NAME, PRESENTATION_CACHE_NAME]);
 const SCOPE_URL = new URL('./', self.registration.scope);
 const OFFLINE_DOCUMENT = new URL('./index.html', SCOPE_URL).href;
