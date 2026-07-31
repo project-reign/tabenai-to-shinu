@@ -1131,10 +1131,10 @@
       eventId: event.eventId || event.id,
       title: event.title || event.name || '名もない遭遇',
       text: typeof event.text === 'function' ? event.text(state) : (event.text || ''),
-      choices: (event.choices || []).map(choice => ({
+      choices: (event.choices || []).map((choice, index) => ({
         ...choice,
         title: choice.title || choice.label || '選ぶ',
-        desc: choice.desc || choice.description || ''
+        desc: SURVIVAL.visibleChoiceDescription(state, event.id, index)
       }))
     };
   }
@@ -2447,7 +2447,8 @@
         simulateSurvivalSeeds: (count, policy = 'random') => SURVIVAL.simulateSeeds(Math.max(1, Number(count) || 1), policy),
         simulateSurvivalPolicies: count => SURVIVAL.simulatePolicies(Math.max(1, Number(count) || 1)),
         survivalTerminal: run => SURVIVAL.terminalStatus(clone(run)),
-        survivalAssessment: run => clone(SURVIVAL.assessEnding(clone(run)))
+        survivalAssessment: run => clone(SURVIVAL.assessEnding(clone(run))),
+        survivalPublicChoice: (run, eventId, choiceIndex) => clone(SURVIVAL.publicChoiceInfo(clone(run), eventId, choiceIndex))
       };
     }
   } catch (_) {}

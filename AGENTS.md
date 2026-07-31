@@ -47,7 +47,10 @@
 - Use only the saved seeded PRNG for deck order, weighted selection, checks, and endings. `Math.random()` is forbidden for every game-affecting survival decision.
 - Equal seeds plus equal ordered choices must reproduce the complete event sequence, checks, and ending.
 - Use the shared SURVIVAL terminal predicate after each resolved event: HP at or below zero is death and hunger at or above 100 is starvation. Simulations must stop at the same point as the browser game.
-- Simulation policies must use a deterministic PRNG separate from the run's saved game PRNG. Validate random, all-refuse, all-consume, and conservative policies independently.
+- Simulation policies must use a deterministic PRNG separate from the run's saved game PRNG. Validate `random`, `allRefuse`, `allConsume`, `omniscientConservative`, and `humanLike` independently.
+- `humanLike` may read only visible risk/benefit text, current HP and hunger, companions, public flags, and its independent policy PRNG. It must not inspect exact effects, success probabilities, or future results.
+- Resolve SURVIVAL-only toxin, fatigue, injury, and late-run exposure through one shared daily processor used by both browser play and simulation. Normalize new fields so older runs remain readable.
+- Keep a mix of intake-favored, refusal-favored, and state-dependent encounters. At least six encounters must reverse their recommended choice according to HP, hunger, companions, or public flags.
 - Keep event `kind` separate from `consumedByPlayer`. Only direct player intake may increment `state.stats.ate`, `meta.stats.totalAte`, or intake achievements.
 - Every persisted SURVIVAL preparation flag must affect a later condition, final response, ending assessment, record, or achievement. It must not remain write-only.
 - Every survival encounter must expose exactly two choices. Food, drink, and medicine encounters must retain a direct refusal, and passive encounters must retain a wait/do-nothing option.
@@ -64,8 +67,9 @@ npm ci
 npx playwright install chromium
 npm test
 npm run build
+npm run simulate:survival
 ```
 
-The survival validation suite must retain all pre-v4.5 tests and cover binary choices, refusal rights, deterministic decks, reload locking, cooldown/one-shot/recent suppression, rare rates and pity, every conditional event, all milestones and final boxes, multiple clear paths, save transfer, offline relaunch, and iPhone 390×844 layout. Run at least 10,001 seeds for each required policy, classify clear/death/starve/other, and require zero exceptions, infinite loops, and non-finite or out-of-range state values.
+The survival validation suite must retain all pre-v4.5 tests and cover binary choices, refusal rights, deterministic decks, reload locking, cooldown/one-shot/recent suppression, rare rates and pity, every conditional event, all milestones and final boxes, multiple clear paths, save transfer, offline relaunch, and iPhone 390×844 layout. Run at least 10,001 seeds for each required policy, classify clear/death/starve/other, and require zero exceptions, infinite loops, and non-finite or out-of-range state values. Require random clear 50–65%, all-consume clear 45–75%, human-like clear 70–90%, all-refuse clear 0–5%, random death 5–25%, and random starvation 15–40%. Regenerate all policy tables and the three fixed-seed play logs after changing a balance constant.
 
 Update `CHANGELOG.md` and README behavior notes for user-visible changes.

@@ -219,12 +219,18 @@ test('SURVIVAL準備フラグを最終評価へ反映し、四箱と最終拒否
   }
 });
 
-test('4ポリシーを各10,001シードで実ゲーム同等に集計する', async ({ page }) => {
-  test.setTimeout(240_000);
+test('5ポリシーを各10,001シードで実ゲーム同等に集計し最終バランスを守る', async ({ page }) => {
+  test.setTimeout(300_000);
   const matrix = await page.evaluate(() => globalThis.__TABENAI_DEBUG__.simulateSurvivalPolicies(10_001));
 
   expect(matrix.seedCount).toBe(10_001);
-  expect(Object.keys(matrix.policies)).toEqual(['random', 'allRefuse', 'allConsume', 'conservative']);
+  expect(Object.keys(matrix.policies)).toEqual([
+    'random',
+    'allRefuse',
+    'allConsume',
+    'omniscientConservative',
+    'humanLike'
+  ]);
   for (const [name, result] of Object.entries(matrix.policies)) {
     expect(Object.values(result.outcomes).reduce((sum, count) => sum + count, 0), name).toBe(10_001);
     expect(result.errors, name).toBe(0);
@@ -249,11 +255,29 @@ test('4ポリシーを各10,001シードで実ゲーム同等に集計する', a
 
   const random = matrix.policies.random;
   const randomClearRate = random.outcomes.clear / random.totalRuns;
-  expect(randomClearRate).toBeGreaterThanOrEqual(0.15);
-  expect(randomClearRate).toBeLessThanOrEqual(0.85);
-  expect(random.outcomes.starve).toBeGreaterThan(0);
+  expect(randomClearRate).toBeGreaterThanOrEqual(0.50);
+  expect(randomClearRate).toBeLessThanOrEqual(0.65);
+  expect(random.outcomes.death / random.totalRuns).toBeGreaterThanOrEqual(0.05);
+  expect(random.outcomes.death / random.totalRuns).toBeLessThanOrEqual(0.25);
+  expect(random.outcomes.starve / random.totalRuns).toBeGreaterThanOrEqual(0.15);
+  expect(random.outcomes.starve / random.totalRuns).toBeLessThanOrEqual(0.40);
   expect(random.day50Reached).toBe(random.outcomes.clear);
+
+  const allRefuseRate = matrix.policies.allRefuse.outcomes.clear / 10_001;
+  expect(allRefuseRate).toBeGreaterThanOrEqual(0);
+  expect(allRefuseRate).toBeLessThanOrEqual(0.05);
   expect(matrix.policies.allRefuse.outcomes.starve).toBe(10_001);
-  expect(matrix.policies.allConsume.outcomes.clear).toBeGreaterThan(9_000);
-  expect(matrix.policies.conservative.outcomes.clear).toBeGreaterThan(9_000);
+
+  const allConsumeRate = matrix.policies.allConsume.outcomes.clear / 10_001;
+  expect(allConsumeRate).toBeGreaterThanOrEqual(0.45);
+  expect(allConsumeRate).toBeLessThanOrEqual(0.75);
+  expect(matrix.policies.allConsume.outcomes.death).toBeGreaterThan(0);
+
+  expect(matrix.policies.omniscientConservative.outcomes.clear).toBeGreaterThan(9_000);
+
+  const humanLikeRate = matrix.policies.humanLike.outcomes.clear / 10_001;
+  expect(humanLikeRate).toBeGreaterThanOrEqual(0.70);
+  expect(humanLikeRate).toBeLessThanOrEqual(0.90);
+  expect(matrix.policies.humanLike.choiceCounts.consumed).toBeGreaterThan(0);
+  expect(matrix.policies.humanLike.choiceCounts.refused).toBeGreaterThan(0);
 });

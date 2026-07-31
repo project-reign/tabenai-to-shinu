@@ -5,17 +5,31 @@
   const MAX_HUNGER = 100;
   const PITY_LIMIT = 14;
   const DAILY_HUNGER_COST = 2;
+  const MAX_AILMENT = 12;
+  const HUMAN_LIKE_MISTAKE_RATE = 0.35;
   const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
   const clone = value => JSON.parse(JSON.stringify(value));
   const CONSUMPTION_KINDS = new Set(['eat', 'drink', 'medicine']);
-  const C = (title, description, kind, effect = {}, consumedByPlayer = null) => ({
-    title,
-    description,
-    kind,
-    refusal: kind === 'skip',
-    consumedByPlayer: consumedByPlayer === null ? CONSUMPTION_KINDS.has(kind) : !!consumedByPlayer,
-    effect
-  });
+  const VISIBLE_RISKS = new Set(['safe', 'low', 'medium', 'high']);
+  const VISIBLE_BENEFITS = new Set(['food', 'heal', 'clue', 'companion', 'none']);
+  const defaultVisibleBenefit = kind => kind === 'medicine'
+    ? 'heal'
+    : (kind === 'eat' || kind === 'drink' ? 'food' : 'none');
+  const C = (title, description, kind, effect = {}, consumedByPlayer = null, visible = {}) => {
+    const refusal = kind === 'skip';
+    return {
+      title,
+      description,
+      kind,
+      refusal,
+      consumedByPlayer: consumedByPlayer === null ? CONSUMPTION_KINDS.has(kind) : !!consumedByPlayer,
+      visibleRisk: VISIBLE_RISKS.has(visible.risk) ? visible.risk : (refusal ? 'safe' : 'low'),
+      visibleBenefit: VISIBLE_BENEFITS.has(visible.benefit) ? visible.benefit : defaultVisibleBenefit(kind),
+      visibleNote: typeof visible.note === 'string' ? visible.note : '',
+      visibleRules: Array.isArray(visible.rules) ? visible.rules.map(rule => clone(rule)) : [],
+      effect
+    };
+  };
   const E = (id, title, category, tags, options, choices) => ({
     id,
     title,
@@ -37,27 +51,52 @@
       icon: '🥖', cooldown: 2, maxEncounters: 4,
       text: '乾いた保存パンが岩の上に置かれている。割れ目から、まだ小麦の匂いがした。'
     }, [
-      C('少し食べる', '固い部分を削って腹へ入れる。', 'eat', { hp: 2, hunger: -10, status: '保存食で持ち直した', result: '固いが、間違いなく食べられるパンだった。' }),
+      C('少し食べる', '強い空腹なら栄養になるが、満腹に近い胃には傷みが重い。', 'eat', {
+        hp: 2, hunger: -10, status: '保存食で持ち直した', result: '固いが、間違いなく食べられるパンだった。',
+        stateEffects: [{
+          when: { hungerBelow: 58 },
+          apply: { ailments: { toxin: 2 }, status: '古い油が胃に残った', result: '腹は満ちたが、古い油が遅れて胃を刺し始めた。' }
+        }]
+      }, null, {
+        risk: 'medium', benefit: 'food', note: '空腹が強いほど安全。',
+        rules: [{ when: { hungerAtLeast: 58 }, risk: 'low', note: '今の空腹なら消化できそうだ。' }]
+      }),
       C('食べない', '保存状態を信用せず先へ進む。', 'skip', { hunger: 3, result: 'パンを残し、空腹だけを連れて歩いた。' })
     ]),
     E('inverted-rain', '逆さ雨水', 'common', ['drink'], {
       icon: '🌧️', cooldown: 2, maxEncounters: 4,
       text: '地面から空へ落ちる雨が、欠けた瓶に一口分だけ溜まっている。'
     }, [
-      C('飲む', '逆流する雫を喉へ流す。', 'drink', { hunger: -7, hp: 1, status: '喉が潤った', result: '水は冷たく、身体の時間だけ正しい向きへ戻った。' }),
+      C('飲む', '通行印があれば濾過できる。印なしでは身体の時間を乱す。', 'drink', {
+        hunger: -7, hp: 1, status: '喉が潤った', result: '水は冷たく、身体の時間だけ正しい向きへ戻った。',
+        stateEffects: [{
+          when: { noSurvivalFlag: 'marketPass' },
+          apply: { ailments: { fatigue: 2 }, status: '時間酔い', result: '喉は潤ったが、逆向きの時間が足取りを重くした。' }
+        }]
+      }, null, {
+        risk: 'medium', benefit: 'food', note: '清掃員市場の通行印があれば濾過できる。',
+        rules: [{ when: { survivalFlag: 'marketPass' }, risk: 'safe', note: '通行印が濾過器として使える。' }]
+      }),
       C('飲まない', '法則の違う水には触れない。', 'skip', { hunger: 3, result: '雫は空へ帰り、瓶だけが残った。' })
     ]),
     E('white-tablet', '野戦用の白い錠剤', 'common', ['medicine'], {
       icon: '💊', cooldown: 3, maxEncounters: 3,
       text: '泥のない包装に「野戦用」とだけ印刷された白い錠剤がある。'
     }, [
-      C('服用する', '説明のない薬へ賭ける。', 'medicine', {
+      C('服用する', '弱った身体には薬、元気な身体には強すぎる薬になる。', 'medicine', {
         chance: {
           label: '白い錠剤の適合',
           probability: 0.74,
           success: { hp: 9, status: '薬が効いた', result: '熱と痛みが静かに引いた。' },
           failure: { hp: -3, status: '軽い副作用', result: '目眩はしたが、致命的な作用ではなかった。' }
-        }
+        },
+        stateEffects: [{
+          when: { hpAbove: 65 },
+          apply: { ailments: { toxin: 2 }, status: '薬が強すぎた', result: '必要のない薬が身体へ残り、遅れて毒へ変わった。' }
+        }]
+      }, null, {
+        risk: 'medium', benefit: 'heal', note: '体力が減っている時ほど適合しやすい。',
+        rules: [{ when: { hpAtMost: 65 }, risk: 'low', note: '今の傷なら薬効を受け止められそうだ。' }]
       }),
       C('服用しない', '薬を包み直して置いていく。', 'skip', { hunger: 2, result: '薬効も副作用も起こらなかった。' })
     ]),
@@ -65,7 +104,16 @@
       icon: '🥫', cooldown: 3, maxEncounters: 4,
       text: '未開封の缶から「今日は安全」と小さな声がする。'
     }, [
-      C('開けて食べる', '声の自己申告を一度だけ信じる。', 'eat', { hunger: -12, hp: 2, result: '豆の煮込みだった。声は食べ終えると黙った。' }),
+      C('開けて食べる', '寄生タコがいれば匂いを判定できる。単独では声を信じるしかない。', 'eat', {
+        hunger: -12, hp: 2, result: '豆の煮込みだった。声は食べ終えると黙った。',
+        stateEffects: [{
+          when: { noCompanion: 'tako' },
+          apply: { ailments: { toxin: 3 }, status: '缶の声が胃に残った', result: '豆は食べられたが、ささやきが毒のように胃へ居座った。' }
+        }]
+      }, null, {
+        risk: 'high', benefit: 'food', note: '寄生タコがいれば食材判定を頼める。',
+        rules: [{ when: { companion: 'tako' }, risk: 'low', note: '寄生タコが安全な匂いを選んでいる。' }]
+      }),
       C('食べない', '缶の言葉には返事をしない。', 'skip', { hunger: 4, result: '背後で缶が一度だけ舌打ちした。' })
     ]),
     E('moon-mushroom', '月影キノコ', 'common', ['food'], {
@@ -77,8 +125,18 @@
           label: '月影の薄い一本',
           probability: 0.68,
           success: { hunger: -11, hp: 3, result: '香ばしく、夜まで身体が軽かった。' },
-          failure: { hunger: -5, hp: -4, flags: { hallucination: true }, status: '月影酔い', result: '腹は満ちたが、木々が月のように揺れた。' }
-        }
+          failure: { hunger: -5, hp: -4, ailments: { toxin: 2 }, flags: { hallucination: true }, status: '月影酔い', result: '腹は満ちたが、木々が月のように揺れた。' }
+        },
+        stateEffects: [{
+          when: { flag: 'hallucination' },
+          apply: { ailments: { toxin: 2 }, status: '月影酔いが重なった', result: '以前の月影酔いと胞子が重なり、毒が深く残った。' }
+        }]
+      }, null, {
+        risk: 'medium', benefit: 'food', note: '月影酔いの最中は危険。強い空腹なら賭ける価値がある。',
+        rules: [
+          { when: { flag: 'hallucination' }, risk: 'high', note: '月影酔いが残っており、重ねて食べるのは危険だ。' },
+          { when: { noFlag: 'hallucination', hungerAtLeast: 68 }, risk: 'low', note: '酔いはなく、今の空腹なら一本を試せそうだ。' }
+        ]
       }),
       C('食べない', '胞子を吸わないよう遠回りする。', 'skip', { hunger: 3, result: '月影は追ってこなかった。' })
     ]),
@@ -86,7 +144,16 @@
       icon: '🍲', cooldown: 2, maxEncounters: 4,
       text: '器には何もない。それでも湯気だけが満腹そうに立ち上っている。'
     }, [
-      C('湯気を飲む', '器へ口をつけ、温かさを吸う。', 'drink', { hunger: -7, hp: 3, result: '温度だけで少し腹が満ちた。' }),
+      C('湯気を飲む', '強い空腹には温かさが効くが、早飲みすると疲労が残る。', 'drink', {
+        hunger: -7, hp: 3, result: '温度だけで少し腹が満ちた。',
+        stateEffects: [{
+          when: { hungerBelow: 52 },
+          apply: { ailments: { fatigue: 2 }, status: '空の湯気で息切れした', result: '腹はわずかに満ちたが、空の湯気を追って息が切れた。' }
+        }]
+      }, null, {
+        risk: 'medium', benefit: 'food', note: '空腹が強い時だけ、湯気をゆっくり吸える。',
+        rules: [{ when: { hungerAtLeast: 52 }, risk: 'low', note: '今なら温かさを急がず取り込める。' }]
+      }),
       C('飲まない', '空の器は空のままにする。', 'skip', { hunger: 3, result: '湯気は別の生存者を探しに流れた。' })
     ]),
     E('moss-vending', '苔むす自販機', 'common', ['drink'], {
@@ -100,14 +167,32 @@
       icon: '🦴', cooldown: 2, maxEncounters: 4,
       text: '犬用にも人間用にも見える、骨型のビスケットが二枚ある。'
     }, [
-      C('一枚食べる', '原材料表示の読める側を選ぶ。', 'eat', { hunger: -9, hp: 1, result: '味は薄いが、歯も骨も無事だった。' }),
+      C('一枚食べる', '空腹なら噛み切れる。余裕のある時に無理をすると歯を傷める。', 'eat', {
+        hunger: -9, hp: 1, result: '味は薄いが、歯も骨も無事だった。',
+        stateEffects: [{
+          when: { hungerBelow: 55 },
+          apply: { ailments: { injury: 2 }, status: '奥歯を傷めた', result: '腹は満ちたが、硬い欠片が奥歯と顎を傷つけた。' }
+        }]
+      }, null, {
+        risk: 'medium', benefit: 'food', note: '強い空腹なら慎重に噛める。',
+        rules: [{ when: { hungerAtLeast: 55 }, risk: 'low', note: '今の空腹なら硬さに集中できそうだ。' }]
+      }),
       C('食べない', '誰かの分として二枚とも残す。', 'skip', { hunger: 3, result: '遠くで尻尾を振る音がした。' })
     ]),
     E('forgotten-kit', '忘れられた救急箱', 'common', ['medicine'], {
       icon: '🩹', cooldown: 4, maxEncounters: 3,
       text: '赤十字の一画だけが消えた救急箱。消毒液と包帯はまだ使えそうだ。'
     }, [
-      C('手当てする', '傷を洗い、包帯を巻く。', 'medicine', { hp: 8, status: '応急手当て済み', result: '誰の物かは分からないが、手当ては正しく効いた。' }),
+      C('手当てする', '傷がある時は効く。無傷に近い身体へ古い薬品を使うと疲労が残る。', 'medicine', {
+        hp: 8, status: '応急手当て済み', result: '誰の物かは分からないが、手当ては正しく効いた。',
+        stateEffects: [{
+          when: { hpAbove: 70 },
+          apply: { ailments: { fatigue: 2 }, status: '消毒液で消耗した', result: '必要以上の消毒で身体が冷え、足取りが重くなった。' }
+        }]
+      }, null, {
+        risk: 'medium', benefit: 'heal', note: '体力が減っている時のための救急箱。',
+        rules: [{ when: { hpAtMost: 70 }, risk: 'safe', note: '今の傷なら手当てが有効だ。' }]
+      }),
       C('使わない', '必要な誰かのため閉じておく。', 'skip', { hunger: 2, result: '救急箱は次の足音を待った。' })
     ]),
     E('undying-fire', '消えない焚き火', 'common', ['wait'], {
@@ -136,7 +221,7 @@
       icon: '🐙', cooldown: 7, maxEncounters: 2,
       text: '水のない窪地で、寄生タコの卵嚢がゆっくり脈打っている。'
     }, [
-      C('保護する', '食べずに濡れ布で包む。', 'eat', { companions: { tako: true }, memories: { tako: true }, hunger: -5, result: '孵った小さな寄生タコが肩へ巻きついた。' }, false),
+      C('保護する', '食べずに濡れ布で包む。', 'eat', { companions: { tako: true }, memories: { tako: true }, hunger: -5, result: '孵った小さな寄生タコが肩へ巻きついた。' }, false, { risk: 'low', benefit: 'companion', note: '本人は摂取せず、寄生タコを保護する。' }),
       C('食べない', '卵嚢を水辺へ移して立ち去る。', 'skip', { hunger: 3, memories: { tako: true }, result: '水面に八本の波紋が広がった。' })
     ]),
     E('jr-shell', 'Jr.の抜け殻', 'uncommon', ['medicine'], {
@@ -150,14 +235,14 @@
       icon: '🫘', cooldown: 8, maxEncounters: 2,
       text: '白、赤、灰の土嚢の中央で、一粒の黒豆がこちらを待っている。'
     }, [
-      C('黒豆を持っていく', '今は食べず、三色の土ごと背負う。', 'eat', { flags: { beanCarried: true }, hunger: -3, result: '黒豆は袋の中で、小さく心臓のように鳴った。' }, false),
+      C('黒豆を持っていく', '今は食べず、三色の土ごと背負う。', 'eat', { flags: { beanCarried: true }, hunger: -3, result: '黒豆は袋の中で、小さく心臓のように鳴った。' }, false, { risk: 'low', benefit: 'clue', note: '本人は摂取せず、四つの発芽ルートを残す。' }),
       C('食べない', '土も豆も元の配置へ戻す。', 'skip', { hunger: 3, result: '三色の土は既存の四つの黒豆ルートを指すように並んだ。' })
     ]),
     E('shadow-plate', '影を飼う皿', 'uncommon', ['food'], {
       icon: '🌑', cooldown: 8, maxEncounters: 2,
       text: '黒い皿の上で、自分の影だけが空腹そうに口を開けている。'
     }, [
-      C('影へ分ける', '自分は食べず、保存食の欠片を影へ渡す。', 'eat', { flags: { shadowHunger: true, shadowAwake: true }, hunger: -4, result: '影は欠片を飲み込み、あなたより半歩先を歩き始めた。' }, false),
+      C('影へ分ける', '自分は食べず、保存食の欠片を影へ渡す。', 'eat', { flags: { shadowHunger: true, shadowAwake: true }, hunger: -4, result: '影は欠片を飲み込み、あなたより半歩先を歩き始めた。' }, false, { risk: 'low', benefit: 'companion', note: '本人は摂取せず、影との関係を変える。' }),
       C('何もしない', '皿を裏返し、影を閉じる。', 'skip', { hunger: 3, result: '裏返した皿の下で、歯の鳴る音が続いた。' })
     ]),
 
@@ -170,19 +255,28 @@
     E('jr-hunger', 'Jr.の空腹', 'conditional', ['food', 'medicine'], {
       icon: '🪱', cooldown: 8, maxEncounters: 3, condition: 'jr', text: '解毒寄生虫Jr.が腹の中から、毒か食事を要求している。'
     }, [
-      C('薬草を与える', '安全な薬草をJr.へ回す。', 'medicine', { hp: 4, companions: { jr: true, jrLevel: 2 }, result: 'Jr.は満足し、解毒能力を強めた。' }, false),
+      C('薬草を与える', '安全な薬草をJr.へ回す。', 'medicine', { hp: 4, companions: { jr: true, jrLevel: 2 }, result: 'Jr.は満足し、解毒能力を強めた。' }, false, { risk: 'safe', benefit: 'companion', note: '本人ではなくJr.へ薬草を渡す。' }),
       C('何も与えない', '今日は自分の食料を守る。', 'skip', { hunger: 3, result: 'Jr.は拗ねたが、宿主を殺すほど無茶はしなかった。' })
     ]),
     E('bean-homecoming', '黒豆の里帰り', 'conditional', ['food'], {
       icon: '🌱', oneShot: true, condition: 'bean', text: '持っていた黒豆が三色の土と身体の鼓動を同時に思い出して震える。'
     }, [
-      C('里へ帰す', '黒豆の望む土へ根を下ろさせる。', 'eat', { flags: { beanCarried: false, beanSoil: 'gray' }, companions: { beanChild: true }, result: '黒豆の幼体が生まれ、既存の白・赤・灰・身体発芽の記憶を守った。' }, false),
+      C('里へ帰す', '黒豆の望む土へ根を下ろさせる。', 'eat', { flags: { beanCarried: false, beanSoil: 'gray' }, companions: { beanChild: true }, result: '黒豆の幼体が生まれ、既存の白・赤・灰・身体発芽の記憶を守った。' }, false, { risk: 'safe', benefit: 'companion', note: '本人は摂取せず、黒豆を発芽させる。' }),
       C('食べない', '発芽を急がせず、豆を持ち続ける。', 'skip', { hunger: 3, flags: { beanCarried: true }, result: '黒豆は静まり、四つの育ち方を忘れなかった。' })
     ]),
     E('shadow-snack', '影の夜食', 'conditional', ['food'], {
       icon: '🌑', cooldown: 9, maxEncounters: 2, condition: 'shadow', text: '夜になる前に、影が二人分の夜食を並べた。'
     }, [
-      C('影と食べる', '片方を影へ、片方を自分へ。', 'eat', { hunger: -12, flags: { shadowAwake: true, shadowMerged: true }, result: '満腹になった影は、今日だけ身体と同じ動きをした。' }),
+      C('影と食べる', '影と一体なら安全だが、まだ別々なら食卓が身体を引き裂く。', 'eat', {
+        hunger: -12, flags: { shadowAwake: true, shadowMerged: true }, result: '満腹になった影は、今日だけ身体と同じ動きをした。',
+        stateEffects: [{
+          when: { noFlag: 'shadowMerged' },
+          apply: { ailments: { injury: 3 }, status: '影との境界が裂けた', result: '夜食は腹を満たしたが、別々の影と身体の境界が裂けた。' }
+        }]
+      }, null, {
+        risk: 'high', benefit: 'food', note: '影と一体化していれば安全。',
+        rules: [{ when: { flag: 'shadowMerged' }, risk: 'low', note: '影との境界は既に馴染んでいる。' }]
+      }),
       C('食べない', '夜食を影だけに任せる。', 'skip', { hunger: 3, result: '影は一人で二人分を平らげた。' })
     ]),
     E('invisible-market', '透明清掃員の市場', 'conditional', ['drink', 'medicine'], {
@@ -244,7 +338,7 @@
     E('tako-alive', '寄生タコ生存確認', 'rare', ['food'], {
       icon: '📡', cooldown: 11, maxEncounters: 2, weight: 1, text: '古い受信機から、寄生タコの心拍と食事要求が八拍ずつ届く。'
     }, [
-      C('保存魚を送る', '転送口へ魚を入れ、生存信号へ応える。', 'eat', { memories: { tako: true }, hp: 2, hunger: -4, result: '八本の受領サインが返り、寄生タコの無事が確認できた。' }, false),
+      C('保存魚を送る', '転送口へ魚を入れ、生存信号へ応える。', 'eat', { memories: { tako: true }, hp: 2, hunger: -4, result: '八本の受領サインが返り、寄生タコの無事が確認できた。' }, false, { risk: 'safe', benefit: 'clue', note: '本人は摂取せず、生存信号を確認する。' }),
       C('食べない', '魚は残し、信号だけ記録する。', 'skip', { memories: { tako: true }, hunger: 2, result: '心拍は途切れず、次の周波数へ移った。' })
     ]),
 
@@ -257,7 +351,7 @@
     E('milestone-taxman', '空腹の徴税人', 'milestone', ['food'], {
       icon: '🧾', day: 20, oneShot: true, text: '二十日目。空腹の徴税人が、食料か体力の一部を差し出せと言う。'
     }, [
-      C('備蓄から納める', '計画どおり保存食を渡す。', 'eat', { hunger: 2, survival: { milestoneSuccess: { 20: true } }, result: '徴税人は不足なしの印を押した。' }, false),
+      C('備蓄から納める', '計画どおり保存食を渡す。', 'eat', { hunger: 2, survival: { milestoneSuccess: { 20: true } }, result: '徴税人は不足なしの印を押した。' }, false, { risk: 'safe', benefit: 'clue', note: '本人は食べず、節目の計画を成功させる。' }),
       C('何も渡さない', '拒否して脇道へ走る。', 'skip', { hp: -4, hunger: 2, survival: { milestoneSuccess: { 20: false } }, result: '逃げ切ったが、枝で少し傷ついた。' })
     ]),
     E('milestone-seat', '同行者の席', 'milestone', ['wait'], {
@@ -329,6 +423,8 @@
       managerApproved: false,
       sawDay51: false,
       ordinaryMealAccepted: false,
+      ailments: { toxin: 0, fatigue: 0, injury: 0 },
+      dailyDamageTaken: 0,
       milestoneSuccess: { 10: false, 20: false, 30: false, 40: false },
       selectedBoxPair: null,
       selectedBox: null,
@@ -341,6 +437,7 @@
 
   function normalizeState(raw) {
     const base = defaultState();
+    const defaultAilments = { ...base.ailments };
     const input = raw && typeof raw === 'object' ? raw : {};
     const out = Object.assign(base, input);
     out.recentIds = Array.isArray(input.recentIds) ? input.recentIds.filter(id => byId.has(id)).slice(-3) : [];
@@ -350,6 +447,11 @@
     out.encounterCounts = Object.assign({}, input.encounterCounts || {});
     out.lastSeenDay = Object.assign({}, input.lastSeenDay || {});
     out.milestoneSuccess = Object.assign({}, base.milestoneSuccess, input.milestoneSuccess || {});
+    out.ailments = Object.assign({}, defaultAilments, input.ailments || {});
+    for (const key of Object.keys(defaultAilments)) {
+      out.ailments[key] = clamp(Math.floor(Number(out.ailments[key]) || 0), 0, MAX_AILMENT);
+    }
+    out.dailyDamageTaken = Math.max(0, Math.floor(Number(out.dailyDamageTaken) || 0));
     out.currentEventId = byId.has(input.currentEventId) ? input.currentEventId : null;
     out.currentSelection = input.currentSelection && typeof input.currentSelection === 'object' ? { ...input.currentSelection } : null;
     for (const key of ['rareMisses', 'rareSeen', 'naturalRareSeen', 'pityCount', 'longestRareDrought']) {
@@ -380,6 +482,60 @@
       case 'ancient': return Number(run.day) >= 35 && !!(run.flags && run.flags.ancientAwake);
       default: return true;
     }
+  }
+
+  function stateConditionMatches(run, when) {
+    if (!when || typeof when !== 'object') return true;
+    const hp = Number(run && run.hp) || 0;
+    const hunger = Number(run && run.hunger) || 0;
+    const companions = run && run.companions || {};
+    const flags = run && run.flags || {};
+    const survival = run && run.survival || {};
+    if (Number.isFinite(when.hpAtMost) && hp > when.hpAtMost) return false;
+    if (Number.isFinite(when.hpBelow) && hp >= when.hpBelow) return false;
+    if (Number.isFinite(when.hpAtLeast) && hp < when.hpAtLeast) return false;
+    if (Number.isFinite(when.hpAbove) && hp <= when.hpAbove) return false;
+    if (Number.isFinite(when.hungerAtMost) && hunger > when.hungerAtMost) return false;
+    if (Number.isFinite(when.hungerBelow) && hunger >= when.hungerBelow) return false;
+    if (Number.isFinite(when.hungerAtLeast) && hunger < when.hungerAtLeast) return false;
+    if (Number.isFinite(when.hungerAbove) && hunger <= when.hungerAbove) return false;
+    if (when.companion && !companions[when.companion]) return false;
+    if (when.noCompanion && companions[when.noCompanion]) return false;
+    if (when.flag && !flags[when.flag]) return false;
+    if (when.noFlag && flags[when.noFlag]) return false;
+    if (when.survivalFlag && !survival[when.survivalFlag]) return false;
+    if (when.noSurvivalFlag && survival[when.noSurvivalFlag]) return false;
+    return true;
+  }
+
+  function publicChoiceInfo(run, eventId, choiceIndex) {
+    const event = typeof eventId === 'string' ? byId.get(eventId) : eventId;
+    const choice = event && event.choices && event.choices[choiceIndex];
+    if (!choice) throw new Error('SURVIVAL public choice mismatch');
+    const info = {
+      risk: VISIBLE_RISKS.has(choice.visibleRisk) ? choice.visibleRisk : 'low',
+      benefit: VISIBLE_BENEFITS.has(choice.visibleBenefit) ? choice.visibleBenefit : 'none',
+      note: typeof choice.visibleNote === 'string' ? choice.visibleNote : '',
+      refusal: !!(choice.refusal || choice.kind === 'skip')
+    };
+    for (const rule of choice.visibleRules || []) {
+      if (!stateConditionMatches(run, rule.when)) continue;
+      if (VISIBLE_RISKS.has(rule.risk)) info.risk = rule.risk;
+      if (VISIBLE_BENEFITS.has(rule.benefit)) info.benefit = rule.benefit;
+      if (typeof rule.note === 'string') info.note = rule.note;
+    }
+    return info;
+  }
+
+  const VISIBLE_RISK_LABELS = { safe: '安全', low: '低', medium: '中', high: '高' };
+  const VISIBLE_BENEFIT_LABELS = { food: '食料', heal: '回復', clue: '手掛かり', companion: '仲間', none: 'なし' };
+
+  function visibleChoiceDescription(run, eventId, choiceIndex) {
+    const event = typeof eventId === 'string' ? byId.get(eventId) : eventId;
+    const choice = event && event.choices && event.choices[choiceIndex];
+    const info = publicChoiceInfo(run, event, choiceIndex);
+    const labels = `［危険:${VISIBLE_RISK_LABELS[info.risk]}／期待:${VISIBLE_BENEFIT_LABELS[info.benefit]}］`;
+    return `${choice.description || ''} ${labels}${info.note ? ` ${info.note}` : ''}`.trim();
   }
 
   function eligible(event, run) {
@@ -520,11 +676,64 @@
     mergeNested(run.companions, values.companions);
     mergeNested(run.memories, values.memories);
     mergeNested(run.survival, values.survival);
+    if (values.ailments && typeof values.ailments === 'object') {
+      run.survival.ailments = Object.assign({ toxin: 0, fatigue: 0, injury: 0 }, run.survival.ailments || {});
+      for (const key of ['toxin', 'fatigue', 'injury']) {
+        if (!Number.isFinite(values.ailments[key])) continue;
+        run.survival.ailments[key] = clamp(
+          (Number(run.survival.ailments[key]) || 0) + values.ailments[key],
+          0,
+          MAX_AILMENT
+        );
+      }
+    }
     if (values.finalPair) run.survival.selectedBoxPair = values.finalPair;
     if (values.selectedBox) run.survival.selectedBox = values.selectedBox;
     if (values.result) outcome.result = values.result;
     if (values.log) outcome.log = values.log;
     if (values.clue) outcome.clue = values.clue;
+  }
+
+  function applyStateEffects(run, stateEffects, outcome, decisionState) {
+    for (const stateEffect of Array.isArray(stateEffects) ? stateEffects : []) {
+      if (!stateEffect || !stateConditionMatches(decisionState, stateEffect.when)) continue;
+      applyValues(run, stateEffect.apply, outcome);
+    }
+  }
+
+  function appendOutcomeResult(outcome, text) {
+    if (!text) return;
+    outcome.result = outcome.result ? `${outcome.result} ${text}` : text;
+  }
+
+  function processSurvivalDay(run, outcome = null) {
+    if (!run.survival || typeof run.survival !== 'object') run.survival = normalizeState(null);
+    run.survival.ailments = Object.assign({ toxin: 0, fatigue: 0, injury: 0 }, run.survival.ailments || {});
+    const ailments = run.survival.ailments;
+    const fatigueHunger = ailments.fatigue >= 4 ? 1 : 0;
+    run.hunger = clamp((Number(run.hunger) || 0) + DAILY_HUNGER_COST + fatigueHunger, 0, MAX_HUNGER);
+
+    const toxinDamage = ailments.toxin > 0 ? ailments.toxin * 4 + 2 : 0;
+    const fatigueDamage = ailments.fatigue > 0 ? ailments.fatigue * 2 : 0;
+    const injuryDamage = ailments.injury > 0 ? ailments.injury * 2 : 0;
+    const day = Math.max(1, Number(run.day) || 1);
+    const exposureDamage = day >= 41 ? 1 : (day >= 31 && day % 2 === 0 ? 1 : 0);
+    const damage = toxinDamage + fatigueDamage + injuryDamage + exposureDamage;
+    if (damage > 0) {
+      run.hp = clamp((Number(run.hp) || 0) - damage, 0, MAX_HP);
+      run.survival.dailyDamageTaken = (Number(run.survival.dailyDamageTaken) || 0) + damage;
+      const causes = [];
+      if (toxinDamage) causes.push(`累積毒${toxinDamage}`);
+      if (fatigueDamage) causes.push(`疲労${fatigueDamage}`);
+      if (injuryDamage) causes.push(`負傷${injuryDamage}`);
+      if (exposureDamage) causes.push(`終盤の消耗${exposureDamage}`);
+      run.status = causes.join('・');
+      if (outcome) appendOutcomeResult(outcome, `${causes.join('、')}で体力を${damage}失った。`);
+    }
+    ailments.toxin = Math.max(0, ailments.toxin - 1);
+    ailments.fatigue = Math.max(0, ailments.fatigue - 1);
+    ailments.injury = Math.max(0, ailments.injury - 1);
+    return { damage, hungerCost: DAILY_HUNGER_COST + fatigueHunger, ailments: clone(ailments) };
   }
 
   function terminalStatus(run) {
@@ -601,6 +810,13 @@
     if (!choice) throw new Error('SURVIVAL choice mismatch');
     const outcome = { result: '', log: `${event.title}で「${choice.title}」を選んだ。` };
     const effect = choice.effect || {};
+    const decisionState = {
+      hp: run.hp,
+      hunger: run.hunger,
+      flags: { ...(run.flags || {}) },
+      companions: { ...(run.companions || {}) },
+      survival: { ...(run.survival || {}) }
+    };
     applyValues(run, effect, outcome);
     if (effect.chance) {
       const value = random();
@@ -612,9 +828,8 @@
       else run.stats.unlucky = (Number(run.stats.unlucky) || 0) + 1;
       applyValues(run, success ? effect.chance.success : effect.chance.failure, outcome);
     }
-    if (event.category !== 'final') {
-      run.hunger = clamp((Number(run.hunger) || 0) + DAILY_HUNGER_COST, 0, MAX_HUNGER);
-    }
+    applyStateEffects(run, effect.stateEffects, outcome, decisionState);
+    if (event.category !== 'final') processSurvivalDay(run, outcome);
     if (event.category === 'rare') {
       run.hp = clamp(Number(run.hp) || 1, 1, MAX_HP);
       run.hunger = clamp(Number(run.hunger) || 0, 0, MAX_HUNGER - 1);
@@ -689,7 +904,51 @@
     return ((value ^ (value >>> 14)) >>> 0) / 4294967296;
   }
 
-  const POLICY_NAMES = ['random', 'allRefuse', 'allConsume', 'conservative'];
+  const POLICY_NAMES = ['random', 'allRefuse', 'allConsume', 'omniscientConservative', 'humanLike'];
+  const POLICY_ALIASES = { conservative: 'omniscientConservative' };
+  const normalizePolicyName = policy => {
+    const resolved = POLICY_ALIASES[policy] || policy;
+    return POLICY_NAMES.includes(resolved) ? resolved : 'random';
+  };
+
+  function effectProjection(run, choice) {
+    const effect = choice.effect || {};
+    let hpDelta = Number(effect.hp) || 0;
+    let hungerDelta = Number(effect.hunger) || 0;
+    let ailmentCost = 0;
+    const include = values => {
+      if (!values) return;
+      hpDelta += Number(values.hp) || 0;
+      hungerDelta += Number(values.hunger) || 0;
+      const ailments = values.ailments || {};
+      ailmentCost += (Number(ailments.toxin) || 0) * 5;
+      ailmentCost += (Number(ailments.fatigue) || 0) * 2;
+      ailmentCost += (Number(ailments.injury) || 0) * 2;
+    };
+    if (effect.chance) {
+      const probability = clamp(Number(effect.chance.probability) || 0, 0, 1);
+      const success = effect.chance.success || {};
+      const failure = effect.chance.failure || {};
+      hpDelta += probability * (Number(success.hp) || 0) + (1 - probability) * (Number(failure.hp) || 0);
+      hungerDelta += probability * (Number(success.hunger) || 0) + (1 - probability) * (Number(failure.hunger) || 0);
+      const successAilments = success.ailments || {};
+      const failureAilments = failure.ailments || {};
+      ailmentCost += probability * (
+        (Number(successAilments.toxin) || 0) * 5
+        + (Number(successAilments.fatigue) || 0) * 2
+        + (Number(successAilments.injury) || 0) * 2
+      );
+      ailmentCost += (1 - probability) * (
+        (Number(failureAilments.toxin) || 0) * 5
+        + (Number(failureAilments.fatigue) || 0) * 2
+        + (Number(failureAilments.injury) || 0) * 2
+      );
+    }
+    for (const stateEffect of effect.stateEffects || []) {
+      if (stateConditionMatches(run, stateEffect.when)) include(stateEffect.apply);
+    }
+    return { hpDelta, hungerDelta, ailmentCost };
+  }
 
   function conservativeChoice(run, event) {
     const hp = Number(run.hp) || 0;
@@ -697,20 +956,40 @@
     const hpNeed = clamp((70 - hp) / 50, 0, 1.4);
     const hungerNeed = clamp((hunger - 35) / 55, 0, 1.4);
     const scores = event.choices.map((choice, index) => {
-      const effect = choice.effect || {};
-      let hpDelta = Number(effect.hp) || 0;
-      let hungerDelta = Number(effect.hunger) || 0;
-      if (effect.chance) {
-        const probability = clamp(Number(effect.chance.probability) || 0, 0, 1);
-        const success = effect.chance.success || {};
-        const failure = effect.chance.failure || {};
-        hpDelta += probability * (Number(success.hp) || 0) + (1 - probability) * (Number(failure.hp) || 0);
-        hungerDelta += probability * (Number(success.hunger) || 0) + (1 - probability) * (Number(failure.hunger) || 0);
-      }
-      let score = hpDelta * (0.8 + hpNeed * 2.8) - hungerDelta * (0.8 + hungerNeed * 2.8);
+      const { hpDelta, hungerDelta, ailmentCost } = effectProjection(run, choice);
+      let score = hpDelta * (0.8 + hpNeed * 2.8)
+        - hungerDelta * (0.8 + hungerNeed * 2.8)
+        - ailmentCost * (0.8 + hpNeed * 2.2);
       if (choice.consumedByPlayer) score += hunger >= 58 ? 6 : -0.5;
       if (choice.refusal) score += hunger < 48 && hp > 55 ? 1.5 : -4;
       if (hp + hpDelta <= 0 || hunger + hungerDelta >= MAX_HUNGER) score -= 1000;
+      return { index, score };
+    });
+    scores.sort((a, b) => b.score - a.score || a.index - b.index);
+    return scores[0].index;
+  }
+
+  function humanLikeChoice(run, event) {
+    const hp = Number(run && run.hp) || 0;
+    const hunger = Number(run && run.hunger) || 0;
+    const riskWeight = { safe: 0, low: 1.5, medium: 4.5, high: 16.5 };
+    const scores = event.choices.map((choice, index) => {
+      const visible = publicChoiceInfo(run, event, index);
+      const lowHpMultiplier = hp <= 30 ? 2 : hp <= 50 ? 1.45 : 1;
+      let score = -riskWeight[visible.risk] * lowHpMultiplier;
+      if (visible.benefit === 'food') {
+        score += hunger >= 82 ? 17 : hunger >= 68 ? 11 : hunger >= 55 ? 6 : hunger >= 42 ? 2 : -1;
+      } else if (visible.benefit === 'heal') {
+        score += hp <= 30 ? 17 : hp <= 48 ? 12 : hp <= 65 ? 7 : hp <= 78 ? 2 : -1;
+      } else if (visible.benefit === 'companion') {
+        score += 4;
+      } else if (visible.benefit === 'clue') {
+        score += 3;
+      }
+      if (visible.refusal) {
+        score += hunger < 55 ? 1.5 : hunger >= 82 ? -10 : hunger >= 68 ? -5 : -1;
+        if (hp <= 35) score += 2;
+      }
       return { index, score };
     });
     scores.sort((a, b) => b.score - a.score || a.index - b.index);
@@ -729,22 +1008,167 @@
       const nonRefusal = event.choices.findIndex(choice => !choice.refusal && choice.kind !== 'skip');
       return nonRefusal >= 0 ? nonRefusal : 0;
     }
+    if (policyName === 'humanLike') {
+      const recommended = humanLikeChoice(run, event);
+      return simulationRandom(policyState) < HUMAN_LIKE_MISTAKE_RATE ? 1 - recommended : recommended;
+    }
     return conservativeChoice(run, event);
   }
 
   function policyDecision(run, eventId, policy = 'random', policyRngState = 0xA5A55A5A) {
     const event = byId.get(eventId);
     if (!event) throw new Error('SURVIVAL policy event mismatch');
-    const policyName = POLICY_NAMES.includes(policy) ? policy : 'random';
+    const policyName = normalizePolicyName(policy);
     const state = { rngState: Number(policyRngState) >>> 0 };
     const gameRngState = Number(run && run.rngState) >>> 0;
     const choiceIndex = selectPolicyChoice(run, event, policyName, state);
     return { choiceIndex, gameRngState, policyRngState: state.rngState };
   }
 
+  function cautiousVisibleChoice(run, event) {
+    const riskRank = { safe: 0, low: 1, medium: 2, high: 3 };
+    const recommended = humanLikeChoice(run, event);
+    const ranked = event.choices.map((choice, index) => ({
+      index,
+      risk: riskRank[publicChoiceInfo(run, event, index).risk],
+      refusal: publicChoiceInfo(run, event, index).refusal
+    }));
+    if (ranked[recommended].risk <= riskRank.low) return recommended;
+    ranked.sort((a, b) => a.risk - b.risk || Number(b.refusal) - Number(a.refusal) || a.index - b.index);
+    if (ranked[0].risk < ranked[recommended].risk) return ranked[0].index;
+    return recommended;
+  }
+
+  function playSeed(seed, options = {}) {
+    const numericSeed = (Number(seed) || 1) >>> 0;
+    const requestedPolicy = options.policy === 'balanced' ? 'humanLike' : options.policy;
+    const policyName = requestedPolicy === 'cautiousVisible' ? requestedPolicy : normalizePolicyName(requestedPolicy || 'random');
+    const explicitChoices = Array.isArray(options.choices)
+      ? options.choices.map(value => Number(value) === 1 ? 1 : 0)
+      : null;
+    const run = simulationRun(numericSeed);
+    const gameRngStart = run.rngState;
+    const policyRngStart = ((numericSeed >>> 0) ^ 0xA5A55A5A) >>> 0;
+    const policyState = { rngState: policyRngStart };
+    const random = () => simulationRandom(run);
+    const trace = [];
+    let outcomeType = null;
+    let failure = null;
+    prepare(run, random);
+    for (let step = 0; step < 80 && !outcomeType; step += 1) {
+      const event = current(run);
+      if (!event || !Array.isArray(event.choices) || event.choices.length !== 2) {
+        outcomeType = 'other';
+        failure = 'invalid-event';
+        break;
+      }
+      let choiceIndex;
+      if (explicitChoices) {
+        if (step >= explicitChoices.length) {
+          outcomeType = 'other';
+          failure = 'choice-sequence-exhausted';
+          break;
+        }
+        choiceIndex = explicitChoices[step];
+      } else if (policyName === 'cautiousVisible') {
+        choiceIndex = cautiousVisibleChoice(run, event);
+      } else {
+        choiceIndex = selectPolicyChoice(run, event, policyName, policyState);
+      }
+      const choice = event.choices[choiceIndex];
+      const visible = publicChoiceInfo(run, event, choiceIndex);
+      const before = {
+        hp: run.hp,
+        hunger: run.hunger,
+        ailments: clone(run.survival.ailments),
+        gameRngState: run.rngState,
+        policyRngState: policyState.rngState
+      };
+      if (choice.consumedByPlayer === true) run.stats.ate += 1;
+      if (choice.kind === 'skip') run.stats.skipped += 1;
+      const selection = clone(run.survival.currentSelection);
+      const outcome = resolve(run, event.id, choiceIndex, random);
+      let terminal = null;
+      if (outcome.ending) {
+        run.ended = true;
+        run.ending = outcome.ending;
+        outcomeType = 'clear';
+        terminal = 'clear';
+      } else {
+        terminal = terminalStatus(run);
+        if (terminal) {
+          run.ended = true;
+          run.ending = { code: terminal };
+          outcomeType = terminal;
+        }
+      }
+      trace.push({
+        step: step + 1,
+        day: Number(run.day),
+        eventId: event.id,
+        category: event.category,
+        choiceIndex,
+        choiceTitle: choice.title,
+        visible,
+        hp: [before.hp, run.hp],
+        hunger: [before.hunger, run.hunger],
+        ailments: [before.ailments, clone(run.survival.ailments)],
+        gameRng: [before.gameRngState, run.rngState],
+        policyRng: [before.policyRngState, policyState.rngState],
+        rare: selection && event.category === 'rare'
+          ? { naturalHit: !!selection.naturalHit, pityForced: !!selection.pityForced }
+          : null,
+        roll: run.lastRoll ? clone(run.lastRoll) : null,
+        terminal
+      });
+      if (!outcomeType) complete(run, random);
+    }
+    if (!outcomeType) {
+      outcomeType = 'other';
+      failure = failure || 'step-limit';
+    }
+    const digestSource = trace.map(step => ({
+      step: step.step,
+      day: step.day,
+      eventId: step.eventId,
+      choiceIndex: step.choiceIndex,
+      hp: step.hp,
+      hunger: step.hunger,
+      ailments: step.ailments,
+      gameRng: step.gameRng,
+      policyRng: step.policyRng,
+      terminal: step.terminal
+    }));
+    let traceHash = 0x811c9dc5;
+    for (const character of JSON.stringify(digestSource)) {
+      traceHash ^= character.charCodeAt(0);
+      traceHash = Math.imul(traceHash, 0x01000193) >>> 0;
+    }
+    return {
+      seed: numericSeed,
+      policy: explicitChoices ? 'explicitChoices' : policyName,
+      explicitChoices: explicitChoices ? explicitChoices.slice(0, trace.length) : null,
+      outcome: outcomeType,
+      terminalDay: Number(run.day) || 1,
+      ending: run.ending ? clone(run.ending) : null,
+      failure,
+      gameRng: { start: gameRngStart, end: run.rngState },
+      policyRng: { start: policyRngStart, end: policyState.rngState },
+      rare: {
+        seen: run.survival.rareSeen,
+        natural: run.survival.naturalRareSeen,
+        pity: run.survival.pityCount,
+        longestDrought: run.survival.longestRareDrought
+      },
+      traceDigest: traceHash.toString(16).padStart(8, '0'),
+      trace,
+      finalRun: clone(run)
+    };
+  }
+
   function simulateSeeds(count, policy = 'random') {
     const seedCount = Math.max(1, Math.floor(Number(count) || 1));
-    const policyName = POLICY_NAMES.includes(policy) ? policy : 'random';
+    const policyName = normalizePolicyName(policy);
     const result = {
       seedCount,
       totalRuns: seedCount,
@@ -758,6 +1182,10 @@
       day50ReachRate: 0,
       survivalDaysTotal: 0,
       averageSurvivalDays: 0,
+      choiceCounts: { first: 0, second: 0, consumed: 0, refused: 0 },
+      eventChoiceCounts: {},
+      dailyDamageTotal: 0,
+      averageDailyDamage: 0,
       deathDayDistribution: { death: {}, starve: {} },
       violations: { cooldown: 0, oneShot: 0, maxEncounters: 0, recentThree: 0 },
       rare: {
@@ -828,6 +1256,11 @@
 
           const choiceIndex = selectPolicyChoice(run, event, policyName, policyState);
           const choice = event.choices[choiceIndex];
+          result.choiceCounts[choiceIndex === 0 ? 'first' : 'second'] += 1;
+          if (!result.eventChoiceCounts[event.id]) result.eventChoiceCounts[event.id] = [0, 0];
+          result.eventChoiceCounts[event.id][choiceIndex] += 1;
+          if (choice.consumedByPlayer === true) result.choiceCounts.consumed += 1;
+          if (choice.refusal || choice.kind === 'skip') result.choiceCounts.refused += 1;
           if (choice.consumedByPlayer === true) run.stats.ate += 1;
           if (choice.kind === 'skip') run.stats.skipped += 1;
           const outcome = resolve(run, event.id, choiceIndex, random);
@@ -881,6 +1314,7 @@
       }
       if (run) {
         result.rare.maxDryStreak = Math.max(result.rare.maxDryStreak, run.survival.longestRareDrought);
+        result.dailyDamageTotal += Number(run.survival.dailyDamageTaken) || 0;
       }
       if (reachedDay50) result.day50Reached += 1;
       const classified = Object.hasOwn(result.outcomes, outcomeType) ? outcomeType : 'other';
@@ -899,6 +1333,7 @@
     result.rare.naturalRate = naturalDraws ? naturalHits / naturalDraws : 0;
     result.day50ReachRate = result.day50Reached / seedCount;
     result.averageSurvivalDays = result.survivalDaysTotal / seedCount;
+    result.averageDailyDamage = result.dailyDamageTotal / seedCount;
     return result;
   }
 
@@ -920,8 +1355,18 @@
     resolve,
     complete,
     terminalStatus,
+    processSurvivalDay,
+    publicChoiceInfo,
+    visibleChoiceDescription,
+    humanLikeRecommendation: (run, eventId) => {
+      const event = byId.get(eventId);
+      if (!event) throw new Error('SURVIVAL human-like event mismatch');
+      return humanLikeChoice(run, event);
+    },
     assessEnding,
     policyDecision,
+    policyNames: () => POLICY_NAMES.slice(),
+    playSeed,
     simulateSeeds,
     simulatePolicies,
     eventById: id => byId.get(id) || null,

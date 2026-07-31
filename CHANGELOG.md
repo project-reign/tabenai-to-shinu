@@ -17,7 +17,9 @@
 - Unlocked SURVIVAL 50 on the title mode screen; 100 DAYS and ENDLESS remain locked roadmap modes.
 - Updated the displayed application, manifest, and Service Worker cache version to 4.5.0.
 - Extended run and meta records with deterministic SURVIVAL encounter, rare/pity, milestone, final-box, achievement, ending, and statistics data.
-- Added a shared HP/death and hunger/starvation terminal predicate used by both the browser game and simulator, plus a SURVIVAL-only daily hunger cost of 2 to keep random-play clears within the reviewed 15–85% range.
+- Added a shared HP/death and hunger/starvation terminal predicate used by both the browser game and simulator, plus a SURVIVAL-only daily processor for hunger, cumulative toxin, fatigue, injury, and late-run exposure.
+- Added visible `safe`／`low`／`medium`／`high` risk and food／heal／clue／companion／none benefit metadata. Seven encounters now reverse their recommended choice according to HP, hunger, companions, or public flags.
+- Rebalanced common and uncommon intake so consuming and refusing are each advantageous in different encounters; rare encounters remain unable to cause unavoidable instant death by themselves.
 - Separated event kind from `consumedByPlayer` so protecting, carrying, sharing, returning, or sending food does not increment player-intake statistics or achievements.
 - Made milestone preparation, companions, refusal count, and all persisted SURVIVAL preparation flags affect the day-50 title, carried item, text, or additional assessment without gating a clear.
 
@@ -35,8 +37,12 @@
 - Added deterministic deck/result and reload-lock tests, plus cooldown, one-shot, encounter-cap, recent-three, rare-rate, and pity tests.
 - Added reachability coverage for all conditional events, 10-day milestones, all four boxes and refusal, multiple survival endings, save/transfer migration, offline relaunch, and iPhone 390×844 layout.
 - Added simulations over at least 10,000 seeds requiring zero exceptions, infinite loops, and invalid or non-finite state values.
-- Added four-policy simulations—random, all-refuse, all-consume, and conservative—over 10,001 seeds each with independent policy randomness, clear/death/starve/other counts, day-50 reach rate, death-day distribution, and average survival days.
+- Added five-policy simulations—random, all-refuse, all-consume, omniscient conservative, and human-like—over 10,001 seeds each with independent policy randomness, clear/death/starve/other counts, day-50 reach rate, death-day distribution, and average survival days.
+- Added a human-like policy that reads only visible danger/benefit descriptions, current HP and hunger, companions, and public flags; it never reads exact effects, probabilities, or future results.
+- Added three deterministic fixed-seed play logs covering near-total intake, visible-risk refusal, and balanced HP/hunger play.
+- Locked the 10,001-seed balance ranges at random 50–65%, all-consume 45–75%, human-like 70–90%, all-refuse 0–5%, with random death 5–25% and starvation 15–40%.
 - Added regression tests for non-player intake accounting, the shared terminal predicate, policy PRNG isolation, preparation-flag consumers, personalized five-route endings, and flaky-test rejection in CI.
+- Expanded the Playwright suite to 32 tests without deleting the existing 29.
 
 ## [4.4.0] - 2026-07-31
 
