@@ -1075,7 +1075,11 @@
 
   function checkDeath() {
     if (state.ended) return true;
-    if (state.hp <= 0) {
+    const survivalTerminal = state.mode === 'survival' && SURVIVAL
+      ? SURVIVAL.terminalStatus(state)
+      : null;
+    const hpDepleted = survivalTerminal ? survivalTerminal === 'death' : state.hp <= 0;
+    if (hpDepleted) {
       if (state.flags.extraLife) {
         state.flags.extraLife = false;
         const sacrifice = takeSacrifice();
@@ -1089,7 +1093,8 @@
       finish('death', '力尽きた', '体力が0になった。怪しい食べ物より先に、身体の限界が来た。', '💀');
       return true;
     }
-    if (state.hunger >= MAX_HUNGER) {
+    const hungerDepleted = survivalTerminal ? survivalTerminal === 'starve' : state.hunger >= MAX_HUNGER;
+    if (hungerDepleted) {
       finish('starve', '食べずに死んだ', '空腹が限界へ達した。タイトルどおりの最期だった。', '🪦');
       return true;
     }
@@ -1169,7 +1174,7 @@
 
     state.choiceCount += 1;
     state.lastResult = '';
-    const consumed = ['eat', 'drink', 'medicine'].includes(choice.kind);
+    const consumed = choice.consumedByPlayer === true;
     const ateWhilePoisoned = consumed && state.flags.poisoned > 0;
     if (consumed) state.stats.ate += 1;
     if (choice.kind === 'skip') state.stats.skipped += 1;
@@ -2439,7 +2444,10 @@
         evaluate: () => { evaluateAchievements(false); return clone(meta); },
         survivalEvents: () => clone(SURVIVAL ? SURVIVAL.events : []),
         survivalCurrent: () => clone(currentSurvivalEvent()),
-        simulateSurvivalSeeds: count => SURVIVAL.simulateSeeds(Math.max(1, Number(count) || 1))
+        simulateSurvivalSeeds: (count, policy = 'random') => SURVIVAL.simulateSeeds(Math.max(1, Number(count) || 1), policy),
+        simulateSurvivalPolicies: count => SURVIVAL.simulatePolicies(Math.max(1, Number(count) || 1)),
+        survivalTerminal: run => SURVIVAL.terminalStatus(clone(run)),
+        survivalAssessment: run => clone(SURVIVAL.assessEnding(clone(run)))
       };
     }
   } catch (_) {}

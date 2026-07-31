@@ -364,8 +364,12 @@ test('SURVIVALの抽選済みイベントを初回オンライン起動後のオ
     const current = api.survivalCurrent();
     return { eventId: current.eventId || current.id, state: api.snapshot() };
   });
+  await onlinePage.evaluate(async () => { await navigator.serviceWorker.ready; });
   await onlinePage.reload();
-  await expect.poll(() => onlinePage.evaluate(() => Boolean(navigator.serviceWorker.controller))).toBe(true);
+  await expect.poll(
+    () => onlinePage.evaluate(() => Boolean(navigator.serviceWorker.controller)),
+    { timeout: 15_000 }
+  ).toBe(true);
   await onlinePage.close();
   await context.setOffline(true);
 

@@ -4,9 +4,18 @@
   const MAX_HP = 100;
   const MAX_HUNGER = 100;
   const PITY_LIMIT = 14;
+  const DAILY_HUNGER_COST = 2;
   const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
   const clone = value => JSON.parse(JSON.stringify(value));
-  const C = (title, description, kind, effect = {}) => ({ title, description, kind, refusal: kind === 'skip', effect });
+  const CONSUMPTION_KINDS = new Set(['eat', 'drink', 'medicine']);
+  const C = (title, description, kind, effect = {}, consumedByPlayer = null) => ({
+    title,
+    description,
+    kind,
+    refusal: kind === 'skip',
+    consumedByPlayer: consumedByPlayer === null ? CONSUMPTION_KINDS.has(kind) : !!consumedByPlayer,
+    effect
+  });
   const E = (id, title, category, tags, options, choices) => ({
     id,
     title,
@@ -127,7 +136,7 @@
       icon: '🐙', cooldown: 7, maxEncounters: 2,
       text: '水のない窪地で、寄生タコの卵嚢がゆっくり脈打っている。'
     }, [
-      C('保護する', '食べずに濡れ布で包む。', 'eat', { companions: { tako: true }, memories: { tako: true }, hunger: -5, result: '孵った小さな寄生タコが肩へ巻きついた。' }),
+      C('保護する', '食べずに濡れ布で包む。', 'eat', { companions: { tako: true }, memories: { tako: true }, hunger: -5, result: '孵った小さな寄生タコが肩へ巻きついた。' }, false),
       C('食べない', '卵嚢を水辺へ移して立ち去る。', 'skip', { hunger: 3, memories: { tako: true }, result: '水面に八本の波紋が広がった。' })
     ]),
     E('jr-shell', 'Jr.の抜け殻', 'uncommon', ['medicine'], {
@@ -141,14 +150,14 @@
       icon: '🫘', cooldown: 8, maxEncounters: 2,
       text: '白、赤、灰の土嚢の中央で、一粒の黒豆がこちらを待っている。'
     }, [
-      C('黒豆を持っていく', '今は食べず、三色の土ごと背負う。', 'eat', { flags: { beanCarried: true }, hunger: -3, result: '黒豆は袋の中で、小さく心臓のように鳴った。' }),
+      C('黒豆を持っていく', '今は食べず、三色の土ごと背負う。', 'eat', { flags: { beanCarried: true }, hunger: -3, result: '黒豆は袋の中で、小さく心臓のように鳴った。' }, false),
       C('食べない', '土も豆も元の配置へ戻す。', 'skip', { hunger: 3, result: '三色の土は既存の四つの黒豆ルートを指すように並んだ。' })
     ]),
     E('shadow-plate', '影を飼う皿', 'uncommon', ['food'], {
       icon: '🌑', cooldown: 8, maxEncounters: 2,
       text: '黒い皿の上で、自分の影だけが空腹そうに口を開けている。'
     }, [
-      C('影へ分ける', '自分は食べず、保存食の欠片を影へ渡す。', 'eat', { flags: { shadowHunger: true, shadowAwake: true }, hunger: -4, result: '影は欠片を飲み込み、あなたより半歩先を歩き始めた。' }),
+      C('影へ分ける', '自分は食べず、保存食の欠片を影へ渡す。', 'eat', { flags: { shadowHunger: true, shadowAwake: true }, hunger: -4, result: '影は欠片を飲み込み、あなたより半歩先を歩き始めた。' }, false),
       C('何もしない', '皿を裏返し、影を閉じる。', 'skip', { hunger: 3, result: '裏返した皿の下で、歯の鳴る音が続いた。' })
     ]),
 
@@ -161,13 +170,13 @@
     E('jr-hunger', 'Jr.の空腹', 'conditional', ['food', 'medicine'], {
       icon: '🪱', cooldown: 8, maxEncounters: 3, condition: 'jr', text: '解毒寄生虫Jr.が腹の中から、毒か食事を要求している。'
     }, [
-      C('薬草を与える', '安全な薬草をJr.へ回す。', 'medicine', { hp: 4, companions: { jr: true, jrLevel: 2 }, result: 'Jr.は満足し、解毒能力を強めた。' }),
+      C('薬草を与える', '安全な薬草をJr.へ回す。', 'medicine', { hp: 4, companions: { jr: true, jrLevel: 2 }, result: 'Jr.は満足し、解毒能力を強めた。' }, false),
       C('何も与えない', '今日は自分の食料を守る。', 'skip', { hunger: 3, result: 'Jr.は拗ねたが、宿主を殺すほど無茶はしなかった。' })
     ]),
     E('bean-homecoming', '黒豆の里帰り', 'conditional', ['food'], {
       icon: '🌱', oneShot: true, condition: 'bean', text: '持っていた黒豆が三色の土と身体の鼓動を同時に思い出して震える。'
     }, [
-      C('里へ帰す', '黒豆の望む土へ根を下ろさせる。', 'eat', { flags: { beanCarried: false, beanSoil: 'gray' }, companions: { beanChild: true }, result: '黒豆の幼体が生まれ、既存の白・赤・灰・身体発芽の記憶を守った。' }),
+      C('里へ帰す', '黒豆の望む土へ根を下ろさせる。', 'eat', { flags: { beanCarried: false, beanSoil: 'gray' }, companions: { beanChild: true }, result: '黒豆の幼体が生まれ、既存の白・赤・灰・身体発芽の記憶を守った。' }, false),
       C('食べない', '発芽を急がせず、豆を持ち続ける。', 'skip', { hunger: 3, flags: { beanCarried: true }, result: '黒豆は静まり、四つの育ち方を忘れなかった。' })
     ]),
     E('shadow-snack', '影の夜食', 'conditional', ['food'], {
@@ -235,7 +244,7 @@
     E('tako-alive', '寄生タコ生存確認', 'rare', ['food'], {
       icon: '📡', cooldown: 11, maxEncounters: 2, weight: 1, text: '古い受信機から、寄生タコの心拍と食事要求が八拍ずつ届く。'
     }, [
-      C('保存魚を送る', '転送口へ魚を入れ、生存信号へ応える。', 'eat', { memories: { tako: true }, hp: 2, hunger: -4, result: '八本の受領サインが返り、寄生タコの無事が確認できた。' }),
+      C('保存魚を送る', '転送口へ魚を入れ、生存信号へ応える。', 'eat', { memories: { tako: true }, hp: 2, hunger: -4, result: '八本の受領サインが返り、寄生タコの無事が確認できた。' }, false),
       C('食べない', '魚は残し、信号だけ記録する。', 'skip', { memories: { tako: true }, hunger: 2, result: '心拍は途切れず、次の周波数へ移った。' })
     ]),
 
@@ -248,7 +257,7 @@
     E('milestone-taxman', '空腹の徴税人', 'milestone', ['food'], {
       icon: '🧾', day: 20, oneShot: true, text: '二十日目。空腹の徴税人が、食料か体力の一部を差し出せと言う。'
     }, [
-      C('備蓄から納める', '計画どおり保存食を渡す。', 'eat', { hunger: 2, survival: { milestoneSuccess: { 20: true } }, result: '徴税人は不足なしの印を押した。' }),
+      C('備蓄から納める', '計画どおり保存食を渡す。', 'eat', { hunger: 2, survival: { milestoneSuccess: { 20: true } }, result: '徴税人は不足なしの印を押した。' }, false),
       C('何も渡さない', '拒否して脇道へ走る。', 'skip', { hp: -4, hunger: 2, survival: { milestoneSuccess: { 20: false } }, result: '逃げ切ったが、枝で少し傷ついた。' })
     ]),
     E('milestone-seat', '同行者の席', 'milestone', ['wait'], {
@@ -324,6 +333,7 @@
       selectedBoxPair: null,
       selectedBox: null,
       finalRefused: false,
+      finalAssessment: null,
       metaBoxRecorded: false,
       metaFinalRefusalRecorded: false
     };
@@ -347,6 +357,9 @@
     }
     if (!['preserved-living', 'empty-return', null].includes(out.selectedBoxPair)) out.selectedBoxPair = null;
     if (!['preserved', 'living', 'empty', 'return', null].includes(out.selectedBox)) out.selectedBox = null;
+    out.finalAssessment = input.finalAssessment && typeof input.finalAssessment === 'object'
+      ? clone(input.finalAssessment)
+      : null;
     return out;
   }
 
@@ -514,6 +527,73 @@
     if (values.clue) outcome.clue = values.clue;
   }
 
+  function terminalStatus(run) {
+    if (Number(run && run.hp) <= 0) return 'death';
+    if (Number(run && run.hunger) >= MAX_HUNGER) return 'starve';
+    return null;
+  }
+
+  function assessEnding(run) {
+    const survival = run && run.survival ? run.survival : defaultState();
+    const milestoneDays = [10, 20, 30, 40];
+    const milestoneCount = milestoneDays.filter(day => survival.milestoneSuccess && survival.milestoneSuccess[day]).length;
+    const companions = [];
+    if (run.companions && run.companions.tako) companions.push('寄生タコ');
+    if (run.companions && run.companions.jr) companions.push('Jr.');
+    if (run.companions && run.companions.beanChild) companions.push('黒豆の幼体');
+    if (run.companions && run.companions.clone) companions.push('二人目のプレイヤー');
+    if (run.flags && run.flags.shadowAwake) companions.push('影');
+
+    const signals = [];
+    if (survival.sawSecondTracks) signals.push('二人分の足跡を帰路へ重ねた');
+    if (survival.ancientHeard) signals.push('古きものの寝息を聞き分けた');
+    if (survival.ancientCalmed) signals.push('古きものを静めた');
+    if (survival.futurePlan) signals.push('未来の置き手紙を計画へ変えた');
+    if (survival.managerApproved) signals.push('森の管理者から帰還許可を得た');
+    if (survival.sawDay51) signals.push('存在しない51日目を記憶した');
+
+    const refusals = Math.max(0, Number(run.stats && run.stats.skipped) || 0);
+    const score = milestoneCount * 2
+      + Math.min(3, companions.length)
+      + signals.length
+      + (refusals >= 20 ? 2 : refusals >= 10 ? 1 : 0);
+    const rank = score >= 15 ? '森の完全踏破者'
+      : score >= 10 ? '備えある生還者'
+        : score >= 6 ? '怪食の帰還者'
+          : '五十日の生存者';
+    const boxItems = {
+      preserved: '配分表つきの保存食',
+      living: '眠っていた小さな同行者',
+      empty: 'これから満たす空箱',
+      return: '五十日分の帰還記録'
+    };
+    const carried = survival.finalRefused
+      ? '箱を持たず、五十日分の選択記録'
+      : (boxItems[survival.selectedBox] || '五十日分の選択記録');
+    const companionText = companions.length ? `同行者：${companions.join('、')}。` : '同行者を持たず、一人で帰還した。';
+    const signalText = signals.length ? `追加評価：${signals.join('。')}。` : '追加評価：低確率の助けがなくても、自分の判断だけで帰還した。';
+    return {
+      score,
+      rank,
+      carried,
+      milestoneCount,
+      companions,
+      refusals,
+      signals,
+      text: `称号「${rank}」。節目成功 ${milestoneCount}/4、拒否 ${refusals}回。${companionText}持ち帰る物：${carried}。${signalText}`
+    };
+  }
+
+  function personalizeEnding(run, ending) {
+    const assessment = assessEnding(run);
+    run.survival.finalAssessment = assessment;
+    return {
+      ...ending,
+      title: `${ending.title}・${assessment.rank}`,
+      text: `${ending.text} ${assessment.text}`
+    };
+  }
+
   function resolve(run, eventId, choiceIndex, random) {
     const event = byId.get(eventId);
     if (!event || run.survival.currentEventId !== eventId) throw new Error('SURVIVAL event mismatch');
@@ -532,6 +612,9 @@
       else run.stats.unlucky = (Number(run.stats.unlucky) || 0) + 1;
       applyValues(run, success ? effect.chance.success : effect.chance.failure, outcome);
     }
+    if (event.category !== 'final') {
+      run.hunger = clamp((Number(run.hunger) || 0) + DAILY_HUNGER_COST, 0, MAX_HUNGER);
+    }
     if (event.category === 'rare') {
       run.hp = clamp(Number(run.hp) || 1, 1, MAX_HP);
       run.hunger = clamp(Number(run.hunger) || 0, 0, MAX_HUNGER - 1);
@@ -539,12 +622,12 @@
     if (event.id === 'final-commit') {
       if (choiceIndex === 1) {
         run.survival.finalRefused = true;
-        outcome.ending = {
+        outcome.ending = personalizeEnding(run, {
           code: 'survival_refuse',
           title: '配膳を拒んだ生存者',
           text: '四つの箱を前に、最後まで選択する権利を手放さなかった。箱は森へ残り、あなたは自分の足で帰還した。',
           icon: '✋'
-        };
+        });
       } else {
         const endings = {
           preserved: { code: 'survival_preserved', title: '保存食の帰路', text: '保存食は本物だった。五十日で身につけた配分を守り、森の外まで歩き切った。', icon: '📦' },
@@ -552,7 +635,7 @@
           empty: { code: 'survival_empty', title: '空箱の余白', text: '空の箱には何もなかった。だからこそ、これから持ち帰るものを自分で決められた。', icon: '⬜' },
           return: { code: 'survival_return', title: '帰還の配膳', text: '帰還の箱は扉へ変わった。五十日分の記録と選択を抱えたまま、元の世界へ踏み出した。', icon: '🚪' }
         };
-        outcome.ending = endings[run.survival.selectedBox] || endings.empty;
+        outcome.ending = personalizeEnding(run, endings[run.survival.selectedBox] || endings.empty);
       }
     }
     return outcome;
@@ -606,15 +689,76 @@
     return ((value ^ (value >>> 14)) >>> 0) / 4294967296;
   }
 
-  function simulateSeeds(count) {
+  const POLICY_NAMES = ['random', 'allRefuse', 'allConsume', 'conservative'];
+
+  function conservativeChoice(run, event) {
+    const hp = Number(run.hp) || 0;
+    const hunger = Number(run.hunger) || 0;
+    const hpNeed = clamp((70 - hp) / 50, 0, 1.4);
+    const hungerNeed = clamp((hunger - 35) / 55, 0, 1.4);
+    const scores = event.choices.map((choice, index) => {
+      const effect = choice.effect || {};
+      let hpDelta = Number(effect.hp) || 0;
+      let hungerDelta = Number(effect.hunger) || 0;
+      if (effect.chance) {
+        const probability = clamp(Number(effect.chance.probability) || 0, 0, 1);
+        const success = effect.chance.success || {};
+        const failure = effect.chance.failure || {};
+        hpDelta += probability * (Number(success.hp) || 0) + (1 - probability) * (Number(failure.hp) || 0);
+        hungerDelta += probability * (Number(success.hunger) || 0) + (1 - probability) * (Number(failure.hunger) || 0);
+      }
+      let score = hpDelta * (0.8 + hpNeed * 2.8) - hungerDelta * (0.8 + hungerNeed * 2.8);
+      if (choice.consumedByPlayer) score += hunger >= 58 ? 6 : -0.5;
+      if (choice.refusal) score += hunger < 48 && hp > 55 ? 1.5 : -4;
+      if (hp + hpDelta <= 0 || hunger + hungerDelta >= MAX_HUNGER) score -= 1000;
+      return { index, score };
+    });
+    scores.sort((a, b) => b.score - a.score || a.index - b.index);
+    return scores[0].index;
+  }
+
+  function selectPolicyChoice(run, event, policyName, policyState) {
+    if (policyName === 'random') return simulationRandom(policyState) < 0.5 ? 0 : 1;
+    if (policyName === 'allRefuse') {
+      const refusal = event.choices.findIndex(choice => choice.refusal || choice.kind === 'skip');
+      return refusal >= 0 ? refusal : 1;
+    }
+    if (policyName === 'allConsume') {
+      const consumption = event.choices.findIndex(choice => choice.consumedByPlayer === true);
+      if (consumption >= 0) return consumption;
+      const nonRefusal = event.choices.findIndex(choice => !choice.refusal && choice.kind !== 'skip');
+      return nonRefusal >= 0 ? nonRefusal : 0;
+    }
+    return conservativeChoice(run, event);
+  }
+
+  function policyDecision(run, eventId, policy = 'random', policyRngState = 0xA5A55A5A) {
+    const event = byId.get(eventId);
+    if (!event) throw new Error('SURVIVAL policy event mismatch');
+    const policyName = POLICY_NAMES.includes(policy) ? policy : 'random';
+    const state = { rngState: Number(policyRngState) >>> 0 };
+    const gameRngState = Number(run && run.rngState) >>> 0;
+    const choiceIndex = selectPolicyChoice(run, event, policyName, state);
+    return { choiceIndex, gameRngState, policyRngState: state.rngState };
+  }
+
+  function simulateSeeds(count, policy = 'random') {
     const seedCount = Math.max(1, Math.floor(Number(count) || 1));
+    const policyName = POLICY_NAMES.includes(policy) ? policy : 'random';
     const result = {
       seedCount,
       totalRuns: seedCount,
+      policy: policyName,
       totalEvents: 0,
       errors: 0,
       loops: 0,
       invalidValues: 0,
+      outcomes: { clear: 0, death: 0, starve: 0, other: 0 },
+      day50Reached: 0,
+      day50ReachRate: 0,
+      survivalDaysTotal: 0,
+      averageSurvivalDays: 0,
+      deathDayDistribution: { death: {}, starve: {} },
       violations: { cooldown: 0, oneShot: 0, maxEncounters: 0, recentThree: 0 },
       rare: {
         observed: 0,
@@ -643,18 +787,25 @@
     for (const event of events.filter(item => item.category === 'conditional')) result.conditionalHits[event.id] = 0;
 
     for (let seed = 1; seed <= seedCount; seed += 1) {
+      let run = null;
+      let outcomeType = null;
+      let terminalDay = 1;
+      let reachedDay50 = false;
       try {
-        const run = simulationRun(seed);
+        run = simulationRun(seed);
         const random = () => simulationRandom(run);
+        const policyState = { rngState: ((seed >>> 0) ^ 0xA5A55A5A) >>> 0 };
         prepare(run, random);
         let steps = 0;
-        while (!run.ended && steps < 80) {
+        while (!outcomeType && steps < 80) {
           steps += 1;
           const event = current(run);
           if (!event || !Array.isArray(event.choices) || event.choices.length !== 2) {
             result.invalidValues += 1;
+            outcomeType = 'other';
             break;
           }
+          if (Number(run.day) >= 50) reachedDay50 = true;
           result.totalEvents += 1;
           const selection = run.survival.currentSelection;
           if (selection && !['milestone', 'final'].includes(event.category)) {
@@ -675,9 +826,9 @@
           if (event.category === 'conditional') result.conditionalHits[event.id] += 1;
           if (event.category === 'milestone') result.milestoneHits[run.day] += 1;
 
-          const choiceIndex = random() < 0.5 ? 0 : 1;
+          const choiceIndex = selectPolicyChoice(run, event, policyName, policyState);
           const choice = event.choices[choiceIndex];
-          if (['eat', 'drink', 'medicine'].includes(choice.kind)) run.stats.ate += 1;
+          if (choice.consumedByPlayer === true) run.stats.ate += 1;
           if (choice.kind === 'skip') run.stats.skipped += 1;
           const outcome = resolve(run, event.id, choiceIndex, random);
           if (run.survival.selectedBox && event.id.startsWith('final-select-')) {
@@ -686,19 +837,34 @@
           if (outcome.ending) {
             run.ended = true;
             run.ending = outcome.ending;
+            outcomeType = 'clear';
+            terminalDay = Number(run.day) || 50;
             result.clearEndings[outcome.ending.code] = (result.clearEndings[outcome.ending.code] || 0) + 1;
             if (outcome.ending.code === 'survival_refuse') result.finalRefusals += 1;
           } else {
-            complete(run, random);
+            const terminal = terminalStatus(run);
+            if (terminal) {
+              run.ended = true;
+              run.ending = { code: terminal };
+              outcomeType = terminal;
+              terminalDay = Number(run.day) || 1;
+            } else {
+              complete(run, random);
+            }
           }
           if (!Number.isFinite(run.hp) || !Number.isFinite(run.hunger) || run.hp < 0 || run.hp > MAX_HP || run.hunger < 0 || run.hunger > MAX_HUNGER) {
             result.invalidValues += 1;
+            outcomeType = 'other';
+            terminalDay = Number(run.day) || 1;
             break;
           }
         }
-        if (!run.ended) result.loops += 1;
-        result.rare.maxDryStreak = Math.max(result.rare.maxDryStreak, run.survival.longestRareDrought);
-        if (run.ended) {
+        if (!outcomeType) {
+          result.loops += 1;
+          outcomeType = 'other';
+          terminalDay = Number(run.day) || 1;
+        }
+        if (outcomeType === 'clear') {
           result.achievementHits.wild_fifty += 1;
           if (run.survival.rareSeen > 0) result.achievementHits.rare_encounter += 1;
           if (run.survival.naturalRareSeen >= 3) result.achievementHits.luck_is_skill += 1;
@@ -710,9 +876,38 @@
         }
       } catch (_) {
         result.errors += 1;
+        outcomeType = 'other';
+        terminalDay = Number(run && run.day) || 1;
+      }
+      if (run) {
+        result.rare.maxDryStreak = Math.max(result.rare.maxDryStreak, run.survival.longestRareDrought);
+      }
+      if (reachedDay50) result.day50Reached += 1;
+      const classified = Object.hasOwn(result.outcomes, outcomeType) ? outcomeType : 'other';
+      result.outcomes[classified] += 1;
+      result.survivalDaysTotal += clamp(Math.floor(Number(terminalDay) || 1), 1, 50);
+      if (classified === 'death' || classified === 'starve') {
+        const distribution = result.deathDayDistribution[classified];
+        const dayKey = String(clamp(Math.floor(Number(terminalDay) || 1), 1, 50));
+        distribution[dayKey] = (distribution[dayKey] || 0) + 1;
       }
     }
+    const naturalDraws = result.rare.rateByDanger.reduce((sum, bucket) => sum + bucket.draws, 0);
+    const naturalHits = result.rare.rateByDanger.reduce((sum, bucket) => sum + bucket.naturalHits, 0);
+    result.rare.naturalDraws = naturalDraws;
+    result.rare.naturalHits = naturalHits;
+    result.rare.naturalRate = naturalDraws ? naturalHits / naturalDraws : 0;
+    result.day50ReachRate = result.day50Reached / seedCount;
+    result.averageSurvivalDays = result.survivalDaysTotal / seedCount;
     return result;
+  }
+
+  function simulatePolicies(count) {
+    const seedCount = Math.max(1, Math.floor(Number(count) || 1));
+    return {
+      seedCount,
+      policies: Object.fromEntries(POLICY_NAMES.map(policy => [policy, simulateSeeds(seedCount, policy)]))
+    };
   }
 
   globalThis.TabenaiSurvival = Object.freeze({
@@ -724,7 +919,11 @@
     current,
     resolve,
     complete,
+    terminalStatus,
+    assessEnding,
+    policyDecision,
     simulateSeeds,
+    simulatePolicies,
     eventById: id => byId.get(id) || null,
     cloneEvents: () => clone(events)
   });

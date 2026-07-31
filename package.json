@@ -9,7 +9,8 @@
     "test": "playwright test",
     "test:game": "playwright test tests/game.spec.js",
     "test:pwa": "playwright test tests/pwa.spec.js",
-    "test:survival": "playwright test tests/survival.spec.js"
+    "test:survival": "playwright test tests/survival.spec.js",
+    "simulate:survival": "node scripts/simulate-survival.mjs 10001"
   },
   "devDependencies": {
     "@playwright/test": "1.62.1"

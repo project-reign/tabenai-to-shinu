@@ -17,6 +17,9 @@
 - Unlocked SURVIVAL 50 on the title mode screen; 100 DAYS and ENDLESS remain locked roadmap modes.
 - Updated the displayed application, manifest, and Service Worker cache version to 4.5.0.
 - Extended run and meta records with deterministic SURVIVAL encounter, rare/pity, milestone, final-box, achievement, ending, and statistics data.
+- Added a shared HP/death and hunger/starvation terminal predicate used by both the browser game and simulator, plus a SURVIVAL-only daily hunger cost of 2 to keep random-play clears within the reviewed 15–85% range.
+- Separated event kind from `consumedByPlayer` so protecting, carrying, sharing, returning, or sending food does not increment player-intake statistics or achievements.
+- Made milestone preparation, companions, refusal count, and all persisted SURVIVAL preparation flags affect the day-50 title, carried item, text, or additional assessment without gating a clear.
 
 ### Compatibility
 
@@ -32,6 +35,8 @@
 - Added deterministic deck/result and reload-lock tests, plus cooldown, one-shot, encounter-cap, recent-three, rare-rate, and pity tests.
 - Added reachability coverage for all conditional events, 10-day milestones, all four boxes and refusal, multiple survival endings, save/transfer migration, offline relaunch, and iPhone 390×844 layout.
 - Added simulations over at least 10,000 seeds requiring zero exceptions, infinite loops, and invalid or non-finite state values.
+- Added four-policy simulations—random, all-refuse, all-consume, and conservative—over 10,001 seeds each with independent policy randomness, clear/death/starve/other counts, day-50 reach rate, death-day distribution, and average survival days.
+- Added regression tests for non-player intake accounting, the shared terminal predicate, policy PRNG isolation, preparation-flag consumers, personalized five-route endings, and flaky-test rejection in CI.
 
 ## [4.4.0] - 2026-07-31
 
