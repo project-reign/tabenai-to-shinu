@@ -40,6 +40,18 @@
   ],
   "shortcuts": [
     {
+      "name": "つづきから遊ぶ",
+      "short_name": "つづきから",
+      "url": "./?resume=1",
+      "icons": [
+        {
+          "src": "./icons/icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
       "name": "最初から遊ぶ",
       "short_name": "最初から",
       "url": "./?new=1",

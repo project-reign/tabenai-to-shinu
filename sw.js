@@ -1,6 +1,6 @@
 'use strict';
 
-const APP_VERSION = '4.3.0';
+const APP_VERSION = '4.4.0';
 const CACHE_PREFIX = 'tabenai-to-shinu-';
 const CACHE_NAME = `${CACHE_PREFIX}${APP_VERSION}`;
 const SCOPE_URL = new URL('./', self.registration.scope);

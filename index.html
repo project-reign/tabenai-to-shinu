@@ -15,7 +15,7 @@
   <link rel="icon" type="image/png" sizes="32x32" href="./icons/favicon-32.png" />
   <link rel="apple-touch-icon" sizes="180x180" href="./icons/apple-touch-icon.png" />
   <meta name="theme-color" content="#171717" />
-  <title>食べないと死ぬ：50日目の晩餐 v4.3.0</title>
+  <title>食べないと死ぬ：50日目の晩餐 v4.4.0</title>
   <style>
     :root {
       --bg: #0f1115;
@@ -44,6 +44,53 @@
       line-height: 1.75;
     }
     button { font: inherit; }
+    [hidden] { display:none !important; }
+    html[data-font-size="small"] { font-size:14px; }
+    html[data-font-size="large"] { font-size:18px; }
+    html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after {
+      scroll-behavior:auto !important;
+      animation-duration:.001ms !important;
+      transition-duration:.001ms !important;
+    }
+    .shell-screen { width:min(760px,calc(100% - 24px)); min-height:100vh; margin:0 auto; padding:max(28px,env(safe-area-inset-top)) 0 max(40px,env(safe-area-inset-bottom)); display:grid; align-content:center; }
+    .title-hero { text-align:center; padding:28px 18px 20px; }
+    .title-icon { width:92px; height:92px; border-radius:25px; margin:0 auto 18px; display:grid; place-items:center; font-size:50px; background:linear-gradient(145deg,#3c3022,#17191f); border:1px solid #5a4a30; box-shadow:var(--shadow); }
+    .title-icon img { display:block; width:100%; height:100%; border-radius:inherit; }
+    .title-hero h1 { font-size:clamp(1.75rem,7vw,2.65rem); }
+    .title-version { color:#ffe49a; margin-top:5px; font-weight:750; letter-spacing:.08em; }
+    .network-pill { display:inline-flex; align-items:center; gap:7px; margin-top:13px; padding:5px 11px; border-radius:999px; background:#17271f; border:1px solid #386b4f; color:#aaf0c6; font-size:.8rem; }
+    .network-pill.offline { background:#2b2518; border-color:#775f36; color:#ffe0a0; }
+    .title-card { background:rgba(23,26,33,.96); border:1px solid var(--line); border-radius:20px; padding:18px; box-shadow:var(--shadow); }
+    .run-summary { min-height:76px; margin-bottom:14px; padding:13px 14px; border-radius:14px; background:#12151a; border:1px solid #2d3340; color:#d8dce4; }
+    .run-summary strong { display:block; color:var(--text); font-size:1.02rem; }
+    .title-actions { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+    .title-actions button { min-height:52px; }
+    .title-actions .wide { grid-column:1/-1; }
+    .title-manage { margin-top:12px; }
+    .title-manage summary { color:var(--muted); text-align:center; padding:8px; }
+    .title-manage-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-top:7px; }
+    .screen-head { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:14px; }
+    .screen-head h1 { font-size:clamp(1.45rem,5vw,2rem); }
+    .mode-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+    .mode-card { position:relative; display:flex; min-height:190px; flex-direction:column; align-items:flex-start; text-align:left; padding:18px; border-radius:18px; color:var(--text); background:linear-gradient(160deg,#20242e,#15181f); border:1px solid #3a4050; }
+    button.mode-card { cursor:pointer; }
+    button.mode-card:hover { border-color:#9a8148; transform:translateY(-2px); }
+    .mode-card h2 { margin:7px 0 5px; font-size:1.25rem; }
+    .mode-card p { margin:0; color:var(--muted); font-size:.86rem; }
+    .mode-card .roadmap { margin-top:auto; color:#ffe0a0; font-size:.78rem; }
+    .mode-card.locked { opacity:.67; }
+    .screen-card { padding:18px; }
+    .record-tabs { display:flex; gap:7px; margin-bottom:14px; }
+    .record-tabs button[aria-selected="true"] { border-color:#9a8148; color:#ffe49a; }
+    .record-grid { display:grid; grid-template-columns:1fr 1fr; gap:9px; }
+    .record-item { padding:12px; border:1px solid #353b48; border-radius:13px; background:#15181f; }
+    .record-item.locked { color:#7f8794; }
+    .record-item strong { display:block; }
+    .record-item small { color:var(--muted); }
+    .settings-list { display:grid; gap:15px; }
+    .setting-row { display:flex; align-items:center; justify-content:space-between; gap:14px; padding:12px 0; border-bottom:1px solid #2d3340; }
+    .setting-row:last-child { border-bottom:0; }
+    .setting-row select, .setting-row input { accent-color:#f4c95d; }
     .app { width: min(1040px, calc(100% - 24px)); margin: 0 auto; padding: max(22px, env(safe-area-inset-top)) 0 max(60px, env(safe-area-inset-bottom)); }
     .topbar { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:16px; }
     .brand { display:flex; align-items:center; gap:12px; }
@@ -126,6 +173,8 @@
     .update-banner .primary, .update-banner .secondary { flex:0 0 auto; padding:9px 12px; }
     @keyframes fade { from { opacity:0; transform:translateY(-4px); } to { opacity:1; transform:none; } }
     @media (max-width:760px) {
+      .shell-screen { align-content:start; padding-top:max(18px,env(safe-area-inset-top)); }
+      .mode-grid, .record-grid { grid-template-columns:1fr; }
       .app { width:min(100% - 16px, 1040px); padding-top:max(8px,env(safe-area-inset-top)); }
       .stats { grid-template-columns:1fr 1fr; }
       .layout { grid-template-columns:1fr; }
@@ -165,17 +214,111 @@
       .choice span { font-size:.76rem; margin-top:2px; }
       .side { margin-top:0; }
       .update-banner { flex-wrap:wrap; }
+      .title-hero { padding:16px 10px 14px; }
+      .title-icon { width:74px; height:74px; border-radius:21px; font-size:40px; margin-bottom:12px; }
+      .title-card { padding:14px; }
+      .title-manage-grid { grid-template-columns:1fr; }
     }
   </style>
 </head>
 <body>
-  <main class="app">
+  <section class="shell-screen" id="titleScreen">
+    <div class="title-hero">
+      <div class="title-icon"><img src="./icons/icon-192.png" alt="食べないと死ぬ アプリアイコン"></div>
+      <h1>食べないと死ぬ</h1>
+      <div class="subtitle">50日目の晩餐</div>
+      <div class="title-version">v4.4.0</div>
+      <div class="network-pill" id="networkStatus">● ONLINE</div>
+    </div>
+    <div class="title-card">
+      <div class="run-summary" id="runSummary"><strong>記録なし</strong>新しい運命を始めよう。</div>
+      <div class="title-actions">
+        <button class="primary wide" id="continueBtn">つづきから</button>
+        <button class="secondary" id="newGameBtn">はじめから</button>
+        <button class="secondary" id="recordsBtn">記録</button>
+        <button class="secondary wide" id="settingsBtn">設定</button>
+      </div>
+      <details class="title-manage">
+        <summary>管理メニュー</summary>
+        <div class="title-manage-grid">
+          <button class="small-btn" id="titleInstallBtn">インストール・更新</button>
+          <button class="small-btn" id="titleDataBtn">セーブ移行</button>
+          <button class="small-btn" id="titleShareBtn">共有</button>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section class="shell-screen" id="modeScreen" hidden>
+    <div class="screen-head">
+      <div><div class="subtitle">NEW GAME</div><h1>モードを選ぶ</h1></div>
+      <button class="small-btn" id="modeBackBtn">タイトルへ</button>
+    </div>
+    <div class="mode-grid">
+      <button class="mode-card" id="modeStoryBtn">
+        <span class="badge accent">PLAYABLE</span>
+        <h2>STORY 50</h2>
+        <p>v4.3.0の物語と分岐をそのまま遊ぶ、標準モード。</p>
+        <span class="roadmap">50日目の晩餐へ</span>
+      </button>
+      <button class="mode-card" id="modeHardBtn">
+        <span class="badge accent">NEW</span>
+        <h2>HARD 50</h2>
+        <p>低い初期体力、強い空腹と継続ダメージ、厳しい運命判定。</p>
+        <span class="roadmap">生還で実績を解除</span>
+      </button>
+      <article class="mode-card locked" aria-disabled="true">
+        <span class="badge">🔒 LOCKED</span><h2>SURVIVAL 50</h2>
+        <p>50日を生き抜くサバイバル拡張。</p><span class="roadmap">ROADMAP v4.5</span>
+      </article>
+      <article class="mode-card locked" aria-disabled="true">
+        <span class="badge">🔒 LOCKED</span><h2>100 DAYS</h2>
+        <p>晩餐の先へ続く100日間。</p><span class="roadmap">ROADMAP v5.0</span>
+      </article>
+      <article class="mode-card locked" aria-disabled="true">
+        <span class="badge">🔒 LOCKED</span><h2>ENDLESS</h2>
+        <p>終わりのない怪食サバイバル。</p><span class="roadmap">ROADMAP v5.1+</span>
+      </article>
+    </div>
+  </section>
+
+  <section class="shell-screen" id="recordsScreen" hidden>
+    <div class="screen-head">
+      <div><div class="subtitle">ARCHIVE</div><h1>記録</h1></div>
+      <button class="small-btn" id="recordsBackBtn">タイトルへ</button>
+    </div>
+    <div class="card screen-card">
+      <div class="record-tabs" role="tablist">
+        <button class="small-btn" data-record-tab="achievements" aria-selected="true">実績</button>
+        <button class="small-btn" data-record-tab="endings" aria-selected="false">エンディング</button>
+        <button class="small-btn" data-record-tab="stats" aria-selected="false">統計</button>
+      </div>
+      <div id="recordsContent"></div>
+    </div>
+  </section>
+
+  <section class="shell-screen" id="settingsScreen" hidden>
+    <div class="screen-head">
+      <div><div class="subtitle">OPTIONS</div><h1>設定</h1></div>
+      <button class="small-btn" id="settingsBackBtn">タイトルへ</button>
+    </div>
+    <div class="card screen-card settings-list">
+      <label class="setting-row"><span><strong>文字サイズ</strong><br><small class="subtitle">画面全体の読みやすさ</small></span>
+        <select id="fontSizeSetting"><option value="small">小</option><option value="standard">標準</option><option value="large">大</option></select>
+      </label>
+      <label class="setting-row"><span><strong>動きを減らす</strong><br><small class="subtitle">アニメーションを抑える</small></span><input type="checkbox" id="reducedMotionSetting"></label>
+      <label class="setting-row"><span><strong>選択前に確認</strong><br><small class="subtitle">誤操作を防ぐ</small></span><input type="checkbox" id="confirmChoicesSetting"></label>
+      <label class="setting-row"><span><strong>選択後に自動スクロール</strong><br><small class="subtitle">次のイベントへ短く移動</small></span><input type="checkbox" id="autoScrollSetting"></label>
+    </div>
+  </section>
+
+  <main class="app" id="gameScreen" hidden>
     <header class="topbar">
       <div class="brand">
         <div class="brand-icon" aria-hidden="true">🍽️</div>
         <div>
           <h1>食べないと死ぬ：50日目の晩餐</h1>
-          <div class="subtitle">二択だけで進む、怪食サバイバル・ノベル <strong>v4.3.0</strong></div>
+          <div class="subtitle">二択だけで進む、怪食サバイバル・ノベル <strong>v4.4.0</strong></div>
         </div>
       </div>
       <details class="app-menu" id="appMenu">
@@ -188,6 +331,7 @@
           <button class="small-btn" id="dataBtn">セーブ移行</button>
           <button class="small-btn" id="saveBtn">手動保存</button>
           <button class="small-btn" id="resetBtn">最初から</button>
+          <button class="small-btn" id="titleBtn">タイトルへ戻る</button>
         </nav>
       </details>
     </header>
@@ -219,6 +363,7 @@
       <section class="card scene" id="sceneCard">
         <div class="scene-meta">
           <span class="badge accent" id="dayBadge">第1日</span>
+          <span class="badge" id="modeBadge">STORY 50</span>
           <span class="badge" id="statusBadge">健康</span>
           <span class="badge" id="sceneCountBadge">選択 0</span>
           <span class="badge" id="seedBadge">SEED</span>
@@ -271,7 +416,7 @@
           <li>50日目の最後の晩餐では、集めた手がかりと過去の選択が結末を変えます。</li>
         </ul>
         <p>エンディングは複数あります。四皿すべてを二段階の二択で選べます。正解を知っていても、仲間・記憶・怪物化・古い存在の状態で結末が変化します。</p>
-        <p class="subtitle">v4.3更新：iPhone縦画面をコンパクト化し、GitHub Pagesのサブパス対応PWA、オフライン再起動、新版の明示更新へ対応。</p>
+        <p class="subtitle">v4.4更新：タイトル画面、STORY 50／HARD 50、永続実績・記録・設定を追加。v4.3の物語とPWA機能はそのまま維持。</p>
       </div>
       <button class="primary" id="closeRules">閉じる</button>
     </div>
@@ -329,13 +474,44 @@
 (() => {
   'use strict';
 
-  const APP_VERSION = '4.3.0';
+  const APP_VERSION = '4.4.0';
   const VERSION = 4;
   const SAVE_KEY = 'tabenai-to-shinu-50days-v4';
   const LEGACY_KEYS = ['tabenai-to-shinu-50days-v3', 'tabenai-to-shinu-50days-v2'];
   const ENDING_KEY = 'tabenai-to-shinu-endings-v4';
+  const META_KEY = 'tabenai-to-shinu-meta-v1';
   const MAX_HP = 100;
   const MAX_HUNGER = 100;
+  const MODE_CONFIG = {
+    story: { label: 'STORY 50', initialHp: 100, initialHunger: 25, hungerFactor: 1, ongoingFactor: 1, rollPenalty: 0 },
+    hard: { label: 'HARD 50', initialHp: 82, initialHunger: 35, hungerFactor: 1.25, ongoingFactor: 1.5, rollPenalty: .08 }
+  };
+  const ACHIEVEMENTS = [
+    { id: 'first_bite', icon: '🍙', name: '最初の一口', description: '初めて食べる選択をした。' },
+    { id: 'skeptical_saved', icon: '🛡️', name: '疑って助かる', description: '一つのランで5回、拒否を選んだ。' },
+    { id: 'refuse_creed', icon: '✋', name: '拒否の信条', description: '一つのランで12回、拒否を貫いた。' },
+    { id: 'poison_feast', icon: '☠️', name: '毒もごちそう', description: '毒を抱えたまま食べた。' },
+    { id: 'parasite_friend', icon: '🪱', name: '寄生虫の友', description: '解毒寄生虫Jr.を仲間にした。' },
+    { id: 'bean_parent', icon: '🌱', name: '黒豆の親', description: '黒豆の幼体を育てた。' },
+    { id: 'white_past', icon: '⚪', name: '白い土の過去', description: '白い土で黒豆を育てた。' },
+    { id: 'red_future', icon: '🔴', name: '赤い土の未来', description: '赤い土で黒豆を育てた。' },
+    { id: 'gray_present', icon: '⚫', name: '灰色の土の現在', description: '灰色の土で黒豆を育てた。' },
+    { id: 'three_soils', icon: '🪴', name: '三つの土', description: '白・赤・灰、三つの土を記録した。', hidden: true },
+    { id: 'body_field', icon: '🫀', name: '身体という畑', description: '身体発芽ルートへ到達した。' },
+    { id: 'final_dinner', icon: '🍽️', name: '最後の晩餐', description: '50日目の四皿へ到達した。' },
+    { id: 'refuse_final', icon: '🪦', name: '最後の拒否', description: '最後の一口も拒んだ。' },
+    { id: 'four_dishes', icon: '🏆', name: '四皿の記憶', description: '四皿すべてを選び、その正体を記録した。', hidden: true },
+    { id: 'party_escape', icon: '🌅', name: 'みんなで帰る', description: '仲間とともに森を脱出した。', hidden: true },
+    { id: 'hard_survivor', icon: '🔥', name: 'HARD生還者', description: 'HARD 50で生還した。', hidden: true }
+  ];
+  const ENDING_CATALOG = [
+    ['death', '力尽きた'], ['starve', '食べずに死んだ'], ['ancient', '古きものの晩餐'],
+    ['monster_clear', '怪物のまま脱出'], ['party', 'みんなで脱出'], ['true', '契約腐敗・脱出成功'],
+    ['shield', '身代わりの生還'], ['salad', '自己排除'], ['human_again', '人間再生'],
+    ['regeneration_loop', 'すべて再生'], ['overgrowth', '再生しすぎ'], ['shadow_exit', '影があなたとして脱出'],
+    ['blank', '空白の生還'], ['refuse', '最後まで食べなかった']
+  ];
+  const CLEAR_ENDINGS = new Set(['monster_clear', 'party', 'true', 'shield', 'human_again', 'shadow_exit', 'blank']);
   const DISH_KEYS = ['salad', 'meat', 'soup', 'cake'];
   const DISH = {
     salad: { icon: '🥗', name: '新鮮なサラダ', tell: '病院のような消毒臭がする。葉は不自然なほど傷んでいない。' },
@@ -362,14 +538,20 @@
     return { salad: 'salad', meat: 'meat', soup: 'soup', cake: 'cake' };
   }
 
-  const freshState = (seed = makeSeed()) => ({
+  const freshState = (seed = makeSeed(), mode = 'story') => {
+    const selectedMode = MODE_CONFIG[mode] ? mode : 'story';
+    const config = MODE_CONFIG[selectedMode];
+    return ({
     version: VERSION,
+    mode: selectedMode,
+    startedAt: null,
+    lastPlayedAt: null,
     seed: seed >>> 0,
     rngState: (seed || 0x6d2b79f5) >>> 0,
     scene: 'riceball',
     day: 1,
-    hp: 100,
-    hunger: 25,
+    hp: config.initialHp,
+    hunger: config.initialHunger,
     status: '健康',
     choiceCount: 0,
     ended: false,
@@ -438,12 +620,18 @@
       clone: false
     }
   });
+  };
 
   const launchParams = new URLSearchParams(location.search);
   const requestedNewGame = launchParams.get('new') === '1';
   const requestedDataTransfer = launchParams.get('data') === '1';
-  let state = requestedNewGame && confirm('現在の進行を消して、新しい運命で始めますか？') ? freshState() : (loadState() || freshState());
-  if (requestedNewGame || requestedDataTransfer) {
+  const requestedResume = launchParams.get('resume') === '1';
+  const debugMode = launchParams.get('debug') === '1';
+  const loadedState = loadState();
+  let hasActiveRun = !!loadedState;
+  let state = loadedState || freshState();
+  let meta = loadMeta();
+  if (requestedNewGame || requestedDataTransfer || requestedResume) {
     try { history.replaceState(null, '', location.pathname + location.hash); } catch (_) {}
   }
   let clickLocked = false;
@@ -454,14 +642,226 @@
     hpText: $('hpText'), hpValue: $('hpValue'), hpBar: $('hpBar'),
     hungerText: $('hungerText'), hungerValue: $('hungerValue'), hungerBar: $('hungerBar'),
     bondText: $('bondText'), bondValue: $('bondValue'), bondBar: $('bondBar'),
-    dayBadge: $('dayBadge'), statusBadge: $('statusBadge'), sceneCountBadge: $('sceneCountBadge'), seedBadge: $('seedBadge'),
+    dayBadge: $('dayBadge'), modeBadge: $('modeBadge'), statusBadge: $('statusBadge'), sceneCountBadge: $('sceneCountBadge'), seedBadge: $('seedBadge'),
     sceneIcon: $('sceneIcon'), sceneTitle: $('sceneTitle'), sceneText: $('sceneText'),
     resultBox: $('resultBox'), choiceA: $('choiceA'), choiceB: $('choiceB'),
     choiceATitle: $('choiceATitle'), choiceADesc: $('choiceADesc'),
     choiceBTitle: $('choiceBTitle'), choiceBDesc: $('choiceBDesc'),
     companionList: $('companionList'), clueList: $('clueList'), clueEmpty: $('clueEmpty'),
-    logList: $('logList'), rulesModal: $('rulesModal'), toast: $('toast'), sceneCard: $('sceneCard')
+    logList: $('logList'), rulesModal: $('rulesModal'), toast: $('toast'), sceneCard: $('sceneCard'),
+    titleScreen: $('titleScreen'), modeScreen: $('modeScreen'), recordsScreen: $('recordsScreen'),
+    settingsScreen: $('settingsScreen'), gameScreen: $('gameScreen')
   };
+
+  function freshMeta() {
+    return {
+      version: 1,
+      achievements: {},
+      endings: {},
+      stats: {
+        totalRuns: 0,
+        totalChoices: 0,
+        totalAte: 0,
+        totalRefused: 0,
+        longestDay: 0,
+        day50Reached: 0,
+        modeClears: { story: 0, hard: 0 },
+        soils: { white: 0, red: 0, gray: 0, body: 0 },
+        dishesSeen: { salad: 0, meat: 0, soup: 0, cake: 0 },
+        dishHistory: []
+      },
+      settings: {
+        fontSize: 'standard',
+        reducedMotion: false,
+        confirmChoices: false,
+        autoScroll: true
+      }
+    };
+  }
+
+  function normalizeMeta(raw) {
+    const base = freshMeta();
+    const out = Object.assign(base, raw && typeof raw === 'object' ? raw : {});
+    out.achievements = Object.assign({}, raw && raw.achievements || {});
+    out.endings = Object.assign({}, raw && raw.endings || {});
+    out.stats = Object.assign(base.stats, raw && raw.stats || {});
+    out.stats.modeClears = Object.assign(base.stats.modeClears, raw && raw.stats && raw.stats.modeClears || {});
+    out.stats.soils = Object.assign(base.stats.soils, raw && raw.stats && raw.stats.soils || {});
+    out.stats.dishesSeen = Object.assign(base.stats.dishesSeen, raw && raw.stats && raw.stats.dishesSeen || {});
+    out.stats.dishHistory = Array.isArray(out.stats.dishHistory) ? out.stats.dishHistory : [];
+    out.settings = Object.assign(base.settings, raw && raw.settings || {});
+    if (!['small', 'standard', 'large'].includes(out.settings.fontSize)) out.settings.fontSize = 'standard';
+    out.version = 1;
+    return out;
+  }
+
+  function loadMeta() {
+    let loaded = null;
+    try { loaded = JSON.parse(localStorage.getItem(META_KEY) || 'null'); } catch (_) {}
+    const out = normalizeMeta(loaded);
+    try {
+      const legacyEndings = JSON.parse(localStorage.getItem(ENDING_KEY) || '{}');
+      for (const [code, count] of Object.entries(legacyEndings || {})) {
+        if (!out.endings[code]) {
+          const catalog = ENDING_CATALOG.find(([id]) => id === code);
+          out.endings[code] = {
+            title: catalog ? catalog[1] : code,
+            firstReachedAt: null,
+            count: Math.max(1, Number(count) || 1)
+          };
+        }
+      }
+    } catch (_) {}
+    return out;
+  }
+
+  function saveMeta() {
+    try { localStorage.setItem(META_KEY, JSON.stringify(meta)); } catch (_) {}
+  }
+
+  function unlockAchievement(id, announce = true) {
+    if (meta.achievements[id]) return false;
+    const achievement = ACHIEVEMENTS.find(item => item.id === id);
+    if (!achievement) return false;
+    meta.achievements[id] = { unlockedAt: new Date().toISOString() };
+    saveMeta();
+    if (announce && !silentMode) toast(`実績解除：${achievement.name}`);
+    return true;
+  }
+
+  function evaluateAchievements(announce = true) {
+    if ((state.stats.ate || 0) >= 1) unlockAchievement('first_bite', announce);
+    if ((state.stats.skipped || 0) >= 5) unlockAchievement('skeptical_saved', announce);
+    if ((state.stats.skipped || 0) >= 12) unlockAchievement('refuse_creed', announce);
+    if (state.companions.jr) unlockAchievement('parasite_friend', announce);
+    if (state.companions.beanChild) unlockAchievement('bean_parent', announce);
+    const soil = state.flags.beanSoil;
+    if (soil && Object.hasOwn(meta.stats.soils, soil)) {
+      meta.stats.soils[soil] = Math.max(1, Number(meta.stats.soils[soil]) || 0);
+      const soilAchievement = { white: 'white_past', red: 'red_future', gray: 'gray_present', body: 'body_field' }[soil];
+      if (soilAchievement) unlockAchievement(soilAchievement, announce);
+    }
+    if (['white', 'red', 'gray'].every(kind => meta.stats.soils[kind] > 0)) unlockAchievement('three_soils', announce);
+    if ((state.day || 0) >= 50 || ['finalPair', 'finalDish', 'finalCommit'].includes(state.scene)) unlockAchievement('final_dinner', announce);
+    if (state.ending && state.ending.code === 'refuse') unlockAchievement('refuse_final', announce);
+    if (state.ending && state.ending.code === 'party') unlockAchievement('party_escape', announce);
+    if (DISH_KEYS.every(kind => meta.stats.dishesSeen[kind] > 0)) unlockAchievement('four_dishes', announce);
+    if (state.mode === 'hard' && state.ending && CLEAR_ENDINGS.has(state.ending.code)) unlockAchievement('hard_survivor', announce);
+    saveMeta();
+  }
+
+  function recordEnding(code, title) {
+    if (state.flags.metaEndingRecorded) return;
+    state.flags.metaEndingRecorded = true;
+    const now = new Date().toISOString();
+    const previous = meta.endings[code];
+    meta.endings[code] = {
+      title,
+      firstReachedAt: previous && previous.firstReachedAt || now,
+      count: (previous && Number(previous.count) || 0) + 1
+    };
+    meta.stats.longestDay = Math.max(meta.stats.longestDay || 0, state.day || 0);
+    if ((state.day || 0) >= 50) meta.stats.day50Reached += 1;
+    if (CLEAR_ENDINGS.has(code)) meta.stats.modeClears[state.mode] = (meta.stats.modeClears[state.mode] || 0) + 1;
+    saveMeta();
+  }
+
+  function applySettings() {
+    document.documentElement.dataset.fontSize = meta.settings.fontSize;
+    document.documentElement.classList.toggle('reduce-motion', !!meta.settings.reducedMotion);
+    if ($('fontSizeSetting')) $('fontSizeSetting').value = meta.settings.fontSize;
+    if ($('reducedMotionSetting')) $('reducedMotionSetting').checked = !!meta.settings.reducedMotion;
+    if ($('confirmChoicesSetting')) $('confirmChoicesSetting').checked = !!meta.settings.confirmChoices;
+    if ($('autoScrollSetting')) $('autoScrollSetting').checked = !!meta.settings.autoScroll;
+  }
+
+  function formatTimestamp(value) {
+    if (!value) return '日時不明';
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return '日時不明';
+    return new Intl.DateTimeFormat('ja-JP', { dateStyle: 'short', timeStyle: 'short' }).format(date);
+  }
+
+  function renderTitle() {
+    const status = $('networkStatus');
+    if (status) {
+      status.textContent = navigator.onLine ? '● ONLINE' : '● OFFLINE';
+      status.classList.toggle('offline', !navigator.onLine);
+    }
+    $('continueBtn').disabled = !hasActiveRun;
+    $('continueBtn').textContent = state.ended ? '結末を見る' : 'つづきから';
+    $('runSummary').innerHTML = hasActiveRun
+      ? `<strong>${escapeHtml(MODE_CONFIG[state.mode].label)} ／ 第${state.day}日 ／ HP ${state.hp} ／ 空腹 ${state.hunger}</strong>最終プレイ：${escapeHtml(formatTimestamp(state.lastPlayedAt))}${state.ended && state.ending ? ` ／ ${escapeHtml(state.ending.title)}` : ''}`
+      : '<strong>記録なし</strong>新しい運命を始めよう。';
+  }
+
+  function showScreen(name) {
+    const screens = {
+      title: ui.titleScreen,
+      modes: ui.modeScreen,
+      records: ui.recordsScreen,
+      settings: ui.settingsScreen,
+      game: ui.gameScreen
+    };
+    for (const [key, element] of Object.entries(screens)) element.hidden = key !== name;
+    if (name === 'title') renderTitle();
+    if (name === 'records') renderRecords('achievements');
+    if (name === 'settings') applySettings();
+    if (name === 'game') render();
+    scrollTo({ top: 0, behavior: meta.settings.reducedMotion ? 'auto' : 'smooth' });
+  }
+
+  function startNewRun(mode, seed = makeSeed()) {
+    if (hasActiveRun && !confirm('現在の進行を上書きして、新しい運命を始めますか？')) return false;
+    state = freshState(seed, mode);
+    state.startedAt = new Date().toISOString();
+    state.lastPlayedAt = state.startedAt;
+    hasActiveRun = true;
+    meta.stats.totalRuns += 1;
+    saveState();
+    saveMeta();
+    const url = new URL('./?resume=1', location.href);
+    location.assign(url.href);
+    return true;
+  }
+
+  function renderRecords(tab = 'achievements') {
+    document.querySelectorAll('[data-record-tab]').forEach(button => {
+      button.setAttribute('aria-selected', String(button.dataset.recordTab === tab));
+    });
+    if (tab === 'achievements') {
+      $('recordsContent').innerHTML = `<div class="record-grid">${ACHIEVEMENTS.map(item => {
+        const unlocked = meta.achievements[item.id];
+        const concealed = item.hidden && !unlocked;
+        return `<article class="record-item ${unlocked ? '' : 'locked'}" data-achievement="${item.id}">
+          <strong>${unlocked ? item.icon : '🔒'} ${escapeHtml(concealed ? '???' : item.name)}</strong>
+          <small>${escapeHtml(concealed ? '未発見の実績' : item.description)}${unlocked ? ` ／ ${escapeHtml(formatTimestamp(unlocked.unlockedAt))}` : ''}</small>
+        </article>`;
+      }).join('')}</div>`;
+      return;
+    }
+    if (tab === 'endings') {
+      $('recordsContent').innerHTML = `<div class="record-grid">${ENDING_CATALOG.map(([code, title]) => {
+        const record = meta.endings[code];
+        return `<article class="record-item ${record ? '' : 'locked'}" data-ending="${code}">
+          <strong>${record ? '🏁' : '🔒'} ${escapeHtml(record ? title : '???')}</strong>
+          <small>${record ? `初到達：${escapeHtml(formatTimestamp(record.firstReachedAt))} ／ ${record.count}回` : 'まだ到達していない'}</small>
+        </article>`;
+      }).join('')}</div>`;
+      return;
+    }
+    const s = meta.stats;
+    $('recordsContent').innerHTML = `<div class="record-grid">
+      <article class="record-item"><strong>${s.totalRuns} ラン</strong><small>開始したラン</small></article>
+      <article class="record-item"><strong>${s.totalChoices} 回</strong><small>総選択数</small></article>
+      <article class="record-item"><strong>${s.totalAte} / ${s.totalRefused}</strong><small>食べた / 拒否した</small></article>
+      <article class="record-item"><strong>第${s.longestDay}日</strong><small>最長生存</small></article>
+      <article class="record-item"><strong>${s.day50Reached} 回</strong><small>50日目到達</small></article>
+      <article class="record-item"><strong>${s.modeClears.story} / ${s.modeClears.hard}</strong><small>STORY / HARD 生還</small></article>
+      <article class="record-item"><strong>${Object.values(s.soils).filter(Boolean).length} 種</strong><small>土・身体発芽ルート</small></article>
+      <article class="record-item"><strong>${s.dishHistory.length} 皿</strong><small>最後の晩餐の選択履歴</small></article>
+    </div>`;
+  }
 
   function rand() {
     // Mulberry32。連番シードでも初回出力が偏りにくく、セーブ後も再現可能。
@@ -473,9 +873,11 @@
   }
 
   function roll(label, probability) {
+    const config = MODE_CONFIG[state.mode] || MODE_CONFIG.story;
+    const effectiveProbability = clamp(probability - config.rollPenalty, .1, .95);
     const r = rand();
-    const success = r < probability;
-    state.lastRoll = { label, probability, value: r, success };
+    const success = r < effectiveProbability;
+    state.lastRoll = { label, probability: effectiveProbability, baseProbability: probability, value: r, success };
     state.stats.randomChecks += 1;
     if (success) state.stats.lucky += 1;
     else state.stats.unlucky += 1;
@@ -488,7 +890,8 @@
   }
 
   function rollText(label, probability, success) {
-    return `\n［運命判定：${label} ${success ? '成功' : '失敗'}／${Math.round(probability * 100)}％］`;
+    const effectiveProbability = clamp(probability - (MODE_CONFIG[state.mode] || MODE_CONFIG.story).rollPenalty, .1, .95);
+    return `\n［運命判定：${label} ${success ? '成功' : '失敗'}／${Math.round(effectiveProbability * 100)}％］`;
   }
 
   function addLog(text) {
@@ -522,6 +925,8 @@
   }
 
   function adjust({ hp = 0, hunger = 0, status = null } = {}) {
+    const config = MODE_CONFIG[state.mode] || MODE_CONFIG.story;
+    if (hunger > 0) hunger = Math.ceil(hunger * config.hungerFactor);
     state.hp = clamp(state.hp + hp, 0, MAX_HP);
     state.hunger = clamp(state.hunger + hunger, 0, MAX_HUNGER);
     if (status !== null) state.status = status;
@@ -603,14 +1008,16 @@
   }
 
   function applyOngoing() {
+    const config = MODE_CONFIG[state.mode] || MODE_CONFIG.story;
     if (state.flags.poisoned > 0) {
-      const damage = 2 * state.flags.poisoned;
+      const damage = Math.ceil(2 * state.flags.poisoned * config.ongoingFactor);
       state.hp = clamp(state.hp - damage, 0, MAX_HP);
       appendResult(`毒が回り、体力を${damage}失った。`);
     }
     if (state.hunger >= 90 && state.hp > 0) {
-      state.hp = clamp(state.hp - 4, 0, MAX_HP);
-      appendResult('極度の空腹で体力も削られた。');
+      const damage = Math.ceil(4 * config.ongoingFactor);
+      state.hp = clamp(state.hp - damage, 0, MAX_HP);
+      appendResult(state.mode === 'story' ? '極度の空腹で体力も削られた。' : `HARDの極度の空腹で体力を${damage}失った。`);
     }
   }
 
@@ -649,6 +1056,8 @@
     state.ended = true;
     state.ending = { code, title, text, icon };
     unlockEnding(code);
+    recordEnding(code, title);
+    evaluateAchievements(!silentMode);
     addLog(`エンディング「${title}」`);
     if (!silentMode) {
       saveState();
@@ -660,25 +1069,44 @@
     if (clickLocked || state.ended) return;
     const scene = scenes[state.scene];
     if (!scene) return;
-    clickLocked = true;
     state.day = scene.day;
     const choice = scene.choices(state)[index];
-    if (!choice) { clickLocked = false; return; }
+    if (!choice) return;
+    if (!silentMode && meta.settings.confirmChoices && !confirm(`「${choice.title}」を選びますか？`)) return;
+    clickLocked = true;
 
     state.choiceCount += 1;
     state.lastResult = '';
+    const ateWhilePoisoned = choice.kind === 'eat' && state.flags.poisoned > 0;
     if (choice.kind === 'eat') state.stats.ate += 1;
     if (choice.kind === 'skip') state.stats.skipped += 1;
     const next = choice.act(state);
+    meta.stats.totalChoices += 1;
+    if (choice.kind === 'eat') meta.stats.totalAte += 1;
+    if (choice.kind === 'skip') meta.stats.totalRefused += 1;
+    if (ateWhilePoisoned) unlockAchievement('poison_feast', !silentMode);
+    if (state.flags.selectedTrueDish && !state.flags.metaDishRecorded) {
+      state.flags.metaDishRecorded = true;
+      const dish = state.flags.selectedTrueDish;
+      meta.stats.dishesSeen[dish] = (meta.stats.dishesSeen[dish] || 0) + 1;
+      meta.stats.dishHistory.push({ dish, mode: state.mode, seed: state.seed, reachedAt: new Date().toISOString() });
+      if (meta.stats.dishHistory.length > 100) meta.stats.dishHistory = meta.stats.dishHistory.slice(-100);
+    }
     if (!state.ended) {
       if (choice.tick !== false) applyOngoing();
       checkDeath();
     }
     if (!state.ended) state.scene = typeof next === 'string' ? next : (scene.next || state.scene);
+    meta.stats.longestDay = Math.max(meta.stats.longestDay || 0, state.day || 0);
+    evaluateAchievements(!silentMode);
+    if (!silentMode) state.lastPlayedAt = new Date().toISOString();
+    saveMeta();
     if (!silentMode) {
       saveState();
       render();
-      if (ui.sceneCard && ui.sceneCard.scrollIntoView) ui.sceneCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      if (meta.settings.autoScroll && ui.sceneCard && ui.sceneCard.scrollIntoView) {
+        ui.sceneCard.scrollIntoView({ behavior: meta.settings.reducedMotion ? 'auto' : 'smooth', block: 'start' });
+      }
       setTimeout(() => { clickLocked = false; }, 180);
     } else {
       clickLocked = false;
@@ -1369,6 +1797,7 @@
     ui.bondValue.textContent = `${bonds}人`;
     ui.bondBar.style.width = `${clamp(bonds / 5 * 100, 0, 100)}%`;
     ui.dayBadge.textContent = `第${day}日`;
+    if (ui.modeBadge) ui.modeBadge.textContent = MODE_CONFIG[state.mode].label;
     ui.statusBadge.textContent = state.status;
     ui.sceneCountBadge.textContent = `選択 ${state.choiceCount}`;
     if (ui.seedBadge) ui.seedBadge.textContent = `SEED ${state.seed}`;
@@ -1407,11 +1836,8 @@
   }
 
   function endingRecordsText() {
-    try {
-      const record = JSON.parse(localStorage.getItem(ENDING_KEY) || '{}');
-      const count = Object.keys(record).length;
-      return `${count}種類発見`;
-    } catch (_) { return '記録なし'; }
+    const count = Object.keys(meta.endings || {}).length;
+    return count ? `${count}種類発見` : '記録なし';
   }
 
   function renderEnding() {
@@ -1481,6 +1907,7 @@
 
   function saveState(showToast = false) {
     try {
+      hasActiveRun = true;
       localStorage.setItem(SAVE_KEY, JSON.stringify(state));
       if (showToast) toast('保存しました');
     } catch (_) {
@@ -1490,7 +1917,7 @@
 
   function migrateLegacy(old) {
     const migrated = freshState(old && old.seed ? old.seed : makeSeed());
-    for (const k of ['scene', 'day', 'hp', 'hunger', 'status', 'choiceCount', 'ended', 'ending', 'lastResult', 'lastRoll', 'log', 'clues', 'rngState']) {
+    for (const k of ['scene', 'day', 'hp', 'hunger', 'status', 'choiceCount', 'ended', 'ending', 'lastResult', 'lastRoll', 'log', 'clues', 'rngState', 'startedAt', 'lastPlayedAt']) {
       if (old && old[k] !== undefined) migrated[k] = clone(old[k]);
     }
     migrated.stats = Object.assign(migrated.stats, old && old.stats || {});
@@ -1521,12 +1948,14 @@
     if (migrated.scene === 'finalCommit' && !migrated.flags.selectedTrueDish) migrated.scene = 'finalPair';
     migrated.seed = (Number(migrated.seed) || makeSeed()) >>> 0;
     migrated.rngState = (Number(migrated.rngState) || migrated.seed) >>> 0;
+    migrated.mode = 'story';
     migrated.version = VERSION;
     return migrated;
   }
 
   function normalizeState(raw) {
-    const base = freshState(raw && raw.seed ? raw.seed : makeSeed());
+    const requestedMode = raw && MODE_CONFIG[raw.mode] ? raw.mode : 'story';
+    const base = freshState(raw && raw.seed ? raw.seed : makeSeed(), requestedMode);
     const out = Object.assign(base, raw || {});
     out.stats = Object.assign(base.stats, raw && raw.stats || {});
     out.memories = Object.assign(base.memories, raw && raw.memories || {});
@@ -1539,6 +1968,9 @@
     out.hunger = clamp(Number(out.hunger) || 0, 0, MAX_HUNGER);
     out.seed = (Number(out.seed) || makeSeed()) >>> 0;
     out.rngState = (Number(out.rngState) || out.seed) >>> 0;
+    out.mode = MODE_CONFIG[out.mode] ? out.mode : 'story';
+    out.startedAt = typeof out.startedAt === 'string' ? out.startedAt : null;
+    out.lastPlayedAt = typeof out.lastPlayedAt === 'string' ? out.lastPlayedAt : null;
     out.version = VERSION;
     return out;
   }
@@ -1548,22 +1980,37 @@
       const raw = localStorage.getItem(SAVE_KEY);
       if (raw) {
         const parsed = JSON.parse(raw);
-        if (parsed && parsed.version === VERSION) return normalizeState(parsed);
+        if (parsed && parsed.version === VERSION) {
+          const loaded = normalizeState(parsed);
+          if (!loaded.lastPlayedAt) loaded.lastPlayedAt = new Date().toISOString();
+          if (!loaded.startedAt) loaded.startedAt = loaded.lastPlayedAt;
+          return loaded;
+        }
       }
       for (const key of LEGACY_KEYS) {
         const legacy = localStorage.getItem(key);
         if (!legacy) continue;
         const parsed = JSON.parse(legacy);
-        if (parsed && (parsed.version === 3 || parsed.version === 2)) return normalizeState(migrateLegacy(parsed));
+        if (parsed && (parsed.version === 3 || parsed.version === 2)) {
+          const loaded = normalizeState(migrateLegacy(parsed));
+          if (!loaded.lastPlayedAt) loaded.lastPlayedAt = new Date().toISOString();
+          if (!loaded.startedAt) loaded.startedAt = loaded.lastPlayedAt;
+          return loaded;
+        }
       }
     } catch (_) {}
     return null;
   }
 
   function restartWithSeed(seed) {
-    state = freshState(seed);
+    const mode = state.mode;
+    state = freshState(seed, mode);
+    state.startedAt = new Date().toISOString();
+    state.lastPlayedAt = state.startedAt;
+    meta.stats.totalRuns += 1;
     try { localStorage.setItem(SAVE_KEY, JSON.stringify(state)); } catch (_) {}
-    location.reload();
+    saveMeta();
+    location.assign(new URL('./?resume=1', location.href).href);
   }
 
   function resetGame() {
@@ -1588,15 +2035,17 @@
   }
 
   function makeTransferPayload() {
-    saveState(false);
+    if (hasActiveRun) saveState(false);
     let endings = {};
     try { endings = JSON.parse(localStorage.getItem(ENDING_KEY) || '{}'); } catch (_) {}
     return {
       format: 'tabenai-save',
-      formatVersion: 1,
+      formatVersion: 2,
       appVersion: APP_VERSION,
       exportedAt: new Date().toISOString(),
+      run: hasActiveRun ? clone(state) : null,
       state: clone(state),
+      meta: clone(meta),
       endings
     };
   }
@@ -1661,11 +2110,16 @@
   function importSave() {
     try {
       const payload = decodeTransfer($('saveTransferText').value);
-      if (!payload || payload.format !== 'tabenai-save' || !payload.state) throw new Error('このゲームのセーブ形式ではありません');
-      const incoming = payload.state;
+      const incoming = payload && (payload.run || payload.state);
+      if (!payload || payload.format !== 'tabenai-save' || !incoming) throw new Error('このゲームのセーブ形式ではありません');
       if (incoming.version === 2 || incoming.version === 3) state = normalizeState(migrateLegacy(incoming));
       else state = normalizeState(incoming);
       localStorage.setItem(SAVE_KEY, JSON.stringify(state));
+      hasActiveRun = true;
+      if (payload.meta && typeof payload.meta === 'object') {
+        meta = normalizeMeta(payload.meta);
+        saveMeta();
+      }
       if (payload.endings && typeof payload.endings === 'object') localStorage.setItem(ENDING_KEY, JSON.stringify(payload.endings));
       toast('セーブを読み込みました');
       setTimeout(() => location.reload(), 500);
@@ -1688,6 +2142,35 @@
 
   ui.choiceA.addEventListener('click', () => resolveChoice(0));
   ui.choiceB.addEventListener('click', () => resolveChoice(1));
+  $('continueBtn').addEventListener('click', () => { if (hasActiveRun) showScreen('game'); });
+  $('newGameBtn').addEventListener('click', () => showScreen('modes'));
+  $('recordsBtn').addEventListener('click', () => showScreen('records'));
+  $('settingsBtn').addEventListener('click', () => showScreen('settings'));
+  $('modeBackBtn').addEventListener('click', () => showScreen('title'));
+  $('recordsBackBtn').addEventListener('click', () => showScreen('title'));
+  $('settingsBackBtn').addEventListener('click', () => showScreen('title'));
+  $('modeStoryBtn').addEventListener('click', () => startNewRun('story'));
+  $('modeHardBtn').addEventListener('click', () => startNewRun('hard'));
+  $('titleBtn').addEventListener('click', () => {
+    saveState();
+    showScreen('title');
+  });
+  document.querySelectorAll('[data-record-tab]').forEach(button => {
+    button.addEventListener('click', () => renderRecords(button.dataset.recordTab));
+  });
+  for (const id of ['fontSizeSetting', 'reducedMotionSetting', 'confirmChoicesSetting', 'autoScrollSetting']) {
+    $(id).addEventListener('change', () => {
+      meta.settings.fontSize = $('fontSizeSetting').value;
+      meta.settings.reducedMotion = $('reducedMotionSetting').checked;
+      meta.settings.confirmChoices = $('confirmChoicesSetting').checked;
+      meta.settings.autoScroll = $('autoScrollSetting').checked;
+      saveMeta();
+      applySettings();
+    });
+  }
+  $('titleInstallBtn').addEventListener('click', () => $('installBtn').click());
+  $('titleDataBtn').addEventListener('click', () => $('dataBtn').click());
+  $('titleShareBtn').addEventListener('click', shareGame);
   $('rulesBtn').addEventListener('click', () => ui.rulesModal.classList.add('open'));
   $('closeRules').addEventListener('click', () => ui.rulesModal.classList.remove('open'));
   ui.rulesModal.addEventListener('click', e => { if (e.target === ui.rulesModal) ui.rulesModal.classList.remove('open'); });
@@ -1711,21 +2194,31 @@
       if (e.key === 'Escape') { ui.rulesModal.classList.remove('open'); $('dataModal').classList.remove('open'); }
       return;
     }
-    if (state.ended) return;
+    if (ui.gameScreen.hidden || state.ended) return;
     if (e.key.toLowerCase() === 'a') resolveChoice(0);
     if (e.key.toLowerCase() === 'b') resolveChoice(1);
   });
 
+  addEventListener('online', renderTitle);
+  addEventListener('offline', renderTitle);
   state = normalizeState(state);
-  saveState();
-  render();
+  meta = normalizeMeta(meta);
+  applySettings();
+  if (hasActiveRun) {
+    if (meta.stats.totalRuns === 0) meta.stats.totalRuns = 1;
+    saveState();
+    evaluateAchievements(false);
+  }
+  if (requestedNewGame) showScreen('modes');
+  else if ((requestedResume && hasActiveRun) || debugMode) showScreen('game');
+  else showScreen('title');
   if (requestedDataTransfer) {
     $('saveTransferText').value = '';
     $('dataModal').classList.add('open');
   }
 
   try {
-    if (location.search && location.search.includes('debug=1')) {
+    if (debugMode) {
       globalThis.__TABENAI_DEBUG__ = {
         version: APP_VERSION,
         schemaVersion: VERSION,
@@ -1735,8 +2228,23 @@
         setState: s => { state = normalizeState(clone(s)); if (!silentMode) render(); },
         silent: value => { silentMode = !!value; },
         step: i => { clickLocked = false; resolveChoice(i); return clone(state); },
-        fresh: seed => freshState(seed),
-        migrate: old => normalizeState(migrateLegacy(clone(old)))
+        fresh: (seed, mode = 'story') => freshState(seed, mode),
+        migrate: old => normalizeState(migrateLegacy(clone(old))),
+        meta: () => clone(meta),
+        setMeta: value => { meta = normalizeMeta(clone(value)); saveMeta(); applySettings(); },
+        start: (mode = 'story', seed = 440) => {
+          state = freshState(seed, mode);
+          state.startedAt = '2026-01-01T00:00:00.000Z';
+          state.lastPlayedAt = state.startedAt;
+          hasActiveRun = true;
+          meta.stats.totalRuns += 1;
+          saveState();
+          saveMeta();
+          return clone(state);
+        },
+        screen: name => showScreen(name),
+        transfer: () => clone(makeTransferPayload()),
+        evaluate: () => { evaluateAchievements(false); return clone(meta); }
       };
     }
   } catch (_) {}
@@ -1866,7 +2374,7 @@
           });
           registration.update().catch(() => {});
           globalThis.__TABENAI_PWA__ = {
-            version: '4.3.0',
+            version: '4.4.0',
             scope: registration.scope,
             hasWaitingUpdate: () => !!registration.waiting,
             checkForUpdate: updateApp,
