@@ -1,32 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
-  <title id="title">最後の食堂</title>
-  <desc id="desc">深い闇の食堂で長い卓と四つの皿が金色に輝き、空席ばかりが整然と待っている。</desc>
+  <title id="title">最後の晩餐の間</title>
+  <desc id="desc">黒と深紅の長い食卓に四つの異なる皿が琥珀色に照らされ、最奥の空席が最後の選択を待つ。</desc>
   <defs>
-    <linearGradient id="room" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#080b13"/><stop offset="0.62" stop-color="#211611"/><stop offset="1" stop-color="#070707"/>
+
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0b1220"/>
+      <stop offset="0.58" stop-color="#2d1914"/>
+      <stop offset="1" stop-color="#08090b"/>
     </linearGradient>
-    <radialGradient id="light" cx="50%" cy="28%" r="55%"><stop offset="0" stop-color="#e4b057" stop-opacity="0.44"/><stop offset="1" stop-color="#e4b057" stop-opacity="0"/></radialGradient>
-    <linearGradient id="table" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6c3429"/><stop offset="1" stop-color="#25130f"/></linearGradient>
+    <linearGradient id="dawn" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0b1220"/>
+      <stop offset=".5" stop-color="#7e2c2a"/>
+      <stop offset="1" stop-color="#d9a64f"/>
+    </linearGradient>
+    <radialGradient id="amberGlow">
+      <stop offset="0" stop-color="#f3d58a" stop-opacity=".8"/>
+      <stop offset=".38" stop-color="#b8732e" stop-opacity=".38"/>
+      <stop offset="1" stop-color="#b8732e" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="wood" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#573024"/>
+      <stop offset=".5" stop-color="#7e2c2a"/>
+      <stop offset="1" stop-color="#2d1914"/>
+    </linearGradient>
+    <pattern id="grain" width="80" height="40" patternUnits="userSpaceOnUse">
+      <path d="M-10 20Q20 3 50 20T110 20" fill="none" stroke="#d9a64f" stroke-opacity=".08" stroke-width="4"/>
+    </pattern>
   </defs>
-  <rect width="1600" height="900" fill="url(#room)"/>
-  <rect width="1600" height="900" fill="url(#light)"/>
-  <path d="M0 0L590 500M1600 0L1010 500M0 900L590 500M1600 900L1010 500" stroke="#43261f" stroke-width="10" opacity="0.55"/>
-  <path d="M670 900L745 432H855L930 900Z" fill="url(#table)" stroke="#0b0908" stroke-width="16"/>
-  <path d="M777 0v150M823 0v150" stroke="#0a0a0a" stroke-width="10"/>
-  <path d="M660 172q140-120 280 0q-140 88-280 0Z" fill="#14100e" stroke="#b87b36" stroke-width="9"/>
-  <g stroke="#b87b36" stroke-width="7" fill="none"><path d="M710 180l-35 100M760 196l-12 110M840 196l12 110M890 180l35 100"/></g>
-  <g fill="#e1ad55"><circle cx="675" cy="280" r="10"/><circle cx="748" cy="306" r="10"/><circle cx="852" cy="306" r="10"/><circle cx="925" cy="280" r="10"/></g>
-  <g fill="#17100e" stroke="#7d392e" stroke-width="9">
-    <path d="M575 528h84l-21 180h-42Z"/><path d="M941 528h84l-21 180h-42Z"/>
-    <path d="M510 650h110l-20 230h-70Z"/><path d="M980 650h110l-20 230h-70Z"/>
-  </g>
-  <g fill="#d1a04a" stroke="#111" stroke-width="7">
-    <ellipse cx="800" cy="500" rx="56" ry="18"/><ellipse cx="800" cy="592" rx="76" ry="23"/>
-    <ellipse cx="800" cy="706" rx="100" ry="29"/><ellipse cx="800" cy="838" rx="131" ry="37"/>
-  </g>
-  <g fill="#101725">
-    <path d="M775 498q25-30 50 0q-25 13-50 0Z"/><path d="M766 589q34-38 68 0q-34 15-68 0Z"/>
-    <path d="M756 700q44-45 88 0q-44 17-88 0Z"/><path d="M742 829q58-55 116 0q-58 22-116 0Z"/>
-  </g>
-  <g fill="#9b4937"><circle cx="800" cy="490" r="5"/><circle cx="800" cy="580" r="6"/><circle cx="800" cy="689" r="7"/><circle cx="800" cy="815" r="8"/></g>
+  <rect width="1600" height="900" fill="#08090b"/>
+
+      <rect width="1600" height="900" fill="url(#sky)"/><ellipse cx="800" cy="355" rx="490" ry="430" fill="url(#amberGlow)" opacity=".48"/>
+      <path d="M0 0L590 505M1600 0L1010 505M0 900L590 505M1600 900L1010 505" stroke="#573024" stroke-width="11" opacity=".52"/>
+      <path d="M560 900L700 430H900L1040 900Z" fill="url(#wood)" stroke="#08090b" stroke-width="20"/>
+      <path d="M800 0v145" stroke="#08090b" stroke-width="17"/><path d="M650 172q150-138 300 0q-150 92-300 0Z" fill="#121419" stroke="#d9a64f" stroke-width="12"/>
+      <g fill="#d8c8a3" stroke="#d9a64f" stroke-width="9"><ellipse cx="800" cy="505" rx="72" ry="23"/><ellipse cx="800" cy="602" rx="94" ry="29"/><ellipse cx="800" cy="716" rx="118" ry="35"/><ellipse cx="800" cy="842" rx="145" ry="42"/></g>
+      <g stroke="#08090b" stroke-width="8"><path d="M772 501q28-38 56 0q-28 17-56 0Z" fill="#d9a64f"/><path d="M765 598q35-45 70 0q-35 20-70 0Z" fill="#b6503f"/><path d="M758 711q42-53 84 0q-42 24-84 0Z" fill="#65a09a"/><path d="M746 836q54-66 108 0q-54 28-108 0Z" fill="#08090b" stroke="#d9a64f"/></g>
+      <g fill="#121419" stroke="#7e2c2a" stroke-width="10"><path d="M532 514h86l-18 210h-55Z"/><path d="M982 514h86l-13 210h-55Z"/><path d="M470 655h102l-16 245h-68Z"/><path d="M1028 655h102l-18 245h-68Z"/></g>
 </svg>

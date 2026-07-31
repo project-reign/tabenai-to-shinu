@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="1200" viewBox="0 0 800 1200" role="img" aria-labelledby="title desc">
+  <title id="title">森の管理者</title>
+  <desc id="desc">枝角に金の食器を吊るし、黒い外套と深紅の蝶飾りを着けた鹿頭の森の管理者が帳面を抱える。</desc>
+  <defs>
+
+    <radialGradient id="halo">
+      <stop offset="0" stop-color="#d9a64f" stop-opacity=".28"/>
+      <stop offset="1" stop-color="#d9a64f" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="warm" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f3d58a"/>
+      <stop offset=".48" stop-color="#b8732e"/>
+      <stop offset="1" stop-color="#7e2c2a"/>
+    </linearGradient>
+    <linearGradient id="dark" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1d4c4b"/>
+      <stop offset="1" stop-color="#08090b"/>
+    </linearGradient>
+  </defs>
+
+
+      <ellipse cx="400" cy="590" rx="360" ry="520" fill="url(#halo)"/>
+      <ellipse cx="400" cy="1090" rx="260" ry="54" fill="#08090b" opacity=".5"/>
+
+      <path d="M310 335Q180 210 164 75M302 286Q185 250 112 165M490 335Q620 210 636 75M498 286Q615 250 688 165" fill="none" stroke="#d9a64f" stroke-width="24" stroke-linecap="round"/>
+      <path d="M280 257Q400 143 520 257L560 502Q515 658 400 700Q285 658 240 502Z" fill="#573024" stroke="#08090b" stroke-width="24"/>
+      <path d="M276 311l-120-82q-19 143 128 176M524 311l120-82q19 143-128 176" fill="#2d1914" stroke="#08090b" stroke-width="20"/>
+      <ellipse cx="332" cy="438" rx="34" ry="23" fill="#d9a64f"/><ellipse cx="468" cy="438" rx="34" ry="23" fill="#d9a64f"/><circle cx="343" cy="432" r="9" fill="#08090b"/><circle cx="479" cy="432" r="9" fill="#08090b"/>
+      <path d="M350 546q50 42 100 0" fill="none" stroke="#08090b" stroke-width="16" stroke-linecap="round"/>
+      <path d="M205 1060q30-374 195-444q165 70 195 444Z" fill="#121419" stroke="#d9a64f" stroke-width="22"/>
+      <path d="M332 664l68 70l68-70l46 89l-114 70l-114-70Z" fill="#7e2c2a" stroke="#08090b" stroke-width="15"/>
+      <rect x="410" y="790" width="205" height="230" rx="18" fill="#2d1914" stroke="#d9a64f" stroke-width="17"/><path d="M455 852h118M455 908h118M455 964h75" stroke="#f3d58a" stroke-width="10" stroke-linecap="round"/>
+      <g fill="#d8c8a3" stroke="#d9a64f" stroke-width="6"><ellipse cx="170" cy="118" rx="35" ry="11"/><ellipse cx="630" cy="118" rx="35" ry="11"/></g>
+</svg>

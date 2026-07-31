@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="1200" viewBox="0 0 800 1200" role="img" aria-labelledby="title desc">
+  <title id="title">赤い土の黒豆・未来</title>
+  <desc id="desc">深紅の土から高く伸びた黒豆が赤い四枚葉と金の実をつけ、まだ来ない食卓を指し示す姿。</desc>
+  <defs>
+
+    <radialGradient id="halo">
+      <stop offset="0" stop-color="#d9a64f" stop-opacity=".28"/>
+      <stop offset="1" stop-color="#d9a64f" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="warm" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f3d58a"/>
+      <stop offset=".48" stop-color="#b8732e"/>
+      <stop offset="1" stop-color="#7e2c2a"/>
+    </linearGradient>
+    <linearGradient id="dark" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1d4c4b"/>
+      <stop offset="1" stop-color="#08090b"/>
+    </linearGradient>
+  </defs>
+
+
+      <ellipse cx="400" cy="590" rx="360" ry="520" fill="url(#halo)"/>
+      <ellipse cx="400" cy="1090" rx="260" ry="54" fill="#08090b" opacity=".5"/>
+
+      <path d="M220 1030q35-420 180-635q145 215 180 635Z" fill="#7e2c2a" stroke="#08090b" stroke-width="24"/>
+      <ellipse cx="400" cy="664" rx="155" ry="210" fill="#08090b" stroke="#d9a64f" stroke-width="19"/>
+      <path d="M400 455V197" stroke="#d9a64f" stroke-width="24" stroke-linecap="round"/>
+      <path d="M390 338Q260 176 139 282Q242 414 390 397Z" fill="#b6503f" stroke="#08090b" stroke-width="18"/><path d="M410 338Q540 176 661 282Q558 414 410 397Z" fill="#7e2c2a" stroke="#08090b" stroke-width="18"/>
+      <path d="M399 242Q322 104 229 178Q294 290 399 294Z" fill="#d9a64f" stroke="#08090b" stroke-width="16"/><path d="M405 242Q478 104 571 178Q506 290 405 294Z" fill="#f3d58a" stroke="#08090b" stroke-width="16"/>
+      <g fill="#d9a64f"><circle cx="333" cy="650" r="27"/><circle cx="467" cy="650" r="27"/><circle cx="400" cy="190" r="24"/></g><path d="M354 730q46 38 92 0" fill="none" stroke="#b6503f" stroke-width="15" stroke-linecap="round"/>
+</svg>

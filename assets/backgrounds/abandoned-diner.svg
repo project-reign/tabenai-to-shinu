@@ -1,38 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
-  <title id="title">忘れられた食堂</title>
-  <desc id="desc">誰もいない焦茶の食堂で、中央の一人分の席だけが金色に照らされている。</desc>
+  <title id="title">灯りの残る廃食堂</title>
+  <desc id="desc">朽ちた焦茶の食堂で琥珀色のランプが一人分の定食を照らし、空の椅子の影だけがこちらを向く。</desc>
   <defs>
-    <linearGradient id="wall" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#121827"/><stop offset="1" stop-color="#2b1c18"/>
+
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0b1220"/>
+      <stop offset="0.58" stop-color="#2d1914"/>
+      <stop offset="1" stop-color="#08090b"/>
     </linearGradient>
-    <linearGradient id="floor" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#251713"/><stop offset="1" stop-color="#080808"/>
+    <linearGradient id="dawn" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0b1220"/>
+      <stop offset=".5" stop-color="#7e2c2a"/>
+      <stop offset="1" stop-color="#d9a64f"/>
     </linearGradient>
-    <radialGradient id="lamp" cx="50%" cy="0" r="100%">
-      <stop offset="0" stop-color="#e7b65e" stop-opacity="0.72"/><stop offset="1" stop-color="#e7b65e" stop-opacity="0"/>
+    <radialGradient id="amberGlow">
+      <stop offset="0" stop-color="#f3d58a" stop-opacity=".8"/>
+      <stop offset=".38" stop-color="#b8732e" stop-opacity=".38"/>
+      <stop offset="1" stop-color="#b8732e" stop-opacity="0"/>
     </radialGradient>
+    <linearGradient id="wood" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#573024"/>
+      <stop offset=".5" stop-color="#7e2c2a"/>
+      <stop offset="1" stop-color="#2d1914"/>
+    </linearGradient>
+    <pattern id="grain" width="80" height="40" patternUnits="userSpaceOnUse">
+      <path d="M-10 20Q20 3 50 20T110 20" fill="none" stroke="#d9a64f" stroke-opacity=".08" stroke-width="4"/>
+    </pattern>
   </defs>
-  <rect width="1600" height="590" fill="url(#wall)"/>
-  <path d="M0 590H1600V900H0Z" fill="url(#floor)"/>
-  <path d="M0 900L610 590M1600 900L990 590M320 900L680 590M1280 900L920 590" stroke="#5f3028" stroke-width="8" opacity="0.6"/>
-  <rect x="632" y="125" width="336" height="270" rx="12" fill="#08090d" stroke="#a86035" stroke-width="12"/>
-  <path d="M800 125V395M632 260H968" stroke="#533029" stroke-width="9"/>
-  <path d="M680 212q120-92 240 0q-120 56-240 0Z" fill="#c98d3f" opacity="0.32"/>
-  <g fill="#572e28" stroke="#160e0d" stroke-width="10">
-    <path d="M0 468h490l74 154H0Z"/><path d="M1600 468h-490l-74 154h564Z"/>
-    <path d="M0 646h405l97 142H0Z"/><path d="M1600 646h-405l-97 142h502Z"/>
-  </g>
-  <path d="M800 0V145" stroke="#0a0a0b" stroke-width="14"/>
-  <path d="M727 160q73-84 146 0Z" fill="#0a0a0b" stroke="#c58a3b" stroke-width="7"/>
-  <path d="M625 160H975L1108 690H492Z" fill="url(#lamp)"/>
-  <path d="M635 742L690 574H910L965 742Z" fill="#20130f" stroke="#a65a34" stroke-width="10"/>
-  <ellipse cx="800" cy="592" rx="91" ry="27" fill="#d4a34f" stroke="#090909" stroke-width="9"/>
-  <ellipse cx="800" cy="590" rx="43" ry="13" fill="#702f2c"/>
-  <path d="M748 590q52-53 104 0q-52 21-104 0Z" fill="#101725"/>
-  <circle cx="781" cy="582" r="5" fill="#dba84e"/><circle cx="819" cy="582" r="5" fill="#dba84e"/>
-  <g stroke="#c58a3b" stroke-width="8" stroke-linecap="round">
-    <path d="M690 570l-22 110M910 570l24 110"/><path d="M667 641h-22M935 641h22"/>
-  </g>
-  <circle cx="1115" cy="214" r="58" fill="#0b0b0c" stroke="#8e4035" stroke-width="8"/>
-  <path d="M1115 214l29-23M1115 214l-7-39" stroke="#d5a34e" stroke-width="6" stroke-linecap="round"/>
+  <rect width="1600" height="900" fill="#08090b"/>
+
+      <rect width="1600" height="610" fill="url(#sky)"/><rect y="610" width="1600" height="290" fill="#2d1914"/>
+      <path d="M0 900L560 610M1600 900L1040 610M330 900L650 610M1270 900L950 610" stroke="#d9a64f" stroke-opacity=".18" stroke-width="9"/>
+      <rect x="585" y="90" width="430" height="330" rx="18" fill="#07090c" stroke="#573024" stroke-width="18"/>
+      <path d="M800 90v330M585 255h430" stroke="#7e2c2a" stroke-width="11"/>
+      <path d="M800 0v145" stroke="#08090b" stroke-width="17"/><path d="M675 174q125-144 250 0Z" fill="#121419" stroke="#d9a64f" stroke-width="10"/>
+      <path d="M520 180H1080L1185 715H415Z" fill="url(#amberGlow)" opacity=".65"/>
+      <g fill="#573024" stroke="#08090b" stroke-width="14"><path d="M0 470h470l95 160H0Z"/><path d="M1600 470h-470l-95 160h565Z"/><path d="M0 680h390l110 175H0Z"/><path d="M1600 680h-390l-110 175h500Z"/></g>
+      <path d="M560 900L655 590H945L1040 900Z" fill="url(#wood)" stroke="#08090b" stroke-width="18"/><ellipse cx="800" cy="626" rx="128" ry="41" fill="#d8c8a3" stroke="#d9a64f" stroke-width="13"/>
+      <g fill="#b6503f" stroke="#08090b" stroke-width="9"><path d="M730 620q70-76 140 0q-70 39-140 0Z"/><circle cx="778" cy="605" r="7" fill="#d9a64f"/><circle cx="822" cy="605" r="7" fill="#d9a64f"/></g>
+      <g fill="#08090b" stroke="#7e2c2a" stroke-width="9"><path d="M470 548h85l-25 220h-52Z"/><path d="M1045 548h85l-8 220h-52Z"/></g>
 </svg>

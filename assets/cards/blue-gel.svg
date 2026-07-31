@@ -1,11 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" width="800" height="800" viewBox="0 0 800 800" role="img" aria-labelledby="title desc">
-  <title id="title">青いゲル</title>
-  <desc id="desc">深紺のゲルが金色の泡を抱え、ぷるりと礼儀正しく座っている。</desc>
-  <defs><radialGradient id="bg"><stop offset="0" stop-color="#1a2438"/><stop offset="1" stop-color="#06080d"/></radialGradient><linearGradient id="gel" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#334c6b"/><stop offset="0.55" stop-color="#172c49"/><stop offset="1" stop-color="#0a1424"/></linearGradient></defs>
-  <rect x="24" y="24" width="752" height="752" rx="92" fill="url(#bg)" stroke="#b77e39" stroke-width="18"/>
-  <path d="M181 573c0-63 67-98 77-167c15-110 17-244 142-244s127 134 142 244c10 69 77 104 77 167c0 95-438 95-438 0Z" fill="url(#gel)" stroke="#0a0a0b" stroke-width="20"/>
-  <path d="M287 323q57-105 125-89" fill="none" stroke="#7890a5" stroke-width="24" stroke-linecap="round" opacity="0.55"/>
-  <g fill="#d7a34e"><circle cx="322" cy="447" r="17"/><circle cx="478" cy="447" r="17"/><circle cx="435" cy="322" r="12"/><circle cx="360" cy="555" r="9"/></g>
-  <path d="M352 513q48 40 96 0" fill="none" stroke="#995044" stroke-width="13" stroke-linecap="round"/>
-  <ellipse cx="400" cy="626" rx="252" ry="38" fill="#c78f40" opacity="0.2"/>
+  <title id="title">冷却結晶の青いゲル</title>
+  <desc id="desc">青緑の透明なゲルが内部に六角形の冷却結晶と金色の泡を抱え、器の上で美味しそうに震える。</desc>
+  <defs>
+
+    <radialGradient id="cardBg">
+      <stop offset="0" stop-color="#573024"/>
+      <stop offset=".55" stop-color="#2d1914"/>
+      <stop offset="1" stop-color="#08090b"/>
+    </radialGradient>
+    <radialGradient id="cardGlow">
+      <stop offset="0" stop-color="#f3d58a" stop-opacity=".56"/>
+      <stop offset="1" stop-color="#d9a64f" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="foodWarm" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f3d58a"/>
+      <stop offset=".5" stop-color="#b8732e"/>
+      <stop offset="1" stop-color="#7e2c2a"/>
+    </linearGradient>
+    <linearGradient id="foodCool" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#65a09a"/>
+      <stop offset=".52" stop-color="#1d4c4b"/>
+      <stop offset="1" stop-color="#0b1220"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="800" fill="#08090b"/>
+
+      <rect x="22" y="22" width="756" height="756" rx="92" fill="url(#cardBg)" stroke="#d9a64f" stroke-width="18"/>
+      <circle cx="400" cy="392" r="306" fill="url(#cardGlow)"/>
+      <circle cx="400" cy="400" r="316" fill="none" stroke="#b6503f" stroke-opacity=".45" stroke-width="7" stroke-dasharray="10 23"/>
+      <path d="M126 650Q400 711 674 650" fill="none" stroke="#d9a64f" stroke-width="17" stroke-linecap="round"/>
+
+      <path d="M180 562c0-70 71-108 84-184c18-108 27-235 136-235s118 127 136 235c13 76 84 114 84 184c0 105-440 105-440 0Z" fill="url(#foodCool)" stroke="#08090b" stroke-width="22"/>
+      <path d="M280 312q56-103 127-91" fill="none" stroke="#d8c8a3" stroke-opacity=".5" stroke-width="25" stroke-linecap="round"/>
+      <path d="M400 305l58 34v68l-58 34l-58-34v-68Z" fill="#d9a64f" fill-opacity=".6" stroke="#f3d58a" stroke-width="10"/><path d="M400 305v136M342 339l116 68M458 339l-116 68" stroke="#0b1220" stroke-width="8"/>
+      <g fill="#f3d58a"><circle cx="325" cy="485" r="17"/><circle cx="475" cy="485" r="17"/><circle cx="355" cy="555" r="10"/></g><path d="M352 535q48 38 96 0" fill="none" stroke="#b6503f" stroke-width="13" stroke-linecap="round"/>
 </svg>

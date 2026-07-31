@@ -38,11 +38,15 @@ test('asset manifestの全参照・実体・HTTP MIMEが一致し、未使用ま
   const manifestPath = path.join(process.cwd(), 'assets', 'manifest.json');
   const manifest = JSON.parse(await readFile(manifestPath, 'utf8'));
   expect(manifest.schemaVersion).toBe(1);
-  expect(manifest.manifestVersion).toMatch(/^4\.6\.0-/);
+  expect(manifest.manifestVersion).toMatch(/^4\.7\.0-/);
 
-  for (const eventId of ['stored-bread', 'inverted-rain', 'tako-return', 'bean-homecoming', 'shadow-snack']) {
+  for (const eventId of ['tako-return', 'bean-homecoming', 'shadow-snack', 'moon-mushroom', 'shadow-plate', 'lost-birthday']) {
     expect(manifest.assignments.survival[eventId], `${eventId} must use emoji/character/text fallback`)
       .not.toHaveProperty('artKey');
+  }
+  for (const eventId of ['stored-bread', 'inverted-rain', 'white-tablet', 'steam-soup', 'bone-biscuit']) {
+    expect(manifest.assignments.survival[eventId], `${eventId} must have dedicated matching art`)
+      .toHaveProperty('artKey', `art.${eventId}`);
   }
   for (const group of ['scenes', 'survival']) {
     for (const [entryId, assignment] of Object.entries(manifest.assignments[group])) {
@@ -119,7 +123,7 @@ test('visual layersと全presentation hookはゲームstate/rngを変更しな�
 
   await page.evaluate(() => globalThis.__TABENAI_PRESENTATION__.presentScreen('title'));
   await expect(page.locator('html')).toHaveAttribute('data-presentation-hook', 'title');
-  await expect(page.locator('#titleBackdrop')).toHaveAttribute('src', /forest-night\.svg/);
+  await expect(page.locator('#titleBackdrop')).toHaveAttribute('src', /title-night\.svg/);
 
   const hooks = [
     ['normal', { mode: 'story', sceneId: 'riceball', category: 'common', token: 'normal:1', icon: '🍙', title: 'normal' }],
@@ -143,8 +147,10 @@ test('visual layersと全presentation hookはゲームstate/rngを変更しな�
   await expect(page.locator('#sceneArt')).toBeHidden();
   await expect(page.locator('#sceneIcon')).toBeVisible();
   await expect(page.locator('#sceneIcon')).toHaveText('🐙');
-  await expect(page.locator('#sceneCharacterFallback')).toBeVisible();
-  await expect(page.locator('#sceneCharacterFallback')).toHaveText('🐙');
+  await expect(page.locator('#sceneCharacter')).toBeVisible();
+  await expect(page.locator('#sceneCharacter')).toHaveAttribute('src', /characters\/tako\.svg/);
+  await expect(page.locator('#sceneCharacter')).toHaveAttribute('alt', /寄生タコ/);
+  await expect(page.locator('#sceneCharacterFallback')).toBeHidden();
   await expect(page.locator('#sceneEffect')).toHaveClass(/mood-normal/);
   await expect(page.locator('#sceneVisual')).toBeVisible();
   await expect(page.locator('#sceneContent')).toBeVisible();
@@ -239,7 +245,7 @@ test('BGM/SE・mute・haptics・lightVisualsをmeta/reload/format2に保持し�
   await waitForPresentation(page);
   await page.evaluate(() => globalThis.__TABENAI_DEBUG__.screen('settings'));
   await expect(page.locator('#settingsScreen')).toBeVisible();
-  await expect(page.getByText('正式BGMはv4.7で追加予定')).toBeVisible();
+  await expect(page.getByText('オリジナル6曲。最初のユーザー操作後にのみ再生')).toBeVisible();
 
   await setRange(page, '#bgmVolumeSetting', 23);
   await setRange(page, '#seVolumeSetting', 71);
@@ -483,12 +489,14 @@ test('OS指定と明示設定のreduced motionを尊重する', async ({ page })
 
 test('presentation主要assetをService Workerへprecacheし完全offlineで再起動できる', async ({ browser }) => {
   const context = await browser.newContext({ serviceWorkers: 'allow' });
+  await installMediaSpies(context);
   const page = await context.newPage();
   await openApp(page);
   await waitForPresentation(page);
   const expectedAssets = await page.evaluate(async () => {
     const manifest = await (await fetch('./assets/manifest.json')).json();
     return [
+      './music-engine.js',
       './presentation-engine.js',
       './assets/manifest.json',
       ...Object.values(manifest.assets)
@@ -526,6 +534,11 @@ test('presentation主要assetをService Workerへprecacheし完全offlineで再�
     return { asset, ok: response.ok, status: response.status };
   })), expectedAssets);
   expect(offlineResponses.every((item) => item.ok && item.status === 200), JSON.stringify(offlineResponses, null, 2)).toBe(true);
+  expect(await offlinePage.evaluate(() => globalThis.TabenaiMusic.describeAll())).toHaveLength(6);
+  await offlinePage.evaluate(() => globalThis.__TABENAI_DEBUG__.screen('title'));
+  await offlinePage.locator('#settingsBtn').click();
+  await expect.poll(() => offlinePage.evaluate(() => globalThis.__TABENAI_PRESENTATION__.snapshot().music?.currentKey)).toBe('bgm.normal');
+  await expect.poll(() => offlinePage.evaluate(() => globalThis.__MEDIA_CALLS__.oscillatorStarts)).toBeGreaterThan(0);
   await context.close();
 });
 

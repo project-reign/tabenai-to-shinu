@@ -1,17 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" width="800" height="800" viewBox="0 0 800 800" role="img" aria-labelledby="title desc">
-  <title id="title">囁く缶詰</title>
-  <desc id="desc">古びた缶詰の隙間から金色の囁きが漏れ、誰にも聞かれない冗談を話している。</desc>
-  <defs><radialGradient id="bg"><stop offset="0" stop-color="#302019"/><stop offset="1" stop-color="#080b12"/></radialGradient><linearGradient id="can" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#33231d"/><stop offset="0.5" stop-color="#8d6336"/><stop offset="1" stop-color="#241813"/></linearGradient></defs>
-  <rect x="24" y="24" width="752" height="752" rx="92" fill="url(#bg)" stroke="#b87b37" stroke-width="18"/>
-  <path d="M220 253h360v324c0 75-360 75-360 0Z" fill="url(#can)" stroke="#100d0b" stroke-width="20"/>
-  <ellipse cx="400" cy="253" rx="180" ry="54" fill="#77502f" stroke="#110e0c" stroke-width="20"/>
-  <ellipse cx="400" cy="253" rx="128" ry="30" fill="#131a27" stroke="#c48a3d" stroke-width="9"/>
-  <path d="M304 385h192v116H304Z" fill="#7c352d" stroke="#160d0c" stroke-width="12"/>
-  <ellipse cx="363" cy="435" rx="16" ry="10" fill="#d6a44e"/><ellipse cx="437" cy="435" rx="16" ry="10" fill="#d6a44e"/>
-  <path d="M372 474q28 17 56 0" fill="none" stroke="#101725" stroke-width="9" stroke-linecap="round"/>
-  <g fill="none" stroke="#e0ae55" stroke-linecap="round">
-    <path d="M470 238q104-86 141 4q21 53 78-5" stroke-width="14"/>
-    <path d="M489 274q85-35 107 30q16 46 75 11" stroke-width="9" opacity="0.7"/>
-  </g>
-  <path d="M293 611l-41 57M507 611l41 57" stroke="#8b4433" stroke-width="17" stroke-linecap="round"/>
+  <title id="title">吸盤跡のある囁く缶詰</title>
+  <desc id="desc">焦茶と金の古い缶詰の内側に吸盤の丸い跡が並び、開いた隙間から琥珀色の囁きが漏れる。</desc>
+  <defs>
+
+    <radialGradient id="cardBg">
+      <stop offset="0" stop-color="#573024"/>
+      <stop offset=".55" stop-color="#2d1914"/>
+      <stop offset="1" stop-color="#08090b"/>
+    </radialGradient>
+    <radialGradient id="cardGlow">
+      <stop offset="0" stop-color="#f3d58a" stop-opacity=".56"/>
+      <stop offset="1" stop-color="#d9a64f" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="foodWarm" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f3d58a"/>
+      <stop offset=".5" stop-color="#b8732e"/>
+      <stop offset="1" stop-color="#7e2c2a"/>
+    </linearGradient>
+    <linearGradient id="foodCool" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#65a09a"/>
+      <stop offset=".52" stop-color="#1d4c4b"/>
+      <stop offset="1" stop-color="#0b1220"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="800" fill="#08090b"/>
+
+      <rect x="22" y="22" width="756" height="756" rx="92" fill="url(#cardBg)" stroke="#d9a64f" stroke-width="18"/>
+      <circle cx="400" cy="392" r="306" fill="url(#cardGlow)"/>
+      <circle cx="400" cy="400" r="316" fill="none" stroke="#b6503f" stroke-opacity=".45" stroke-width="7" stroke-dasharray="10 23"/>
+      <path d="M126 650Q400 711 674 650" fill="none" stroke="#d9a64f" stroke-width="17" stroke-linecap="round"/>
+
+      <path d="M214 250h372v335c0 82-372 82-372 0Z" fill="url(#foodWarm)" stroke="#08090b" stroke-width="22"/><ellipse cx="400" cy="250" rx="186" ry="58" fill="#573024" stroke="#08090b" stroke-width="21"/><ellipse cx="400" cy="250" rx="132" ry="31" fill="#0b1220" stroke="#d9a64f" stroke-width="10"/>
+      <g fill="none" stroke="#b6503f" stroke-width="12"><circle cx="344" cy="252" r="23"/><circle cx="400" cy="242" r="23"/><circle cx="456" cy="252" r="23"/></g>
+      <path d="M302 382h196v124H302Z" fill="#7e2c2a" stroke="#08090b" stroke-width="13"/><ellipse cx="362" cy="435" rx="17" ry="10" fill="#d9a64f"/><ellipse cx="438" cy="435" rx="17" ry="10" fill="#d9a64f"/><path d="M370 478q30 18 60 0" fill="none" stroke="#08090b" stroke-width="10" stroke-linecap="round"/>
+      <g fill="none" stroke="#f3d58a" stroke-linecap="round"><path d="M474 231q104-91 146 0q27 58 82-7" stroke-width="15"/><path d="M490 272q87-40 114 26q19 46 74 8" stroke-width="10" opacity=".72"/></g>
 </svg>

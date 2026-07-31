@@ -1,12 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" width="800" height="800" viewBox="0 0 800 800" role="img" aria-labelledby="title desc">
-  <title id="title">赤い茸</title>
-  <desc id="desc">鈍い赤の傘に金の斑点を浮かべ、細い軸で舞台役者のように立つ茸。</desc>
-  <defs><radialGradient id="bg"><stop offset="0" stop-color="#342019"/><stop offset="1" stop-color="#080a10"/></radialGradient><linearGradient id="cap" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#a64f40"/><stop offset="1" stop-color="#57251f"/></linearGradient><linearGradient id="stem" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d5ae68"/><stop offset="1" stop-color="#79502d"/></linearGradient></defs>
-  <rect x="24" y="24" width="752" height="752" rx="92" fill="url(#bg)" stroke="#b67a36" stroke-width="18"/>
-  <path d="M326 401q-3 97-50 221q124 42 248 0q-47-124-50-221Z" fill="url(#stem)" stroke="#120e0c" stroke-width="18"/>
-  <path d="M143 407c25-160 124-261 257-261s232 101 257 261c-118 48-396 48-514 0Z" fill="url(#cap)" stroke="#110b0a" stroke-width="20"/>
-  <g fill="#d9aa55"><circle cx="267" cy="287" r="29"/><circle cx="430" cy="222" r="23"/><circle cx="542" cy="329" r="26"/><circle cx="367" cy="354" r="15"/></g>
-  <ellipse cx="365" cy="485" rx="17" ry="10" fill="#101725"/><ellipse cx="435" cy="485" rx="17" ry="10" fill="#101725"/>
-  <path d="M373 538q27-24 54 0" fill="none" stroke="#7f332b" stroke-width="11" stroke-linecap="round"/>
-  <path d="M302 630q-49 45-98 11M498 630q49 45 98 11" fill="none" stroke="#b67a36" stroke-width="14" stroke-linecap="round"/>
+  <title id="title">月影だけが光る赤い茸</title>
+  <desc id="desc">深紅の傘に金の斑点が浮かぶ茸が、青緑に光る自分の影を足元へ落として静かに立つ。</desc>
+  <defs>
+
+    <radialGradient id="cardBg">
+      <stop offset="0" stop-color="#573024"/>
+      <stop offset=".55" stop-color="#2d1914"/>
+      <stop offset="1" stop-color="#08090b"/>
+    </radialGradient>
+    <radialGradient id="cardGlow">
+      <stop offset="0" stop-color="#f3d58a" stop-opacity=".56"/>
+      <stop offset="1" stop-color="#d9a64f" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="foodWarm" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f3d58a"/>
+      <stop offset=".5" stop-color="#b8732e"/>
+      <stop offset="1" stop-color="#7e2c2a"/>
+    </linearGradient>
+    <linearGradient id="foodCool" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#65a09a"/>
+      <stop offset=".52" stop-color="#1d4c4b"/>
+      <stop offset="1" stop-color="#0b1220"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="800" fill="#08090b"/>
+
+      <rect x="22" y="22" width="756" height="756" rx="92" fill="url(#cardBg)" stroke="#d9a64f" stroke-width="18"/>
+      <circle cx="400" cy="392" r="306" fill="url(#cardGlow)"/>
+      <circle cx="400" cy="400" r="316" fill="none" stroke="#b6503f" stroke-opacity=".45" stroke-width="7" stroke-dasharray="10 23"/>
+      <path d="M126 650Q400 711 674 650" fill="none" stroke="#d9a64f" stroke-width="17" stroke-linecap="round"/>
+
+      <ellipse cx="400" cy="620" rx="248" ry="58" fill="#1d4c4b" opacity=".6"/>
+      <path d="M320 386q-4 106-52 238q132 45 264 0q-48-132-52-238Z" fill="#d8c8a3" stroke="#08090b" stroke-width="20"/>
+      <path d="M136 397c29-166 128-268 264-268s235 102 264 268c-126 52-402 52-528 0Z" fill="#b6503f" stroke="#08090b" stroke-width="22"/>
+      <g fill="#d9a64f"><circle cx="265" cy="275" r="29"/><circle cx="430" cy="208" r="23"/><circle cx="548" cy="320" r="27"/><circle cx="366" cy="347" r="16"/></g>
+      <ellipse cx="365" cy="484" rx="17" ry="10" fill="#08090b"/><ellipse cx="435" cy="484" rx="17" ry="10" fill="#08090b"/><path d="M373 536q27-22 54 0" fill="none" stroke="#7e2c2a" stroke-width="11" stroke-linecap="round"/>
 </svg>

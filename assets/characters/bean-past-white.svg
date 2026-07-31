@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="1200" viewBox="0 0 800 1200" role="img" aria-labelledby="title desc">
+  <title id="title">白い土の黒豆・過去</title>
+  <desc id="desc">白い土をまとった黒豆が淡い骨色の葉と古い記憶の輪を背負い、懐かしそうに微笑む姿。</desc>
+  <defs>
+
+    <radialGradient id="halo">
+      <stop offset="0" stop-color="#d9a64f" stop-opacity=".28"/>
+      <stop offset="1" stop-color="#d9a64f" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="warm" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f3d58a"/>
+      <stop offset=".48" stop-color="#b8732e"/>
+      <stop offset="1" stop-color="#7e2c2a"/>
+    </linearGradient>
+    <linearGradient id="dark" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1d4c4b"/>
+      <stop offset="1" stop-color="#08090b"/>
+    </linearGradient>
+  </defs>
+
+
+      <ellipse cx="400" cy="590" rx="360" ry="520" fill="url(#halo)"/>
+      <ellipse cx="400" cy="1090" rx="260" ry="54" fill="#08090b" opacity=".5"/>
+
+      <circle cx="400" cy="585" r="310" fill="none" stroke="#d8c8a3" stroke-opacity=".55" stroke-width="18" stroke-dasharray="18 25"/>
+      <path d="M190 875q18-275 210-395q192 120 210 395Z" fill="#d8c8a3" stroke="#08090b" stroke-width="24"/>
+      <ellipse cx="400" cy="605" rx="180" ry="225" fill="#08090b" stroke="#d9a64f" stroke-width="19"/>
+      <path d="M398 391Q330 238 202 304Q253 432 398 435Z" fill="#d8c8a3" stroke="#08090b" stroke-width="18"/><path d="M404 390Q481 235 615 315Q544 441 404 435Z" fill="#f3d58a" stroke="#08090b" stroke-width="18"/>
+      <ellipse cx="340" cy="606" rx="26" ry="18" fill="#d9a64f"/><ellipse cx="460" cy="606" rx="26" ry="18" fill="#d9a64f"/><path d="M355 674q45 34 90 0" fill="none" stroke="#d8c8a3" stroke-width="14" stroke-linecap="round"/>
+      <g fill="#d8c8a3"><circle cx="180" cy="500" r="12"/><circle cx="635" cy="530" r="9"/><circle cx="225" cy="720" r="8"/></g>
+</svg>

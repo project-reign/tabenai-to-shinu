@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="1200" viewBox="0 0 800 1200" role="img" aria-labelledby="title desc">
+  <title id="title">灰色の土の黒豆・現在</title>
+  <desc id="desc">灰色の土に根を張る黒豆が金と青緑に分かれた葉を持ち、今の食卓を慎重に見つめる姿。</desc>
+  <defs>
+
+    <radialGradient id="halo">
+      <stop offset="0" stop-color="#d9a64f" stop-opacity=".28"/>
+      <stop offset="1" stop-color="#d9a64f" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="warm" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f3d58a"/>
+      <stop offset=".48" stop-color="#b8732e"/>
+      <stop offset="1" stop-color="#7e2c2a"/>
+    </linearGradient>
+    <linearGradient id="dark" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1d4c4b"/>
+      <stop offset="1" stop-color="#08090b"/>
+    </linearGradient>
+  </defs>
+
+
+      <ellipse cx="400" cy="590" rx="360" ry="520" fill="url(#halo)"/>
+      <ellipse cx="400" cy="1090" rx="260" ry="54" fill="#08090b" opacity=".5"/>
+
+      <path d="M165 1018q70-246 235-292q165 46 235 292Z" fill="#69645c" stroke="#08090b" stroke-width="24"/>
+      <ellipse cx="400" cy="660" rx="205" ry="265" fill="#08090b" stroke="#8a857c" stroke-width="22"/>
+      <path d="M400 420V230" stroke="#d9a64f" stroke-width="20"/>
+      <path d="M392 338Q270 194 159 288Q244 414 392 397Z" fill="#d9a64f" stroke="#08090b" stroke-width="19"/><path d="M408 338Q530 194 641 288Q556 414 408 397Z" fill="#1d4c4b" stroke="#08090b" stroke-width="19"/>
+      <path d="M400 426v472" stroke="#77736d" stroke-width="12"/>
+      <ellipse cx="330" cy="641" rx="31" ry="21" fill="#d9a64f"/><ellipse cx="470" cy="641" rx="31" ry="21" fill="#65a09a"/><circle cx="340" cy="635" r="8" fill="#08090b"/><circle cx="480" cy="635" r="8" fill="#08090b"/>
+      <path d="M350 726q50 30 100 0" fill="none" stroke="#d8c8a3" stroke-width="15" stroke-linecap="round"/>
+</svg>

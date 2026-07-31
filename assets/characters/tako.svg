@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="1200" viewBox="0 0 800 1200" role="img" aria-labelledby="title desc">
+  <title id="title">寄生タコ</title>
+  <desc id="desc">深紅の丸い頭、琥珀色の目、金の吸盤を持つ少し可愛い寄生タコが八本の腕で丁寧にお辞儀する。</desc>
+  <defs>
+
+    <radialGradient id="halo">
+      <stop offset="0" stop-color="#d9a64f" stop-opacity=".28"/>
+      <stop offset="1" stop-color="#d9a64f" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="warm" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f3d58a"/>
+      <stop offset=".48" stop-color="#b8732e"/>
+      <stop offset="1" stop-color="#7e2c2a"/>
+    </linearGradient>
+    <linearGradient id="dark" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1d4c4b"/>
+      <stop offset="1" stop-color="#08090b"/>
+    </linearGradient>
+  </defs>
+
+
+      <ellipse cx="400" cy="590" rx="360" ry="520" fill="url(#halo)"/>
+      <ellipse cx="400" cy="1090" rx="260" ry="54" fill="#08090b" opacity=".5"/>
+
+      <g fill="none" stroke="#7e2c2a" stroke-width="64" stroke-linecap="round"><path d="M345 700Q105 775 185 1045"/><path d="M380 720Q245 850 325 1080"/><path d="M420 720Q555 850 475 1080"/><path d="M455 700Q695 775 615 1045"/><path d="M330 690Q130 610 105 830"/><path d="M470 690Q670 610 695 830"/></g>
+      <ellipse cx="400" cy="510" rx="245" ry="290" fill="url(#warm)" stroke="#08090b" stroke-width="24"/>
+      <path d="M220 400q180-190 360 0" fill="none" stroke="#f3d58a" stroke-opacity=".38" stroke-width="34" stroke-linecap="round"/>
+      <ellipse cx="325" cy="515" rx="42" ry="30" fill="#08090b"/><ellipse cx="475" cy="515" rx="42" ry="30" fill="#08090b"/><circle cx="337" cy="506" r="9" fill="#d9a64f"/><circle cx="487" cy="506" r="9" fill="#d9a64f"/>
+      <path d="M337 615q63 58 126 0" fill="none" stroke="#08090b" stroke-width="18" stroke-linecap="round"/>
+      <g fill="#d9a64f"><circle cx="174" cy="847" r="15"/><circle cx="283" cy="939" r="14"/><circle cx="517" cy="939" r="14"/><circle cx="626" cy="847" r="15"/></g>
+</svg>

@@ -99,9 +99,11 @@
       if (context.screen && assignments.screens) {
         resolved = { ...(assignments.screens[context.screen] || {}) };
       } else if (context.endingCode && assignments.endings) {
-        const endingKey = context.endingCode === 'death' || context.endingCode === 'starve'
+        const endingKey = Object.hasOwn(assignments.endings, context.endingCode)
           ? context.endingCode
-          : (context.mode === 'survival' ? 'survival' : 'clear');
+          : (context.endingCode === 'death' || context.endingCode === 'starve'
+              ? context.endingCode
+              : (context.mode === 'survival' ? 'survival' : 'clear'));
         resolved = { ...(assignments.endings[endingKey] || {}) };
       } else {
         if (context.category && assignments.categories) {
@@ -149,12 +151,16 @@
       this.audioFailures = 0;
       this.audioUnlocked = false;
       this.audioContext = null;
+      this.musicEngine = null;
       this.currentBgm = null;
       this.currentBgmKey = null;
       this.pendingBgmKey = null;
       this.lastHook = null;
       this.lastHookToken = null;
       this.lastContext = null;
+      this.lastStatusCueToken = null;
+      this.activeSeVoices = new Set();
+      this.lastCueAt = new Map();
       this.renderGeneration = 0;
       this.prefersMotionQuery = typeof matchMedia === 'function'
         ? matchMedia('(prefers-reduced-motion: reduce)')
@@ -213,6 +219,7 @@
         if (this.settings.bgmMuted) this.currentBgm.pause();
         else if (this.audioUnlocked && !document.hidden) this.currentBgm.play().catch(() => { this.audioFailures += 1; });
       }
+      if (this.musicEngine) this.musicEngine.setSettings(this.settings);
       return { ...this.settings };
     }
 
@@ -247,6 +254,16 @@
       try {
         this.audioContext = this.audioContext || new AudioContextClass();
         if (this.audioContext.state === 'suspended') await this.audioContext.resume();
+        if (!this.musicEngine && globalThis.TabenaiMusic) {
+          this.musicEngine = globalThis.TabenaiMusic.create({
+            audioContext: this.audioContext,
+            bgmVolume: this.settings.bgmVolume,
+            bgmMuted: this.settings.bgmMuted,
+            lightVisuals: this.settings.lightVisuals,
+            visible: !document.hidden,
+            onError: () => { this.audioFailures += 1; }
+          });
+        }
         this.audioUnlocked = true;
         document.documentElement.dataset.audioUnlocked = 'true';
         if (this.pendingBgmKey) this.playBgm(this.pendingBgmKey);
@@ -260,12 +277,14 @@
     _handleVisibility() {
       if (document.hidden) {
         if (this.currentBgm) this.currentBgm.pause();
+        if (this.musicEngine) this.musicEngine.setVisible(false);
         if (this.audioContext && this.audioContext.state === 'running') {
           this.audioContext.suspend().catch(() => { this.audioFailures += 1; });
         }
         return;
       }
       if (!this.audioUnlocked) return;
+      if (this.musicEngine) this.musicEngine.setVisible(true);
       if (this.audioContext && this.audioContext.state === 'suspended') {
         this.audioContext.resume().catch(() => { this.audioFailures += 1; });
       }
@@ -279,6 +298,15 @@
       if (!key || !this.audioUnlocked) return false;
       const entry = this.registry.get('bgm', key);
       this.currentBgmKey = key;
+      if (this.musicEngine && entry && entry.generator === 'deterministic-web-audio') {
+        if (this.currentBgm) {
+          this.currentBgm.pause();
+          this.currentBgm = null;
+        }
+        this.musicEngine.setSettings(this.settings);
+        return this.musicEngine.play(key);
+      }
+      if (this.musicEngine) this.musicEngine.stop();
       if (!entry || !entry.url) {
         if (this.currentBgm) {
           this.currentBgm.pause();
@@ -312,6 +340,13 @@
       try {
         const spec = entry.synth;
         const now = this.audioContext.currentTime;
+        const lastAt = this.lastCueAt.get(key);
+        if (Number.isFinite(lastAt) && now - lastAt < 0.035) return false;
+        this.lastCueAt.set(key, now);
+        if (this.activeSeVoices.size >= 12) {
+          const oldest = this.activeSeVoices.values().next().value;
+          try { oldest.oscillator.stop(now + 0.01); } catch (_) {}
+        }
         const duration = clamp(spec.duration || 0.08, 0.025, 0.5);
         const oscillator = this.audioContext.createOscillator();
         const gain = this.audioContext.createGain();
@@ -322,6 +357,13 @@
         gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
         oscillator.connect(gain);
         gain.connect(this.audioContext.destination);
+        const voice = { oscillator, gain };
+        this.activeSeVoices.add(voice);
+        oscillator.onended = () => {
+          this.activeSeVoices.delete(voice);
+          try { oscillator.disconnect(); } catch (_) {}
+          try { gain.disconnect(); } catch (_) {}
+        };
         oscillator.start(now);
         oscillator.stop(now + duration + 0.01);
         return true;
@@ -387,6 +429,11 @@
         characterKey: context.characterKey || undefined,
         moodKey: context.moodKey || (warning ? 'mood.warning' : undefined)
       };
+      safeContext.statusCue = /(?:毒|中毒)/.test(status)
+        ? 'se.poison'
+        : (/(?:疲労|衰弱)/.test(status)
+            ? 'se.fatigue'
+            : (/(?:負傷|裂傷|打撲|出血|重傷|かじられ)/.test(status) ? 'se.injury' : null));
       this.lastContext = safeContext;
       this._renderContext(safeContext, true);
     }
@@ -451,6 +498,12 @@
       else if (context.category === 'final') hookName = 'final';
       else if (context.warning) hookName = 'warning';
       this._applyHook(hookName, context.token, replayHook);
+      const statusCueToken = context.statusCue ? `${context.token}:${context.statusCue}` : null;
+      if (replayHook && context.statusCue && statusCueToken !== this.lastStatusCueToken) {
+        this.cue(context.statusCue);
+        this.lastStatusCueToken = statusCueToken;
+        document.documentElement.dataset.lastPresentationStatus = context.statusCue.slice(3);
+      }
 
       const card = document.getElementById('sceneCard');
       if (card) {
@@ -539,6 +592,8 @@
         reducedMotion: this.isReducedMotion(),
         assetFailures: this.assetFailures,
         audioFailures: this.audioFailures,
+        activeSeVoices: this.activeSeVoices.size,
+        music: this.musicEngine ? this.musicEngine.snapshot() : null,
         lastHook: this.lastHook,
         lastHookToken: this.lastHookToken,
         settings: { ...this.settings }
@@ -551,7 +606,7 @@
   }
 
   globalThis.TabenaiPresentation = Object.freeze({
-    version: '4.6.0',
+    version: '4.7.0',
     defaults: DEFAULT_SETTINGS,
     normalizeSettings,
     normalizeManifest,

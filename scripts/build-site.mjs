@@ -8,7 +8,10 @@ const dist = resolve(root, 'dist');
 await rm(dist, { recursive: true, force: true });
 await mkdir(dist, { recursive: true });
 
-for (const path of ['index.html', 'manifest.webmanifest', 'sw.js', 'survival-engine.js', 'presentation-engine.js']) {
+for (const path of [
+  'index.html', 'asset-gallery.html', 'asset-gallery.js', 'manifest.webmanifest', 'sw.js',
+  'survival-engine.js', 'music-engine.js', 'presentation-engine.js'
+]) {
   await cp(resolve(root, path), resolve(dist, path));
 }
 await cp(resolve(root, 'icons'), resolve(dist, 'icons'), { recursive: true });

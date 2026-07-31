@@ -1,18 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" width="800" height="800" viewBox="0 0 800 800" role="img" aria-labelledby="title desc">
-  <title id="title">腐った誕生日ケーキ</title>
-  <desc id="desc">傾いた鈍赤のケーキに一本だけ蝋燭が灯り、黴の斑点まで祝いの飾りのように並ぶ。</desc>
-  <defs><radialGradient id="bg"><stop offset="0" stop-color="#342119"/><stop offset="1" stop-color="#070a10"/></radialGradient><linearGradient id="cake" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#98483a"/><stop offset="1" stop-color="#47211c"/></linearGradient></defs>
-  <rect x="24" y="24" width="752" height="752" rx="92" fill="url(#bg)" stroke="#b77b37" stroke-width="18"/>
-  <g transform="rotate(5 400 440)">
-    <path d="M232 363h336l62 241H170Z" fill="url(#cake)" stroke="#130d0b" stroke-width="20"/>
-    <ellipse cx="400" cy="363" rx="168" ry="65" fill="#bc743e" stroke="#130d0b" stroke-width="19"/>
-    <path d="M236 365q34 89 68 0q34 99 68 0q34 88 68 0q34 103 68 0q30 82 60 0" fill="#d3a354" stroke="#170f0c" stroke-width="9"/>
-    <g fill="#101725"><circle cx="286" cy="452" r="22"/><circle cx="482" cy="510" r="27"/><circle cx="366" cy="570" r="18"/></g>
-    <g fill="#c38b3e"><circle cx="326" cy="431" r="8"/><circle cx="463" cy="445" r="9"/><circle cx="551" cy="550" r="8"/></g>
-    <ellipse cx="357" cy="489" rx="17" ry="10" fill="#e0ad54"/><ellipse cx="429" cy="489" rx="17" ry="10" fill="#e0ad54"/>
-    <path d="M363 536q30-30 60 0" fill="none" stroke="#111827" stroke-width="11" stroke-linecap="round"/>
-    <path d="M389 302V164" stroke="#d6a34c" stroke-width="21"/>
-    <path d="M400 156c-54-40 3-82 18-114c34 66 26 101-18 114Z" fill="#e4b25a" stroke="#8b3e31" stroke-width="9"/>
-  </g>
-  <ellipse cx="400" cy="664" rx="278" ry="43" fill="#8c4432" opacity="0.35"/>
+  <title id="title">崩れる契約の誕生日ケーキ</title>
+  <desc id="desc">深紅の傾いたケーキに金の蝋燭が一本だけ灯り、黒い黴と崩れる契約印が祝い飾りのように並ぶ。</desc>
+  <defs>
+
+    <radialGradient id="cardBg">
+      <stop offset="0" stop-color="#573024"/>
+      <stop offset=".55" stop-color="#2d1914"/>
+      <stop offset="1" stop-color="#08090b"/>
+    </radialGradient>
+    <radialGradient id="cardGlow">
+      <stop offset="0" stop-color="#f3d58a" stop-opacity=".56"/>
+      <stop offset="1" stop-color="#d9a64f" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="foodWarm" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f3d58a"/>
+      <stop offset=".5" stop-color="#b8732e"/>
+      <stop offset="1" stop-color="#7e2c2a"/>
+    </linearGradient>
+    <linearGradient id="foodCool" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#65a09a"/>
+      <stop offset=".52" stop-color="#1d4c4b"/>
+      <stop offset="1" stop-color="#0b1220"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="800" fill="#08090b"/>
+
+      <rect x="22" y="22" width="756" height="756" rx="92" fill="url(#cardBg)" stroke="#d9a64f" stroke-width="18"/>
+      <circle cx="400" cy="392" r="306" fill="url(#cardGlow)"/>
+      <circle cx="400" cy="400" r="316" fill="none" stroke="#b6503f" stroke-opacity=".45" stroke-width="7" stroke-dasharray="10 23"/>
+      <path d="M126 650Q400 711 674 650" fill="none" stroke="#d9a64f" stroke-width="17" stroke-linecap="round"/>
+
+      <g transform="rotate(5 400 450)"><path d="M220 355h360l68 258H152Z" fill="#7e2c2a" stroke="#08090b" stroke-width="22"/><ellipse cx="400" cy="355" rx="180" ry="70" fill="#b6503f" stroke="#08090b" stroke-width="20"/><path d="M225 357q35 94 70 0q35 104 70 0q35 94 70 0q35 108 70 0q35 91 70 0" fill="#d9a64f" stroke="#08090b" stroke-width="10"/>
+      <g fill="#08090b"><circle cx="284" cy="455" r="23"/><circle cx="487" cy="515" r="29"/><circle cx="365" cy="575" r="19"/></g><path d="M355 472l90 94M445 472l-90 94" stroke="#d9a64f" stroke-width="11"/>
+      <path d="M390 292V145" stroke="#d9a64f" stroke-width="22"/><path d="M400 137c-55-43 4-88 19-122c36 70 27 108-19 122Z" fill="#f3d58a" stroke="#7e2c2a" stroke-width="10"/></g>
 </svg>
