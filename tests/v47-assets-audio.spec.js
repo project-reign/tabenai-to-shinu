@@ -189,6 +189,7 @@ test('正式SVG 41点の参照・MIME・寸法・alt・subject・licenseを固�
   expect(manifest.assets.character['character.tako'].alt).toContain('八本の触腕');
 
   expect(manifest.assets.character['character.jr'].alt).toBe('琥珀色の薬鞄を掛けたJr.');
+  expect(manifest.assets.character['character.jr'].subjectLabel).toBe('薬鞄を掛けたJr.');
 
   const fullHeal = await readFile(path.join(process.cwd(), 'assets', 'cards', 'full-heal-drop.svg'), 'utf8');
   const fullHealEntry = manifest.assets.art['art.full-heal-drop'];

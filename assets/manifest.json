@@ -19,7 +19,7 @@
     },
     "character": {
       "character.tako": { "src": "./assets/characters/tako.svg", "mime": "image/svg+xml", "cache": "precache", "fallback": "🐙", "alt": "深紅の丸い頭と琥珀色の目を持ち、缶帽子をかぶって八本の触腕で丁寧にお辞儀する少し可愛い寄生タコ。", "subject": "tako", "subjectLabel": "寄生タコ", "licenseId": "project-v4.7-original-svg" },
-      "character.jr": { "src": "./assets/characters/jr.svg", "mime": "image/svg+xml", "cache": "precache", "fallback": "🪱", "alt": "琥珀色の薬鞄を掛けたJr.", "subject": "jr", "subjectLabel": "琥珀色の薬鞄", "licenseId": "project-v4.7-original-svg" },
+      "character.jr": { "src": "./assets/characters/jr.svg", "mime": "image/svg+xml", "cache": "precache", "fallback": "🪱", "alt": "琥珀色の薬鞄を掛けたJr.", "subject": "jr", "subjectLabel": "薬鞄を掛けたJr.", "licenseId": "project-v4.7-original-svg" },
       "character.bean-child": { "src": "./assets/characters/bean-child.svg", "mime": "image/svg+xml", "cache": "precache", "fallback": "🌱", "alt": "小さな芽と金色の目を持つ黒豆の幼体", "subject": "bean-child", "subjectLabel": "黒豆の幼体", "licenseId": "project-v4.7-original-svg" },
       "character.bean-past-white": { "src": "./assets/characters/bean-past-white.svg", "mime": "image/svg+xml", "cache": "precache", "fallback": "⚪", "alt": "白い土をまとった過去の黒豆が遠くを見つめる", "subject": "bean-past-white", "subjectLabel": "過去の黒豆", "licenseId": "project-v4.7-original-svg" },
       "character.bean-future-red": { "src": "./assets/characters/bean-future-red.svg", "mime": "image/svg+xml", "cache": "precache", "fallback": "🔴", "alt": "赤い土をまとった未来の黒豆が行く先を指す", "subject": "bean-future-red", "subjectLabel": "未来の黒豆", "licenseId": "project-v4.7-original-svg" },
