@@ -9,10 +9,13 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="食べないと死ぬ" />
   <meta name="mobile-web-app-capable" content="yes" />
+  <link rel="manifest" href="./manifest.webmanifest" />
 <link rel="icon" href="data:image/png;base64,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" />
   <link rel="apple-touch-icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAALQAAAC0CAIAAACyr5FlAAAGhElEQVR42u2dvU7dWBRGjXWnokI0UEZRFISQbkHFlLxA2kj005B2niJt8ghIafMClENFcSWEiKKIkjQjKqo0U3jkWPj+2Mf7HPbP+pQCFLCNvbz29vGx79bO7n5FyLLU7AICHAQ4CHAQ4CDAQYCDAAcBDuI9s8LrO5kzIDspV4sHV3B0gbi+e+QAS+3M3KBs5bu30v4ZAJEpxwc7WSnJAkeDBUwUpkQcEWE4wMITIpJwnMz3wUIDIlJ8yMCBMFwqRAAOhOFVITVkeM313ePEUaUaMuBDHg7IcM9HDRnwIQkHZATho4YM+Mh1tUIcZxwcaCOUPGrIgA/KCslWVtBGQHlgDjINDrQRUx6YgwAHyQEHNSVsZcEcBDgIcJBycNBwRG47MAcBDgIcBDgIcBDgIMBBjGUW+Y//eftpyI/tHX4ADmgY9FtxWJlFZuLp25chv7799v3SpbmnZBaKiYE0rP+tlhX3lMwiYJHGxEZWnlHiD5FycPz4fltV1es3h8++7n8rhYUsExspkUXkx/fb7r6S2j9BzVESi6WUiCPSYiF+CsUa52jJePr2pTAZXUTaVaddFtFzZMRCw/a0FpmikGfOWFpuMIcxMvp1zbRCasiAD1dlRTkWsiUGczgkw4FCZsHJODpbrP+Bm4u5CB/tha4hf8wCkrERiFU/PAWU4XysuVQBjlxkjGJi/RLSKDHnD2NlJY2M6VgsXWACIi0fNKTC2kgg4+hsIU7GxIU3f4WJ5rT2TUaBzXPMx8wEGTqxmF5l+s2Hnm7UTFkZpY3CZKSt18QgTa1fGyXJuD8/LcyH5uJSQ8aL+0MtH36eW5lORqONifJQwqhnOMZqQ9vxGL49XXmo6kadmEOEjK4wpsvDhz9q69rQfAwGbpvazqP0OEfXnHos2lfF/fnpq8+XVexoMUc7L9KNNhLkEdcc3WmxIrPspchY1WFIyePobCEyKYSeI26e/jgFDplWNLc2BC9b7F65zDhl2+x9/Pob07/fsUNMlpUy2igtj5u/tn9dbv+6fP3msPxjsdrhSJ634aftUDbgEbchHa4EKXlQVszUFLYcc8jIIKY8GOcg6uEo2Y2maaCMPFT1pMbMYf0+uK3tD1dWpgggWudBz0GAQ+jUDyUPzEGAQ+6kjyMPzEHCwyF7ugeRB+YgseHIcaJHkAfmIF7gSJjGne8UT1iyrWnoWuBo3mFi6H1ZmdLsASWvk3M+wXjUyZ0wqdj3g3H0HMQRHMPL9tieYO/j1+ZfJjmZe+4Nc/wmY+nXmMNhTzpKG30aRvEhdUGkqhu1ag6LzyVb3GafZaX88KXLAVNdcAyvLLInYv8iVvZZ2SFbq62m+DRH2kncpSGNDH/yMDwIdnMxl53MnenJeqNvbtFojlHXLP39/rKnb3/tA8lQWFMqxjmIMTiS5aGh6ne3wbQ2nJhDZ1G322poh2PsaOnNxVzPxcL9+elwMtRqg56D2IRjlDy2/9lVtfEDt0ezNirl4xx7hx9+3n7afvt+46sZnv78t/36BZ9kH9VnKCfDTFkZdav2pTrBBDKUR/sIaSOPtONUTCHJOCr/6GED5kie51FGIQlr0V9QLJWVKXzkQyRt4VbIqMzdeBvSnBaoMsnA2Xr2wgwcbfORxkf3iCZTMlFCLRkmtGHMHNP56B/jjaBIVSVzZNgrK1J8FG5aLZJRWRw+b/evlfptlIzK6EywZi83g6eV4g9asIuFVXNYUYh1Mirrd2XV8uGAjMrBU/baSowPLDyYY6lCXsoi3VVPJ2PVJ3mV/IQvP+/naBXSnr7FLNLF0YEwHMKxCpF8lDxTlDgWjSTaD3Uv/6mAWzu7+2v++2S+f333aBSU/r1+EUr6ZcuuLY4Pdq4WD1HMsfSYtZQ8O64DWVnVxHiqIOHgWEPJlAtg90zEgmPVcR04xywODaHh4KhHHOcgwEGAgwAHAQ4CHAQ4CHD8n6vFw/HBDrvJZdbfWMEchLJCgIOUhoO2I2bDgTkIcJB8cFBZAtYUzEEk4EAe0bSBOYgQHMgjlDZGmwM+4pBBWSGicCCPINpINAd8RCAjvazAh3syJvUc8OGbjKkNKXw4JkPgagU+vJJRbXw/x8CczPerqrL7Jg9/WDTn7cTlyMDRIgIfDoSRBQ4U4kMYueAAER9YZISjiwiU5GYiBxbZ4ehTAiiCQORjoigcq0AhaWMHxdZVGg5iKNyyJ8BBgIMABwEOAhwEOAhwEC/5D7wQj10iNjubAAAAAElFTkSuQmCC" />
+  <link rel="icon" type="image/png" sizes="32x32" href="./icons/favicon-32.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="./icons/apple-touch-icon.png" />
   <meta name="theme-color" content="#171717" />
-  <title>食べないと死ぬ：50日目の晩餐 v4.2.1 簡易公開版</title>
+  <title>食べないと死ぬ：50日目の晩餐 v4.3.0</title>
   <style>
     :root {
       --bg: #0f1115;
@@ -50,6 +53,12 @@
     .toolbar { display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end; }
     .small-btn { color:var(--text); background:#161920; border:1px solid var(--line); padding:8px 11px; border-radius:10px; cursor:pointer; }
     .small-btn:hover { border-color:#596171; background:#1e222b; }
+    .app-menu { position:relative; flex:0 0 auto; }
+    .app-menu > summary { list-style:none; min-width:44px; min-height:44px; display:grid; place-items:center; border:1px solid var(--line); border-radius:12px; background:#161920; color:var(--text); cursor:pointer; font-weight:800; }
+    .app-menu > summary::-webkit-details-marker { display:none; }
+    .app-menu[open] > summary { border-color:#80704b; background:#242117; }
+    .menu-panel { position:absolute; z-index:12; top:calc(100% + 8px); right:0; width:min(260px,calc(100vw - 24px)); display:grid; grid-template-columns:1fr 1fr; gap:8px; padding:10px; border:1px solid #3a4050; border-radius:15px; background:rgba(23,26,33,.98); box-shadow:var(--shadow); }
+    .menu-panel .small-btn { text-align:left; min-height:42px; }
     .stats { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-bottom:14px; }
     .stat { background:rgba(23,26,33,.93); border:1px solid var(--line); border-radius:15px; padding:12px; box-shadow:0 8px 24px rgba(0,0,0,.18); }
     .stat-label { color:var(--muted); font-size:.78rem; display:flex; justify-content:space-between; gap:8px; }
@@ -111,9 +120,13 @@
     .toast.show { opacity:1; transform:translate(-50%,0); }
     .data-textarea { width:100%; min-height:180px; resize:vertical; color:var(--text); background:#0f1218; border:1px solid #3a4050; border-radius:13px; padding:12px; font:500 .78rem/1.55 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
     .data-actions { display:grid; grid-template-columns:repeat(2,1fr); gap:10px; margin-top:12px; }
+    .update-banner { position:fixed; z-index:25; left:50%; bottom:max(16px,env(safe-area-inset-bottom)); transform:translateX(-50%); width:min(560px,calc(100% - 24px)); display:flex; align-items:center; gap:12px; padding:12px; border:1px solid #6a5930; border-radius:15px; background:#242117; box-shadow:var(--shadow); }
+    .update-banner[hidden] { display:none; }
+    .update-banner p { flex:1; margin:0; color:#fff0b5; font-size:.88rem; }
+    .update-banner .primary, .update-banner .secondary { flex:0 0 auto; padding:9px 12px; }
     @keyframes fade { from { opacity:0; transform:translateY(-4px); } to { opacity:1; transform:none; } }
     @media (max-width:760px) {
-      .app { width:min(100% - 16px, 1040px); padding-top:12px; }
+      .app { width:min(100% - 16px, 1040px); padding-top:max(8px,env(safe-area-inset-top)); }
       .stats { grid-template-columns:1fr 1fr; }
       .layout { grid-template-columns:1fr; }
       .side { grid-template-columns:1fr; }
@@ -121,8 +134,37 @@
       .choices { grid-template-columns:1fr; }
       .ending-score, .ending-actions { grid-template-columns:1fr; }
       .choice { min-height:78px; }
-      .topbar { align-items:flex-start; }
+      .topbar { align-items:center; margin-bottom:9px; }
       .toolbar { max-width:260px; }
+    }
+    @media (max-width:520px) and (orientation:portrait) {
+      body { line-height:1.58; }
+      .brand { min-width:0; gap:8px; }
+      .brand-icon { width:36px; height:36px; border-radius:11px; font-size:21px; box-shadow:none; }
+      .brand h1 { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:1rem; }
+      .brand .subtitle { display:none; }
+      .app-menu > summary { min-width:40px; min-height:40px; }
+      .stats { grid-template-columns:repeat(4,1fr); gap:5px; margin-bottom:8px; }
+      .stat { min-width:0; padding:7px 5px; border-radius:10px; text-align:center; box-shadow:none; }
+      .stat-label { display:block; font-size:.64rem; white-space:nowrap; overflow:hidden; }
+      .stat-label span:first-child { display:block; color:#8f97a5; overflow:hidden; text-overflow:ellipsis; }
+      .stat-label span:last-child { display:none; }
+      .stat-value { margin:0; font-size:.9rem; line-height:1.3; }
+      .bar { height:4px; margin-top:4px; }
+      .scene { padding:13px; }
+      .scene-meta { gap:5px; margin-bottom:8px; }
+      .badge { min-height:23px; padding:2px 7px; font-size:.68rem; }
+      .scene-icon { font-size:2.5rem; margin:1px 0 7px; }
+      .scene h2 { font-size:1.3rem; }
+      .scene-text { margin:8px 0 11px; font-size:.93rem; }
+      .result { margin-bottom:10px; padding:9px 10px; font-size:.88rem; }
+      .choices { gap:8px; }
+      .choice { min-height:68px; padding:10px 11px; border-radius:13px; }
+      .choice-key { width:27px; height:27px; border-radius:8px; }
+      .choice strong { font-size:.93rem; }
+      .choice span { font-size:.76rem; margin-top:2px; }
+      .side { margin-top:0; }
+      .update-banner { flex-wrap:wrap; }
     }
   </style>
 </head>
@@ -133,18 +175,21 @@
         <div class="brand-icon" aria-hidden="true">🍽️</div>
         <div>
           <h1>食べないと死ぬ：50日目の晩餐</h1>
-          <div class="subtitle">二択だけで進む、怪食サバイバル・ノベル <strong>v4.2.1 簡易公開版</strong></div>
+          <div class="subtitle">二択だけで進む、怪食サバイバル・ノベル <strong>v4.3.0</strong></div>
         </div>
       </div>
-      <div class="toolbar">
-        <button class="small-btn" id="rulesBtn">遊び方</button>
-        <button class="small-btn" id="installBtn">ホーム画面</button>
-        <button class="small-btn" id="seedBtn">シード</button>
-        <button class="small-btn" id="shareBtn">共有</button>
-        <button class="small-btn" id="dataBtn">セーブ移行</button>
-        <button class="small-btn" id="saveBtn">手動保存</button>
-        <button class="small-btn" id="resetBtn">最初から</button>
-      </div>
+      <details class="app-menu" id="appMenu">
+        <summary aria-label="管理メニュー">☰</summary>
+        <nav class="menu-panel" aria-label="管理操作">
+          <button class="small-btn" id="rulesBtn">遊び方</button>
+          <button class="small-btn" id="installBtn">インストール・更新</button>
+          <button class="small-btn" id="seedBtn">シード</button>
+          <button class="small-btn" id="shareBtn">共有</button>
+          <button class="small-btn" id="dataBtn">セーブ移行</button>
+          <button class="small-btn" id="saveBtn">手動保存</button>
+          <button class="small-btn" id="resetBtn">最初から</button>
+        </nav>
+      </details>
     </header>
 
     <section class="stats" aria-label="ゲーム状態">
@@ -226,7 +271,7 @@
           <li>50日目の最後の晩餐では、集めた手がかりと過去の選択が結末を変えます。</li>
         </ul>
         <p>エンディングは複数あります。四皿すべてを二段階の二択で選べます。正解を知っていても、仲間・記憶・怪物化・古い存在の状態で結末が変化します。</p>
-        <p class="subtitle">v4.2更新：固定URL運用に加え、セーブの書き出し・読み込み、端末間移行、共有、オフライン起動、GitHub Pages自動配信へ対応。</p>
+        <p class="subtitle">v4.3更新：iPhone縦画面をコンパクト化し、GitHub Pagesのサブパス対応PWA、オフライン再起動、新版の明示更新へ対応。</p>
       </div>
       <button class="primary" id="closeRules">閉じる</button>
     </div>
@@ -272,12 +317,19 @@
     </div>
   </div>
 
+  <aside class="update-banner" id="updateBanner" role="status" aria-live="polite" hidden>
+    <p>新版を取得しました。セーブを維持したまま更新できます。</p>
+    <button class="primary" id="applyUpdateBtn">更新する</button>
+    <button class="secondary" id="dismissUpdateBtn" aria-label="後で更新する">後で</button>
+  </aside>
+
   <div class="toast" id="toast">保存しました</div>
 
   <script>
 (() => {
   'use strict';
 
+  const APP_VERSION = '4.3.0';
   const VERSION = 4;
   const SAVE_KEY = 'tabenai-to-shinu-50days-v4';
   const LEGACY_KEYS = ['tabenai-to-shinu-50days-v3', 'tabenai-to-shinu-50days-v2'];
@@ -1386,7 +1438,7 @@
     $('newSeedRestart').addEventListener('click', () => restartWithSeed(makeSeed()));
     $('sameSeedRestart').addEventListener('click', () => restartWithSeed(state.seed));
     $('endingLog').addEventListener('click', () => {
-      const details = document.querySelector('details');
+      const details = document.querySelector('.side details');
       if (details) { details.open = true; details.scrollIntoView({ behavior: 'smooth' }); }
     });
   }
@@ -1542,7 +1594,7 @@
     return {
       format: 'tabenai-save',
       formatVersion: 1,
-      appVersion: VERSION,
+      appVersion: APP_VERSION,
       exportedAt: new Date().toISOString(),
       state: clone(state),
       endings
@@ -1649,6 +1701,11 @@
   if ($('exportSaveBtn')) $('exportSaveBtn').addEventListener('click', exportSave);
   if ($('downloadSaveBtn')) $('downloadSaveBtn').addEventListener('click', downloadSave);
   if ($('importSaveBtn')) $('importSaveBtn').addEventListener('click', importSave);
+  if ($('appMenu')) {
+    $('appMenu').querySelectorAll('button').forEach(button => {
+      button.addEventListener('click', () => { $('appMenu').open = false; });
+    });
+  }
   document.addEventListener('keydown', e => {
     if (ui.rulesModal.classList.contains('open') || $('dataModal').classList.contains('open')) {
       if (e.key === 'Escape') { ui.rulesModal.classList.remove('open'); $('dataModal').classList.remove('open'); }
@@ -1670,7 +1727,8 @@
   try {
     if (location.search && location.search.includes('debug=1')) {
       globalThis.__TABENAI_DEBUG__ = {
-        version: VERSION,
+        version: APP_VERSION,
+        schemaVersion: VERSION,
         snapshot: () => clone(state),
         scenes: () => Object.keys(scenes),
         choices: () => scenes[state.scene].choices(state).map(c => ({ title: c.title, desc: c.desc, kind: c.kind, tick: c.tick })),
@@ -1696,8 +1754,12 @@
     const checkUpdateBtn = document.getElementById('checkUpdateBtn');
     const installStatus = document.getElementById('installStatus');
     const toastEl = document.getElementById('toast');
+    const updateBanner = document.getElementById('updateBanner');
+    const applyUpdateBtn = document.getElementById('applyUpdateBtn');
+    const dismissUpdateBtn = document.getElementById('dismissUpdateBtn');
     let deferredInstallPrompt = null;
     let registration = null;
+    let applyingUpdate = false;
 
     const isStandalone = () => window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
     const showToast = text => {
@@ -1721,9 +1783,11 @@
 
     function openInstallHelp() {
       if (installStatus) {
-        installStatus.textContent = isStandalone()
+        const mode = isStandalone()
           ? '現在、ホーム画面のWebアプリとして起動しています。'
           : 'このページをホーム画面へ追加すると、ブラウザのタブを探さずアプリのように起動できます。';
+        const update = registration && registration.waiting ? ' 新版を適用できます。' : '';
+        installStatus.textContent = `${mode}${update}`;
       }
       if (nativeInstallBtn) {
         nativeInstallBtn.hidden = isStandalone() || !deferredInstallPrompt;
@@ -1747,34 +1811,67 @@
       nativeInstallBtn.hidden = true;
     });
 
+    function showUpdateReady() {
+      if (updateBanner) updateBanner.hidden = false;
+      showToast('新版を取得しました。更新操作を選べます');
+    }
+
     async function updateApp() {
       if (!registration) {
-        showToast('簡易公開版はページを再読み込みして更新します');
+        showToast('PWAの準備中です。少し待って再度確認してください');
         return;
       }
       try {
+        showToast('新版を確認しています');
         await registration.update();
-        showToast('最新版を確認しました');
+        if (registration.waiting) showUpdateReady();
+        else showToast('最新版です');
       } catch (_) {
         showToast('更新確認に失敗しました');
       }
     }
     if (checkUpdateBtn) checkUpdateBtn.addEventListener('click', updateApp);
 
-    if (false && 'serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1')) {
+    async function applyUpdate() {
+      if (!registration || !registration.waiting) {
+        await updateApp();
+      }
+      if (!registration || !registration.waiting) return;
+      applyingUpdate = true;
+      if (applyUpdateBtn) applyUpdateBtn.disabled = true;
+      registration.waiting.postMessage({ type: 'SKIP_WAITING' });
+    }
+    if (applyUpdateBtn) applyUpdateBtn.addEventListener('click', applyUpdate);
+    if (dismissUpdateBtn) dismissUpdateBtn.addEventListener('click', () => { updateBanner.hidden = true; });
+
+    if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1')) {
+      navigator.serviceWorker.addEventListener('controllerchange', () => {
+        if (!applyingUpdate) return;
+        applyingUpdate = false;
+        location.reload();
+      });
+
       window.addEventListener('load', async () => {
         try {
-          registration = await navigator.serviceWorker.register('./sw.js', { scope: './' });
-          registration.update().catch(() => {});
+          registration = await navigator.serviceWorker.register('./sw.js', { scope: './', updateViaCache: 'none' });
+          if (registration.waiting) showUpdateReady();
           registration.addEventListener('updatefound', () => {
             const worker = registration.installing;
             if (!worker) return;
             worker.addEventListener('statechange', () => {
               if (worker.state === 'installed' && navigator.serviceWorker.controller) {
-                showToast('新しい版を取得しました。次回起動時に反映されます');
+                showUpdateReady();
               }
             });
           });
+          registration.update().catch(() => {});
+          globalThis.__TABENAI_PWA__ = {
+            version: '4.3.0',
+            scope: registration.scope,
+            hasWaitingUpdate: () => !!registration.waiting,
+            checkForUpdate: updateApp,
+            applyUpdate
+          };
         } catch (error) {
           console.warn('Service worker registration failed:', error);
         }

@@ -1,0 +1,16 @@
+{
+  "name": "tabenai-to-shinu",
+  "version": "4.3.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build-site.mjs",
+    "serve": "node tests/server.mjs",
+    "test": "playwright test",
+    "test:game": "playwright test tests/game.spec.js",
+    "test:pwa": "playwright test tests/pwa.spec.js"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.62.1"
+  }
+}
