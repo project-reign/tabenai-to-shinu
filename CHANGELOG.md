@@ -1,5 +1,38 @@
 # Changelog
 
+## [4.5.0] - 2026-07-31
+
+### Added
+
+- Playable SURVIVAL 50 “怪食サバイバル” mode with a deterministic daily event deck and one-day progression for each resolved encounter.
+- `common`, `uncommon`, `rare`, `conditional`, `milestone`, and `final` event categories, with at least 16 normal, 8 conditional, and 6 rare events.
+- Deterministic 3% base rare chance that rises by danger tier to at most 7%, plus pity protection after a long rare-event drought.
+- Per-event cooldown, one-shot, maximum-encounter, and recent-three suppression rules; selected event IDs are saved immediately to prevent reload rerolls.
+- Fixed encounters on days 10, 20, 30, and 40, followed by day 50 “生存者の配膳”.
+- Four day-50 boxes—保存食の箱, 生きている箱, 空の箱, and 帰還の箱—selected through two binary stages, followed by an open-or-refuse choice.
+- Seven persistent achievements: 野生の50日, 稀少遭遇, 運も実力, 孤独な生還, 拒否の達人, 全ては予定通り, and the hidden 普通がいちばん.
+
+### Changed
+
+- Unlocked SURVIVAL 50 on the title mode screen; 100 DAYS and ENDLESS remain locked roadmap modes.
+- Updated the displayed application, manifest, and Service Worker cache version to 4.5.0.
+- Extended run and meta records with deterministic SURVIVAL encounter, rare/pity, milestone, final-box, achievement, ending, and statistics data.
+
+### Compatibility
+
+- Kept STORY 50 and HARD 50 scenes, values, choices, seeded results, four bean routes, and four final dishes unchanged.
+- Preserved exactly two visible choices and the eat/drink/medicine/wait refusal rights throughout every playable mode.
+- Kept run schema `version: 4`, `tabenai-to-shinu-50days-v4`, `tabenai-to-shinu-meta-v1`, legacy meta normalization, and `formatVersion: 1` and `formatVersion: 2` transfer imports.
+- Kept relative GitHub Pages PWA paths, first-online offline relaunch, and explicit player-controlled Service Worker updates.
+- Rare encounters do not cause unavoidable instant death by themselves.
+
+### Validation
+
+- Retained all 16 pre-v4.5 Playwright tests without weakening them and added SURVIVAL coverage for every event's binary choices and every food, drink, and medicine refusal.
+- Added deterministic deck/result and reload-lock tests, plus cooldown, one-shot, encounter-cap, recent-three, rare-rate, and pity tests.
+- Added reachability coverage for all conditional events, 10-day milestones, all four boxes and refusal, multiple survival endings, save/transfer migration, offline relaunch, and iPhone 390×844 layout.
+- Added simulations over at least 10,000 seeds requiring zero exceptions, infinite loops, and invalid or non-finite state values.
+
 ## [4.4.0] - 2026-07-31
 
 ### Added

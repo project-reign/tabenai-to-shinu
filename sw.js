@@ -1,6 +1,6 @@
 'use strict';
 
-const APP_VERSION = '4.4.0';
+const APP_VERSION = '4.5.0';
 const CACHE_PREFIX = 'tabenai-to-shinu-';
 const CACHE_NAME = `${CACHE_PREFIX}${APP_VERSION}`;
 const SCOPE_URL = new URL('./', self.registration.scope);
@@ -8,6 +8,7 @@ const OFFLINE_DOCUMENT = new URL('./index.html', SCOPE_URL).href;
 const PRECACHE_URLS = [
   './',
   './index.html',
+  './survival-engine.js',
   './manifest.webmanifest',
   './icons/favicon-32.png',
   './icons/apple-touch-icon.png',
