@@ -55,7 +55,7 @@ v4.6.0「森が目を覚ます」は、画像、音、画面効果、触覚を�
 - `hooks`: タイトルや結末などの演出フック
 - `actions`: 選択、警告、摂取、拒否、メニューの効果音割当
 
-ファイルを持つ項目は相対 `src`、正しい `mime`、`cache`、代替テキスト、`licenseId` を持ちます。ファイルを持たない差し替え枠は `src: null` とし、キャラクターには表示可能な絵文字 `fallback` を指定できます。
+ファイルを持つ項目は相対 `src`、正しい `mime`、`cache`、代替テキスト、`licenseId` を持ちます。カード画像はさらに安定した意味ID `subject` と、日本語の対象名 `subjectLabel` を持ち、`alt` はその対象名を含めます。ファイルを持たない差し替え枠は `src: null` とし、キャラクターには表示可能な絵文字 `fallback` を指定できます。
 
 ## IDの安定性
 
@@ -67,6 +67,8 @@ v4.6.0「森が目を覚ます」は、画像、音、画面効果、触覚を�
 - 廃止が必要な場合は、割当を一度に破壊せずaliasまたは互換mappingを先に追加する
 - シーンIDとSURVIVALイベントIDはアセット差し替えのために変更しない
 - `backgroundKey`、`characterKey`、`artKey`、`moodKey` は任意項目であり、保存ランの成立条件にしない
+- `artKey` を指定する割当は、イベント本文が扱う対象を `contentSubject` で宣言し、参照先カードの `subject` と一致させる
+- 内容に合うカードがない場合は別内容のカードを流用せず、`artKey` を省略して絵文字・キャラクター・本文へフォールバックする
 
 新規IDは `^[a-z][a-z0-9]*(?:[.-][a-z0-9]+)+$` に合致させ、種類と名前空間が一致するようにします。
 
@@ -160,11 +162,14 @@ Service Workerは用途の異なる三つの配信tierを区別します。物�
 
 | Tier | 内容 | 方針 |
 | --- | --- | --- |
-| core shell | HTML、manifest、Service Worker、ゲーム／演出script、必須icon | core cacheへinstall時に保存し、offline起動に必須 |
-| presentation precache | `cache: "precache"` の軽量画像と台帳 | presentation cacheへinstall時に保存。v4.6.0のSVG 15点を含む |
+| core shell | HTML、web app manifest、ゲーム／演出script、必須icon | core cacheへinstall時に一括保存し、offline起動に必須 |
+| asset manifest | `assets/manifest.json` | best-effortで取得し、HTTP 200かつ有効JSONの場合だけcore cacheへ保存 |
+| presentation precache | `cache: "precache"` の軽量画像 | 台帳取得後に一件ずつ取得し、HTTP 200だけpresentation cacheへ保存。v4.6.0のSVG 15点を含む |
 | lazy runtime | 将来のcharacter画像、BGMなど `cache: "lazy"` のファイル | install時には取得せず、初回成功response後にpresentation cacheへ保存 |
 
-app shellの版とasset manifestの版を別に管理します。URLのqueryやパスを使って未来のイベントを先読みしたり、先読みのためにPRNGを消費したりしません。lazy素材がofflineで未取得なら、その場で絵文字・本文へ戻ります。
+core shellの一括保存だけを必須install処理とします。asset manifestの通信失敗、503、JSON不正、または個別演出素材の404・通信失敗はinstallをrejectしません。非200 responseは保存せず、一件の失敗後も残りの演出素材を個別に取得します。このため初回installで台帳が503でもcoreだけでoffline再起動でき、一枚のSVGが404でも本文・絵文字・二択で進行できます。
+
+app shellの版とasset manifestの版を別に管理します。URLのqueryやパスを使って未来のイベントを先読みしたり、先読みのためにPRNGを消費したりしません。presentationまたはlazy素材がofflineで未取得なら、その場で絵文字・本文へ戻ります。
 
 新しいService Workerは待機し、プレイヤーが「更新する」を選ぶまで現在のworkerとcacheを維持します。古いcacheの削除は、明示的に受け入れたworkerのactivate時だけ行います。
 
@@ -238,13 +243,14 @@ npm run build
 - 拡張子とMIME
 - 背景1600×900、カード800×800
 - SVGの日本語 `<title>`／`<desc>`
+- カードの `subject`／`subjectLabel`、割当の `contentSubject`、画像altの意味整合
 - SVGの外部resource、font、script
 - 存在しないlicense ID
 - manifestにない配信用orphan file
 - 各cache tierと全precacheの容量
 - fallbackに必要な既存emoji・本文UI
 
-Playwrightではunknown ID、manifest取得失敗、画像404、offline、trusted gesture前後、visibility change、mute、volume、haptics非対応、明示reduced motion、`prefers-reduced-motion`、light visuals、GitHub Pagesサブパス、明示更新、iPhone 390×844を検証します。通常起動と完全オフライン再起動ではブラウザwarning／errorを0件にし、意図的なHTTP失敗ではブラウザがnetwork errorを記録しても、未処理例外とゲーム中断を0件にします。
+Playwrightではunknown ID、manifest取得失敗、画像404、offline、trusted gesture前後、visibility change、mute、volume、haptics非対応、明示reduced motion、`prefers-reduced-motion`、light visuals、GitHub Pagesサブパス、明示更新、iPhone 390×844を検証します。初回Service Worker install時のasset manifest 503とprecache SVG一枚の404も個別に注入し、coreのactivate、404非cache、完全offlineでの本文・絵文字・二択を確認します。通常起動と完全オフライン再起動ではブラウザwarning／errorを0件にし、意図的なHTTP失敗ではブラウザがnetwork errorを記録しても、未処理例外とゲーム中断を0件にします。
 
 ## v4.7への引継ぎ
 

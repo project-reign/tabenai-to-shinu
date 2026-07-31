@@ -22,7 +22,7 @@ const PRESENTATION_TYPES = new Set(['background', 'character', 'art', 'effect'])
 const ASSET_FIELDS = {
   background: new Set(['src', 'mime', 'cache', 'alt', 'licenseId']),
   character: new Set(['src', 'mime', 'cache', 'fallback', 'alt', 'licenseId']),
-  art: new Set(['src', 'mime', 'cache', 'alt', 'licenseId']),
+  art: new Set(['src', 'mime', 'cache', 'alt', 'subject', 'subjectLabel', 'licenseId']),
   effect: new Set(['src', 'mime', 'cache', 'className', 'alt', 'licenseId']),
   bgm: new Set(['src', 'mime', 'cache', 'loop', 'label', 'licenseId']),
   se: new Set(['src', 'mime', 'cache', 'synth', 'label', 'licenseId'])
@@ -42,6 +42,7 @@ const MIME_BY_EXTENSION = new Map([
 ]);
 const ID_PATTERN = /^[a-z][a-z0-9]*(?:[.-][a-z0-9]+)+$/;
 const LICENSE_PATTERN = /^[a-z0-9][a-z0-9.-]*$/;
+const SUBJECT_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const VERSION_PATTERN = /^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?(?:\+[0-9A-Za-z.-]+)?$/;
 const SOURCE_PATTERN = /^\.\/assets\/[A-Za-z0-9][A-Za-z0-9._/-]*$/;
 const CORE_SHELL_FILES = [
@@ -251,6 +252,20 @@ async function main() {
       if (Object.hasOwn(entry, 'cache') && !['precache', 'lazy'].includes(entry.cache)) {
         fail(`${entryPath}.cache must be "precache" or "lazy".`);
       }
+      if (type === 'art') {
+        const expectedSubject = id.startsWith('art.') ? id.slice('art.'.length) : '';
+        if (typeof entry.subject !== 'string' || !SUBJECT_PATTERN.test(entry.subject)) {
+          fail(`${entryPath}.subject must be a lowercase semantic identifier.`);
+        } else if (entry.subject !== expectedSubject) {
+          fail(`${entryPath}.subject must match its stable ID suffix ${JSON.stringify(expectedSubject)}.`);
+        }
+        if (typeof entry.subjectLabel !== 'string' || !entry.subjectLabel.trim()
+          || !/[\u3040-\u30ff\u3400-\u9fff]/u.test(entry.subjectLabel)) {
+          fail(`${entryPath}.subjectLabel must be a non-empty Japanese label.`);
+        } else if (typeof entry.alt !== 'string' || !entry.alt.includes(entry.subjectLabel)) {
+          fail(`${entryPath}.alt must include subjectLabel ${JSON.stringify(entry.subjectLabel)}.`);
+        }
+      }
 
       const row = { id, type, src: null, cache: entry.cache || null, bytes: 0 };
       assetRows.push(row);
@@ -365,15 +380,39 @@ async function main() {
     referenced.add(value);
   };
 
-  const walkReferenceTree = (value, path) => {
+  const validateAssignmentSemantics = (value, path) => {
+    const hasArtKey = Object.hasOwn(value, 'artKey');
+    const hasContentSubject = Object.hasOwn(value, 'contentSubject');
+    if (hasContentSubject && (typeof value.contentSubject !== 'string' || !SUBJECT_PATTERN.test(value.contentSubject))) {
+      fail(`${path}.contentSubject must be a lowercase event-content identifier.`);
+      return;
+    }
+    if (!hasArtKey) return;
+    if (!hasContentSubject) {
+      fail(`${path}.contentSubject must declare the event content for artKey.`);
+      return;
+    }
+    const artEntry = isObject(assets.art) && isObject(assets.art[value.artKey])
+      ? assets.art[value.artKey]
+      : null;
+    if (artEntry && value.contentSubject !== artEntry.subject) {
+      fail(`${path}.contentSubject ${JSON.stringify(value.contentSubject)} conflicts with ${value.artKey} subject ${JSON.stringify(artEntry.subject)}.`);
+    }
+  };
+
+  const walkReferenceTree = (value, path, assignment = false) => {
     if (!isObject(value)) {
       fail(`${path} must be an object.`);
       return;
     }
+    if (assignment) validateAssignmentSemantics(value, path);
     for (const [key, child] of Object.entries(value)) {
       const childPath = `${path}.${key}`;
-      if (isObject(child)) walkReferenceTree(child, childPath);
+      if (isObject(child)) walkReferenceTree(child, childPath, assignment);
       else if (REFERENCE_FIELDS.has(key)) validateReference(key, child, childPath);
+      else if (assignment && key === 'contentSubject') {
+        // Validated together with artKey above.
+      }
       else fail(`${childPath}: unknown assignment or hook field.`);
     }
   };
@@ -385,7 +424,7 @@ async function main() {
   }
   for (const key of ASSIGNMENT_GROUPS) {
     if (!isObject(assignments[key])) fail(`assignments.${key} must be an object.`);
-    else walkReferenceTree(assignments[key], `assignments.${key}`);
+    else walkReferenceTree(assignments[key], `assignments.${key}`, true);
   }
 
   const hooks = isObject(manifest.hooks) ? manifest.hooks : {};

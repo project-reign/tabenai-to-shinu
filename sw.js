@@ -30,30 +30,57 @@ function collectPrecacheUrls(manifest) {
     if (!group || typeof group !== 'object') continue;
     for (const entry of Object.values(group)) {
       if (!entry || entry.cache !== 'precache' || typeof entry.src !== 'string') continue;
-      const url = new URL(entry.src, SCOPE_URL);
-      if (url.origin === SCOPE_URL.origin && url.href.startsWith(ASSET_ROOT_URL)) {
-        urls.add(url.href);
-      }
+      try {
+        const url = new URL(entry.src, SCOPE_URL);
+        if (url.origin === SCOPE_URL.origin && url.href.startsWith(ASSET_ROOT_URL)) {
+          urls.add(url.href);
+        }
+      } catch (_) {}
     }
   }
   return [...urls];
 }
 
+async function precachePresentationBestEffort(coreCache) {
+  let manifestResponse;
+  try {
+    manifestResponse = await fetch(ASSET_MANIFEST_URL, { cache: 'no-store' });
+  } catch (_) {
+    return;
+  }
+  if (manifestResponse.status !== 200) return;
+
+  let manifest;
+  try {
+    manifest = await manifestResponse.clone().json();
+  } catch (_) {
+    return;
+  }
+
+  try {
+    await coreCache.put(ASSET_MANIFEST_URL, manifestResponse.clone());
+  } catch (_) {}
+
+  let presentationCache;
+  try {
+    presentationCache = await caches.open(PRESENTATION_CACHE_NAME);
+  } catch (_) {
+    return;
+  }
+
+  await Promise.all(collectPrecacheUrls(manifest).map(async url => {
+    try {
+      const response = await fetch(url, { cache: 'no-store' });
+      if (response.status === 200) await presentationCache.put(url, response);
+    } catch (_) {}
+  }));
+}
+
 self.addEventListener('install', event => {
   event.waitUntil((async () => {
-    const manifestResponse = await fetch(ASSET_MANIFEST_URL, { cache: 'no-store' });
-    if (!manifestResponse.ok) throw new Error(`Asset manifest request failed: ${manifestResponse.status}`);
-    const manifest = await manifestResponse.clone().json();
-    const precacheUrls = collectPrecacheUrls(manifest);
-    const [coreCache, presentationCache] = await Promise.all([
-      caches.open(CORE_CACHE_NAME),
-      caches.open(PRESENTATION_CACHE_NAME)
-    ]);
-    await Promise.all([
-      coreCache.addAll(CORE_URLS),
-      coreCache.put(ASSET_MANIFEST_URL, manifestResponse),
-      precacheUrls.length ? presentationCache.addAll(precacheUrls) : Promise.resolve()
-    ]);
+    const coreCache = await caches.open(CORE_CACHE_NAME);
+    await coreCache.addAll(CORE_URLS);
+    await precachePresentationBestEffort(coreCache);
   })());
 });
 

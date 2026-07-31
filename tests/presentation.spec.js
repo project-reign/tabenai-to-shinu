@@ -40,6 +40,19 @@ test('asset manifestの全参照・実体・HTTP MIMEが一致し、未使用ま
   expect(manifest.schemaVersion).toBe(1);
   expect(manifest.manifestVersion).toMatch(/^4\.6\.0-/);
 
+  for (const eventId of ['stored-bread', 'inverted-rain', 'tako-return', 'bean-homecoming', 'shadow-snack']) {
+    expect(manifest.assignments.survival[eventId], `${eventId} must use emoji/character/text fallback`)
+      .not.toHaveProperty('artKey');
+  }
+  for (const group of ['scenes', 'survival']) {
+    for (const [entryId, assignment] of Object.entries(manifest.assignments[group])) {
+      if (!assignment.artKey) continue;
+      const art = manifest.assets.art[assignment.artKey];
+      expect(assignment.contentSubject, `${group}.${entryId} art subject`).toBe(art.subject);
+      expect(art.alt, `${assignment.artKey} alt`).toContain(art.subjectLabel);
+    }
+  }
+
   const fieldTypes = {
     backgroundKey: 'background',
     characterKey: 'character',
@@ -125,8 +138,13 @@ test('visual layersと全presentation hookはゲームstate/rngを変更しな�
     mode: 'survival', sceneId: 'tako-return', category: 'conditional', token: 'character:1', icon: '🐙', title: 'character'
   }));
   await expect(page.locator('#sceneBackground')).toHaveAttribute('src', /forest-day\.svg/);
-  await expect(page.locator('#sceneArt')).toHaveAttribute('src', /whisper-can\.svg/);
+  await expect(page.locator('#sceneArt')).not.toHaveAttribute('src', /.+/);
+  await expect(page.locator('#sceneArt')).toHaveAttribute('data-asset-state', 'fallback');
+  await expect(page.locator('#sceneArt')).toBeHidden();
+  await expect(page.locator('#sceneIcon')).toBeVisible();
+  await expect(page.locator('#sceneIcon')).toHaveText('🐙');
   await expect(page.locator('#sceneCharacterFallback')).toBeVisible();
+  await expect(page.locator('#sceneCharacterFallback')).toHaveText('🐙');
   await expect(page.locator('#sceneEffect')).toHaveClass(/mood-normal/);
   await expect(page.locator('#sceneVisual')).toBeVisible();
   await expect(page.locator('#sceneContent')).toBeVisible();
@@ -221,6 +239,7 @@ test('BGM/SE・mute・haptics・lightVisualsをmeta/reload/format2に保持し�
   await waitForPresentation(page);
   await page.evaluate(() => globalThis.__TABENAI_DEBUG__.screen('settings'));
   await expect(page.locator('#settingsScreen')).toBeVisible();
+  await expect(page.getByText('正式BGMはv4.7で追加予定')).toBeVisible();
 
   await setRange(page, '#bgmVolumeSetting', 23);
   await setRange(page, '#seVolumeSetting', 71);
