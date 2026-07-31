@@ -8,7 +8,7 @@ test('PWA起動時にタイトル導線とプレイ可能・ロードマップ�
 
   await expect(page.locator('#titleScreen')).toBeVisible();
   await expect(page.locator('#titleScreen h1')).toHaveText('食べないと死ぬ');
-  await expect(page.locator('.title-version')).toHaveText('v4.4.0');
+  await expect(page.locator('.title-version')).toHaveText('v4.5.0');
   await expect(page.locator('#continueBtn')).toBeDisabled();
   await expect(page.locator('#newGameBtn')).toHaveText('はじめから');
   await expect(page.locator('#recordsBtn')).toHaveText('記録');
@@ -22,11 +22,11 @@ test('PWA起動時にタイトル導線とプレイ可能・ロードマップ�
   await expect(page.locator('#modeScreen')).toBeVisible();
   await expect(page.locator('#modeStoryBtn')).toContainText('STORY 50');
   await expect(page.locator('#modeHardBtn')).toContainText('HARD 50');
-  await expect(page.locator('.mode-card.locked')).toHaveCount(3);
-  await expect(page.locator('#modeScreen')).toContainText('SURVIVAL 50');
+  await expect(page.locator('#modeSurvivalBtn')).toContainText('SURVIVAL 50');
+  await expect(page.locator('#modeSurvivalBtn')).toContainText('怪食サバイバル');
+  await expect(page.locator('.mode-card.locked')).toHaveCount(2);
   await expect(page.locator('#modeScreen')).toContainText('100 DAYS');
   await expect(page.locator('#modeScreen')).toContainText('ENDLESS');
-  await expect(page.locator('#modeScreen')).toContainText('v4.5');
   await expect(page.locator('#modeScreen')).toContainText('v5.0');
   await expect(page.locator('#modeScreen')).toContainText('v5.1+');
 });
@@ -148,7 +148,7 @@ test('実績・エンディング・統計を永続化し、記録画面に表�
 
   await page.goto('./');
   await page.locator('#recordsBtn').click();
-  await expect(page.locator('[data-achievement]')).toHaveCount(16);
+  await expect(page.locator('[data-achievement]')).toHaveCount(23);
   await expect(page.locator('[data-achievement="first_bite"]')).toContainText('最初の一口');
   await page.locator('[data-record-tab="endings"]').click();
   await expect(page.locator('[data-ending="true"]')).toContainText('契約腐敗・脱出成功');

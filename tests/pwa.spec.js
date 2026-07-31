@@ -19,6 +19,11 @@ test('manifestとアイコンはGitHub Pagesサブパス相対で取得できる
     expect(response.ok(), icon.src).toBe(true);
     expect(response.headers()['content-type']).toContain('image/png');
   }
+
+  const engineResponse = await request.get('./survival-engine.js');
+  expect(engineResponse.ok()).toBe(true);
+  const workerSource = await (await request.get('./sw.js')).text();
+  expect(workerSource).toContain("'./survival-engine.js'");
 });
 
 test('初回オンライン起動後、サブパスからオフラインで再起動できる', async ({ browser }) => {
@@ -55,7 +60,7 @@ test('新版検出は自動適用せず、明示更新操作でskipWaitingする
     version: globalThis.__TABENAI_PWA__.version,
     scope: globalThis.__TABENAI_PWA__.scope
   }));
-  expect(pwa.version).toBe('4.4.0');
+  expect(pwa.version).toBe('4.5.0');
   expect(pwa.scope.endsWith('/tabenai-to-shinu/')).toBe(true);
 
   const workerSource = await (await request.get('./sw.js')).text();
