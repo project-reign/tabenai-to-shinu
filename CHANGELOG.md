@@ -1,5 +1,50 @@
 # Changelog
 
+## [4.6.0] - 2026-07-31
+
+### Added
+
+- “森が目を覚ます” presentation foundation with four independent visual layers: background, character, food/event art, and status/mood effect.
+- Stable `assets/manifest.json` registry for screen, STORY/HARD scene, SURVIVAL event/category, ending, action, and presentation-hook assignments.
+- Six project-created 1600×900 abstract SVG backgrounds and nine 800×800 event-card SVGs, totaling 30,069 bytes. Every SVG includes Japanese `<title>` and `<desc>` metadata and has no external resources, embedded fonts, or scripts.
+- Title, normal, warning, rare, milestone, final, death, escape, and achievement presentation hooks.
+- Ten short sound effects synthesized at runtime with Web Audio, optional capability-gated haptic patterns, and six silent BGM replacement slots.
+- Independent persistent BGM/SE volume and mute controls, haptic control, and light-visual mode. These settings are included in meta storage and save-transfer JSON.
+- `docs/ASSET_SPEC.md` for stable IDs, fallback behavior, cache tiers, capacity budgets, accessibility, audio policy, build validation, and v4.7 replacement rules.
+- `ASSET_LICENSES.md` inventory for project-created presentation assets, generated CSS/Web Audio effects, empty replacement slots, existing icons, and documentation screenshots.
+
+### Changed
+
+- Updated the displayed application, manifest, presentation registry, and Service Worker cache version to 4.6.0.
+- Added supplementary artwork to title and game screens while keeping text, status, results, and the two choices as the canonical interface.
+- Deferred all audio context creation and playback until a trusted first user gesture; audio pauses while the document is hidden.
+- Combined the explicit reduced-motion setting with `prefers-reduced-motion`, and added a light-visual option that keeps only the existing emoji and text presentation.
+- Split Service Worker delivery into core-shell, presentation-precache, and lazy-runtime tiers while retaining explicit player-controlled updates. Core install no longer depends on the asset manifest or presentation files; presentation files are fetched independently and only HTTP 200 responses are cached. Core and presentation are the two physical caches; successful lazy responses enter the presentation cache at runtime.
+- Removed contradictory event-card assignments from `stored-bread`, `inverted-rain`, `tako-return`, `bean-homecoming`, and `shadow-snack`; these encounters now use their matching emoji, character, and text fallback until dedicated cards exist.
+- Added semantic art-subject and alt-text validation alongside stable IDs, relative paths, MIME/dimensions, SVG accessibility metadata, license records, orphan files, and the 5 MiB precache, 2 MiB v4.6 presentation, and 25 MiB lazy budgets.
+- Clarified in settings that the six silent BGM slots receive formal music in v4.7.
+
+### Compatibility
+
+- Kept all STORY 50, HARD 50, and SURVIVAL 50 scenes, balance values, seeded event/result sequences, choices, and endings unchanged.
+- Preserved exactly two choices, all eat/drink/medicine/wait refusal rights, the white/red/gray/body-germination bean routes, four final dishes, and four SURVIVAL final boxes.
+- Preserved all 23 achievements, ending records, aggregate statistics, and existing settings.
+- Kept run schema `version: 4`, `tabenai-to-shinu-50days-v4`, `tabenai-to-shinu-meta-v1`, legacy meta normalization, and `formatVersion: 1` and `formatVersion: 2` transfer imports.
+- Missing manifests, unknown asset IDs, 404 responses, decode failures, unavailable audio, and unavailable haptics fall back to the existing emoji/text game without changing state or consuming the saved PRNG.
+- An asset-manifest failure or an individual presentation 404 no longer blocks Service Worker activation; failed and non-200 presentation responses are not cached.
+- Kept relative GitHub Pages paths, first-online offline relaunch, and explicit player-controlled Service Worker updates.
+- Formal character/event artwork and BGM remain deferred to v4.7 and can replace the v4.6 slots without changing game or asset IDs.
+
+### Validation
+
+- Retained all 32 v4.5 Playwright tests without deleting or weakening their game, save, simulation, PWA, offline, and iPhone coverage, then added 14 v4.6 tests for a total of 46.
+- Added asset-registry resolution, four-layer rendering, and all nine presentation-hook checks.
+- Added unknown-key, manifest failure, image 404, and offline fallback checks requiring the emoji/text game and exactly two choices to remain usable.
+- Added trusted-gesture audio unlock, independent BGM/SE persistence, visibility pause, optional haptics, light-visual mode, explicit reduced motion, and `prefers-reduced-motion` coverage.
+- Added shell/precache/lazy Service Worker, budget, GitHub Pages subpath, offline relaunch, explicit update, iPhone 390×844, and zero browser warning/error coverage.
+- Added first-install fault tests proving that an asset-manifest 503 or one precache SVG 404 still activates the core shell and relaunches offline with text, emoji, and exactly two choices; the 404 response is not cached.
+- Added deterministic asset validation with missing-file, malformed-ID, path-escape, MIME, dimension, missing-license, external-SVG-resource, script, orphan, budget-overrun, and art subject/alt mismatch failures.
+
 ## [4.5.0] - 2026-07-31
 
 ### Added

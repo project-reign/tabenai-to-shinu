@@ -8,10 +8,11 @@ const dist = resolve(root, 'dist');
 await rm(dist, { recursive: true, force: true });
 await mkdir(dist, { recursive: true });
 
-for (const path of ['index.html', 'manifest.webmanifest', 'sw.js', 'survival-engine.js']) {
+for (const path of ['index.html', 'manifest.webmanifest', 'sw.js', 'survival-engine.js', 'presentation-engine.js']) {
   await cp(resolve(root, path), resolve(dist, path));
 }
 await cp(resolve(root, 'icons'), resolve(dist, 'icons'), { recursive: true });
+await cp(resolve(root, 'assets'), resolve(dist, 'assets'), { recursive: true });
 await writeFile(resolve(dist, '.nojekyll'), '');
 
 process.stdout.write(`Built static site in ${dist}\n`);

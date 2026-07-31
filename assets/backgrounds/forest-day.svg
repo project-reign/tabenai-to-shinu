@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
+  <title id="title">昼の怪食の森</title>
+  <desc id="desc">黒い木々の間に琥珀色の道と目のような太陽が浮かぶ、静かで少し可笑しい昼の森。</desc>
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#111a2a"/>
+      <stop offset="0.62" stop-color="#34241d"/>
+      <stop offset="1" stop-color="#090909"/>
+    </linearGradient>
+    <radialGradient id="sun" cx="50%" cy="46%" r="54%">
+      <stop offset="0" stop-color="#f0c46a"/>
+      <stop offset="0.42" stop-color="#bd7c2d"/>
+      <stop offset="1" stop-color="#6e2e27" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="path" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#d39a45" stop-opacity="0.34"/>
+      <stop offset="1" stop-color="#7b352d" stop-opacity="0.78"/>
+    </linearGradient>
+  </defs>
+  <rect width="1600" height="900" fill="url(#sky)"/>
+  <circle cx="800" cy="234" r="196" fill="url(#sun)"/>
+  <ellipse cx="800" cy="235" rx="70" ry="25" fill="#0a0a0b"/>
+  <circle cx="800" cy="235" r="12" fill="#e5b45b"/>
+  <path d="M0 480 Q220 330 430 430 T800 390 T1180 430 T1600 360 V900 H0Z" fill="#16120f" opacity="0.76"/>
+  <path d="M704 900 C730 760 765 610 800 470 C836 610 875 760 904 900Z" fill="url(#path)"/>
+  <g fill="#08090a">
+    <path d="M0 0H205L250 900H0Z"/>
+    <path d="M255 0H390L430 900H312Z"/>
+    <path d="M430 0H535L565 900H485Z"/>
+    <path d="M1600 0H1395L1350 900H1600Z"/>
+    <path d="M1345 0H1210L1170 900H1288Z"/>
+    <path d="M1170 0H1065L1035 900H1115Z"/>
+  </g>
+  <g stroke="#08090a" stroke-width="42" stroke-linecap="round" fill="none">
+    <path d="M180 180L520 45M350 260L620 125M1420 180L1080 45M1250 260L980 125"/>
+    <path d="M500 360L670 270M1100 360L930 270"/>
+  </g>
+  <g fill="#d39a45" opacity="0.72">
+    <circle cx="585" cy="322" r="7"/><circle cx="610" cy="322" r="7"/>
+    <circle cx="990" cy="354" r="6"/><circle cx="1012" cy="354" r="6"/>
+    <circle cx="665" cy="505" r="5"/><circle cx="682" cy="505" r="5"/>
+  </g>
+  <path d="M747 756q53-33 106 0q-53 28-106 0Z" fill="#0a0a0b" stroke="#a75a35" stroke-width="5"/>
+  <circle cx="800" cy="752" r="6" fill="#e1ad50"/>
+</svg>

@@ -60,7 +60,7 @@ test('新版検出は自動適用せず、明示更新操作でskipWaitingする
     version: globalThis.__TABENAI_PWA__.version,
     scope: globalThis.__TABENAI_PWA__.scope
   }));
-  expect(pwa.version).toBe('4.5.0');
+  expect(pwa.version).toBe('4.6.0');
   expect(pwa.scope.endsWith('/tabenai-to-shinu/')).toBe(true);
 
   const workerSource = await (await request.get('./sw.js')).text();

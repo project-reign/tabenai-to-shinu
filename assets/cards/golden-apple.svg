@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="800" viewBox="0 0 800 800" role="img" aria-labelledby="title desc">
+  <title id="title">黄金の林檎</title>
+  <desc id="desc">琥珀と金に輝く林檎が、ひと口だけ欠けた影を隠して静かに浮かんでいる。</desc>
+  <defs><radialGradient id="bg"><stop offset="0" stop-color="#352317"/><stop offset="1" stop-color="#070a11"/></radialGradient><radialGradient id="apple" cx="35%" cy="28%"><stop offset="0" stop-color="#f1cf78"/><stop offset="0.5" stop-color="#ce9239"/><stop offset="1" stop-color="#7a3827"/></radialGradient></defs>
+  <rect x="24" y="24" width="752" height="752" rx="92" fill="url(#bg)" stroke="#c18a3e" stroke-width="18"/>
+  <circle cx="400" cy="408" r="268" fill="none" stroke="#7c342b" stroke-width="8" stroke-dasharray="12 25"/>
+  <path d="M406 267q-11-88 58-136" fill="none" stroke="#4d2c1c" stroke-width="28" stroke-linecap="round"/>
+  <path d="M434 188q68-81 151-24q-57 79-151 24Z" fill="#111a27" stroke="#bb8037" stroke-width="10"/>
+  <path d="M400 257c-41-43-111-47-165 2c-105 95-26 348 165 386c191-38 270-291 165-386c-54-49-124-45-165-2Z" fill="url(#apple)" stroke="#120d0a" stroke-width="20"/>
+  <path d="M547 311a47 47 0 0 0 40 77a45 45 0 0 0 0 69a45 45 0 0 0-41 73c77-28 117-163 59-235a45 45 0 0 0-58 16Z" fill="#080a0f"/>
+  <ellipse cx="342" cy="397" rx="18" ry="11" fill="#101725"/><ellipse cx="421" cy="397" rx="18" ry="11" fill="#101725"/>
+  <path d="M349 464q33 24 66 0" fill="none" stroke="#7d342c" stroke-width="12" stroke-linecap="round"/>
+  <path d="M295 323q48-66 104-54" fill="none" stroke="#ffe3a0" stroke-width="18" stroke-linecap="round" opacity="0.5"/>
+</svg>
