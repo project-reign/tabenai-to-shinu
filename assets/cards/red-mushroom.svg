@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="800" viewBox="0 0 800 800" role="img" aria-labelledby="title desc">
+  <title id="title">赤い茸</title>
+  <desc id="desc">鈍い赤の傘に金の斑点を浮かべ、細い軸で舞台役者のように立つ茸。</desc>
+  <defs><radialGradient id="bg"><stop offset="0" stop-color="#342019"/><stop offset="1" stop-color="#080a10"/></radialGradient><linearGradient id="cap" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#a64f40"/><stop offset="1" stop-color="#57251f"/></linearGradient><linearGradient id="stem" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d5ae68"/><stop offset="1" stop-color="#79502d"/></linearGradient></defs>
+  <rect x="24" y="24" width="752" height="752" rx="92" fill="url(#bg)" stroke="#b67a36" stroke-width="18"/>
+  <path d="M326 401q-3 97-50 221q124 42 248 0q-47-124-50-221Z" fill="url(#stem)" stroke="#120e0c" stroke-width="18"/>
+  <path d="M143 407c25-160 124-261 257-261s232 101 257 261c-118 48-396 48-514 0Z" fill="url(#cap)" stroke="#110b0a" stroke-width="20"/>
+  <g fill="#d9aa55"><circle cx="267" cy="287" r="29"/><circle cx="430" cy="222" r="23"/><circle cx="542" cy="329" r="26"/><circle cx="367" cy="354" r="15"/></g>
+  <ellipse cx="365" cy="485" rx="17" ry="10" fill="#101725"/><ellipse cx="435" cy="485" rx="17" ry="10" fill="#101725"/>
+  <path d="M373 538q27-24 54 0" fill="none" stroke="#7f332b" stroke-width="11" stroke-linecap="round"/>
+  <path d="M302 630q-49 45-98 11M498 630q49 45 98 11" fill="none" stroke="#b67a36" stroke-width="14" stroke-linecap="round"/>
+</svg>

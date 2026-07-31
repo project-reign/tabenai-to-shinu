@@ -1,10 +1,12 @@
 {
   "name": "tabenai-to-shinu",
-  "version": "4.5.0",
+  "version": "4.6.0",
   "private": true,
   "type": "module",
   "scripts": {
+    "prebuild": "npm run validate:assets",
     "build": "node scripts/build-site.mjs",
+    "validate:assets": "node scripts/validate-assets.mjs",
     "serve": "node tests/server.mjs",
     "test": "playwright test",
     "test:game": "playwright test tests/game.spec.js",

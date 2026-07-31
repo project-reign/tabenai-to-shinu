@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="800" viewBox="0 0 800 800" role="img" aria-labelledby="title desc">
+  <title id="title">見つめるおにぎり</title>
+  <desc id="desc">金色の粒をまとい、海苔の奥から小さな目が見つめる三角のおにぎり。</desc>
+  <defs><radialGradient id="bg"><stop offset="0" stop-color="#302019"/><stop offset="1" stop-color="#080b12"/></radialGradient><linearGradient id="rice" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e4bf72"/><stop offset="1" stop-color="#a66b33"/></linearGradient></defs>
+  <rect x="24" y="24" width="752" height="752" rx="92" fill="url(#bg)" stroke="#b47a37" stroke-width="18"/>
+  <circle cx="400" cy="400" r="288" fill="none" stroke="#6f302a" stroke-width="8" stroke-dasharray="18 28"/>
+  <path d="M400 148C337 148 205 418 206 540c1 72 388 72 388 0C595 418 463 148 400 148Z" fill="url(#rice)" stroke="#11100e" stroke-width="20" stroke-linejoin="round"/>
+  <g fill="#f1d38d" opacity="0.72"><circle cx="350" cy="290" r="9"/><circle cx="443" cy="251" r="8"/><circle cx="304" cy="391" r="8"/><circle cx="494" cy="410" r="9"/><circle cx="382" cy="202" r="7"/></g>
+  <path d="M292 445h216l-12 142H304Z" fill="#0d1420" stroke="#070707" stroke-width="14"/>
+  <ellipse cx="363" cy="500" rx="21" ry="11" fill="#d7a34e"/><ellipse cx="437" cy="500" rx="21" ry="11" fill="#d7a34e"/>
+  <path d="M372 542q28 19 56 0" fill="none" stroke="#914438" stroke-width="10" stroke-linecap="round"/>
+</svg>

@@ -15,7 +15,7 @@
   <link rel="icon" type="image/png" sizes="32x32" href="./icons/favicon-32.png" />
   <link rel="apple-touch-icon" sizes="180x180" href="./icons/apple-touch-icon.png" />
   <meta name="theme-color" content="#171717" />
-  <title>食べないと死ぬ：50日目の晩餐 v4.5.0</title>
+  <title>食べないと死ぬ：50日目の晩餐 v4.6.0</title>
   <style>
     :root {
       --bg: #0f1115;
@@ -52,8 +52,16 @@
       animation-duration:.001ms !important;
       transition-duration:.001ms !important;
     }
+    html.presentation-reduced-motion *, html.presentation-reduced-motion *::before, html.presentation-reduced-motion *::after {
+      scroll-behavior:auto !important;
+      animation-duration:.001ms !important;
+      animation-iteration-count:1 !important;
+      transition-duration:.001ms !important;
+    }
     .shell-screen { width:min(760px,calc(100% - 24px)); min-height:100vh; margin:0 auto; padding:max(28px,env(safe-area-inset-top)) 0 max(40px,env(safe-area-inset-bottom)); display:grid; align-content:center; }
-    .title-hero { text-align:center; padding:28px 18px 20px; }
+    .title-hero { position:relative; isolation:isolate; overflow:hidden; text-align:center; padding:28px 18px 20px; border-radius:22px; animation:title-wake .7s ease both; }
+    .title-backdrop { position:absolute; z-index:-2; inset:0; width:100%; height:100%; object-fit:cover; opacity:.5; filter:saturate(.82) contrast(1.08); }
+    .title-hero::after { content:""; position:absolute; z-index:-1; inset:0; background:linear-gradient(180deg,rgba(10,12,16,.18),rgba(10,12,16,.86)); pointer-events:none; }
     .title-icon { width:92px; height:92px; border-radius:25px; margin:0 auto 18px; display:grid; place-items:center; font-size:50px; background:linear-gradient(145deg,#3c3022,#17191f); border:1px solid #5a4a30; box-shadow:var(--shadow); }
     .title-icon img { display:block; width:100%; height:100%; border-radius:inherit; }
     .title-hero h1 { font-size:clamp(1.75rem,7vw,2.65rem); }
@@ -91,6 +99,9 @@
     .setting-row { display:flex; align-items:center; justify-content:space-between; gap:14px; padding:12px 0; border-bottom:1px solid #2d3340; }
     .setting-row:last-child { border-bottom:0; }
     .setting-row select, .setting-row input { accent-color:#f4c95d; }
+    .setting-control { min-width:160px; display:grid; grid-template-columns:1fr auto; align-items:center; gap:9px; }
+    .setting-control input[type="range"] { width:128px; }
+    .setting-control output { min-width:3.5ch; color:#ffe49a; text-align:right; font-variant-numeric:tabular-nums; }
     .app { width: min(1040px, calc(100% - 24px)); margin: 0 auto; padding: max(22px, env(safe-area-inset-top)) 0 max(60px, env(safe-area-inset-bottom)); }
     .topbar { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:16px; }
     .brand { display:flex; align-items:center; gap:12px; }
@@ -118,11 +129,27 @@
     #bondBar { background:linear-gradient(90deg,#72ddd2,#f5a6dd); }
     .layout { display:grid; grid-template-columns:minmax(0,1.55fr) minmax(250px,.75fr); gap:14px; align-items:start; }
     .card { background:rgba(23,26,33,.96); border:1px solid var(--line); border-radius:20px; box-shadow:var(--shadow); overflow:hidden; }
-    .scene { padding:clamp(18px,4vw,32px); min-height:520px; display:flex; flex-direction:column; }
+    .scene { position:relative; min-height:520px; display:flex; flex-direction:column; }
+    .scene-visual { position:relative; isolation:isolate; height:190px; flex:0 0 auto; overflow:hidden; border-bottom:1px solid #303644; background:linear-gradient(145deg,#1b2029,#11141a); }
+    .scene-layer { position:absolute; inset:0; width:100%; height:100%; pointer-events:none; }
+    .scene-background-layer { z-index:1; object-fit:cover; opacity:.68; }
+    .scene-character-layer { z-index:2; inset:auto auto 0 5%; width:39%; height:91%; object-fit:contain; object-position:left bottom; filter:drop-shadow(0 12px 14px rgba(0,0,0,.48)); }
+    .scene-art-layer { z-index:3; inset:7px 5% 7px auto; width:43%; height:calc(100% - 14px); object-fit:contain; filter:drop-shadow(0 12px 16px rgba(0,0,0,.48)); }
+    .scene-character-fallback { position:absolute; z-index:2; left:8%; bottom:8px; font-size:4.6rem; line-height:1; filter:drop-shadow(0 10px 14px rgba(0,0,0,.48)); }
+    .scene-effect-layer { z-index:4; overflow:hidden; }
+    .scene-effect-layer::before, .scene-effect-layer::after { content:""; position:absolute; pointer-events:none; }
+    .scene-effect-layer.mood-title::before { inset:12% 24%; border:1px solid rgba(244,201,93,.48); border-radius:50%; box-shadow:0 0 38px rgba(244,201,93,.18); }
+    .scene-effect-layer.mood-normal::after { left:0; right:0; bottom:0; height:42%; background:linear-gradient(transparent,rgba(15,17,21,.7)); }
+    .scene-effect-layer.mood-rare::before { inset:8%; border:1px solid rgba(220,183,255,.62); border-radius:50%; box-shadow:0 0 34px rgba(195,125,255,.28),inset 0 0 28px rgba(244,201,93,.16); animation:rare-ring 1.8s ease-in-out infinite; }
+    .scene-effect-layer.mood-milestone::before { inset:auto 8% 16px; height:2px; background:linear-gradient(90deg,transparent,#f4c95d,transparent); box-shadow:0 0 15px #f4c95d; }
+    .scene-effect-layer.mood-warning::after { inset:0; background:radial-gradient(circle at 72% 45%,transparent 18%,rgba(112,13,16,.28) 90%); }
+    .scene-effect-layer.mood-death::after { inset:0; background:linear-gradient(180deg,rgba(0,0,0,.12),rgba(0,0,0,.82)); }
+    .scene-effect-layer.mood-escape::after { inset:0; background:linear-gradient(165deg,rgba(255,226,155,.28),transparent 52%); }
+    .scene-content { position:relative; z-index:6; display:flex; flex:1; flex-direction:column; padding:clamp(18px,4vw,32px); background:linear-gradient(180deg,rgba(23,26,33,.92),rgba(23,26,33,.99)); }
     .scene-meta { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px; }
     .badge { display:inline-flex; align-items:center; gap:6px; min-height:29px; padding:4px 10px; border-radius:999px; border:1px solid #3a4050; color:#d8dce5; background:#20242d; font-size:.78rem; }
     .badge.accent { border-color:#6a5930; background:#2b261b; color:#ffe49a; }
-    .scene-icon { font-size:clamp(3.4rem,10vw,5.8rem); line-height:1; filter:drop-shadow(0 10px 25px rgba(0,0,0,.35)); margin:4px 0 13px; }
+    .scene-icon { position:absolute; z-index:3; inset:50% auto auto 50%; transform:translate(-50%,-50%); font-size:clamp(3.4rem,10vw,5.8rem); line-height:1; filter:drop-shadow(0 10px 25px rgba(0,0,0,.35)); }
     .scene h2 { margin:0; font-size:clamp(1.45rem,4vw,2.15rem); line-height:1.35; }
     .scene-text { color:#e1e4ea; margin:15px 0 22px; white-space:pre-line; }
     .result { display:none; margin:0 0 18px; padding:13px 15px; border-radius:13px; border:1px solid #4b4736; background:#262318; color:#fff0b5; white-space:pre-line; }
@@ -148,7 +175,7 @@
     .log { margin:11px 0 0; padding-left:1.25rem; max-height:260px; overflow:auto; color:#cfd4dd; font-size:.82rem; }
     .log li + li { margin-top:7px; }
     .ending { text-align:center; padding:28px 18px; }
-    .ending .scene-icon { font-size:5rem; }
+    .ending-icon { font-size:5rem; line-height:1; filter:drop-shadow(0 10px 25px rgba(0,0,0,.35)); }
     .ending h2 { font-size:clamp(1.8rem,5vw,2.6rem); }
     .ending-score { display:grid; grid-template-columns:repeat(4,1fr); gap:9px; margin:22px 0; }
     .ending-score div { background:#12151a; border:1px solid #2d3340; border-radius:13px; padding:11px; }
@@ -165,6 +192,16 @@
     .kbd { display:inline-grid; place-items:center; min-width:26px; height:25px; padding:0 6px; border-radius:6px; border:1px solid #555d6c; background:#222630; color:#fff; font-size:.78rem; box-shadow:inset 0 -2px 0 rgba(0,0,0,.25); }
     .toast { position:fixed; left:50%; bottom:20px; z-index:30; transform:translate(-50%,20px); opacity:0; pointer-events:none; color:#fff; background:#242933; border:1px solid #454d5d; border-radius:999px; padding:9px 14px; box-shadow:var(--shadow); transition:.25s ease; font-size:.86rem; }
     .toast.show { opacity:1; transform:translate(-50%,0); }
+    .achievement-presentation { position:fixed; z-index:29; top:max(18px,env(safe-area-inset-top)); left:50%; width:min(420px,calc(100% - 24px)); transform:translate(-50%,-18px); opacity:0; pointer-events:none; display:flex; align-items:center; gap:12px; padding:12px 15px; color:#fff7d7; background:linear-gradient(135deg,rgba(52,40,18,.98),rgba(28,25,35,.98)); border:1px solid #9a8148; border-radius:16px; box-shadow:0 18px 60px rgba(0,0,0,.5); }
+    .achievement-presentation.is-showing { opacity:1; transform:translate(-50%,0); animation:achievement-glow .65s ease both; }
+    .achievement-presentation .achievement-icon { font-size:2rem; }
+    .achievement-presentation small { display:block; color:#d8cfae; }
+    .presentation-pulse { animation:scene-arrival .34s ease both; }
+    html.presentation-light-visuals .scene-background-layer,
+    html.presentation-light-visuals .scene-character-layer,
+    html.presentation-light-visuals .scene-art-layer,
+    html.presentation-light-visuals .title-backdrop { display:none !important; }
+    html.presentation-light-visuals .scene-visual { height:82px; }
     .data-textarea { width:100%; min-height:180px; resize:vertical; color:var(--text); background:#0f1218; border:1px solid #3a4050; border-radius:13px; padding:12px; font:500 .78rem/1.55 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
     .data-actions { display:grid; grid-template-columns:repeat(2,1fr); gap:10px; margin-top:12px; }
     .update-banner { position:fixed; z-index:25; left:50%; bottom:max(16px,env(safe-area-inset-bottom)); transform:translateX(-50%); width:min(560px,calc(100% - 24px)); display:flex; align-items:center; gap:12px; padding:12px; border:1px solid #6a5930; border-radius:15px; background:#242117; box-shadow:var(--shadow); }
@@ -172,6 +209,13 @@
     .update-banner p { flex:1; margin:0; color:#fff0b5; font-size:.88rem; }
     .update-banner .primary, .update-banner .secondary { flex:0 0 auto; padding:9px 12px; }
     @keyframes fade { from { opacity:0; transform:translateY(-4px); } to { opacity:1; transform:none; } }
+    @keyframes title-wake { from { opacity:.15; transform:translateY(7px); } to { opacity:1; transform:none; } }
+    @keyframes scene-arrival { from { border-color:#8b7643; } to { border-color:var(--line); } }
+    @keyframes rare-ring { 0%,100% { opacity:.48; transform:scale(.97); } 50% { opacity:1; transform:scale(1.02); } }
+    @keyframes achievement-glow { 0% { box-shadow:0 0 0 rgba(244,201,93,0); } 55% { box-shadow:0 0 34px rgba(244,201,93,.3); } }
+    @media (prefers-reduced-motion:reduce) {
+      *, *::before, *::after { scroll-behavior:auto !important; animation-duration:.001ms !important; animation-iteration-count:1 !important; transition-duration:.001ms !important; }
+    }
     @media (max-width:760px) {
       .shell-screen { align-content:start; padding-top:max(18px,env(safe-area-inset-top)); }
       .mode-grid, .record-grid { grid-template-columns:1fr; }
@@ -200,10 +244,14 @@
       .stat-label span:last-child { display:none; }
       .stat-value { margin:0; font-size:.9rem; line-height:1.3; }
       .bar { height:4px; margin-top:4px; }
-      .scene { padding:13px; }
+      .scene { padding:0; }
+      .scene-visual { height:116px; }
+      .scene-content { padding:12px 13px 13px; }
+      .scene-art-layer { width:39%; right:7%; }
+      .scene-character-fallback { font-size:3.1rem; }
       .scene-meta { gap:5px; margin-bottom:8px; }
       .badge { min-height:23px; padding:2px 7px; font-size:.68rem; }
-      .scene-icon { font-size:2.5rem; margin:1px 0 7px; }
+      .scene-icon { font-size:2.7rem; }
       .scene h2 { font-size:1.3rem; }
       .scene-text { margin:8px 0 11px; font-size:.93rem; }
       .result { margin-bottom:10px; padding:9px 10px; font-size:.88rem; }
@@ -218,16 +266,20 @@
       .title-icon { width:74px; height:74px; border-radius:21px; font-size:40px; margin-bottom:12px; }
       .title-card { padding:14px; }
       .title-manage-grid { grid-template-columns:1fr; }
+      .setting-row { align-items:flex-start; }
+      .setting-control { min-width:132px; }
+      .setting-control input[type="range"] { width:96px; }
     }
   </style>
 </head>
 <body>
   <section class="shell-screen" id="titleScreen">
     <div class="title-hero">
+      <img class="title-backdrop" id="titleBackdrop" alt="" hidden>
       <div class="title-icon"><img src="./icons/icon-192.png" alt="食べないと死ぬ アプリアイコン"></div>
       <h1>食べないと死ぬ</h1>
       <div class="subtitle">50日目の晩餐</div>
-      <div class="title-version">v4.5.0</div>
+      <div class="title-version">v4.6.0</div>
       <div class="network-pill" id="networkStatus">● ONLINE</div>
     </div>
     <div class="title-card">
@@ -311,6 +363,12 @@
       <label class="setting-row"><span><strong>動きを減らす</strong><br><small class="subtitle">アニメーションを抑える</small></span><input type="checkbox" id="reducedMotionSetting"></label>
       <label class="setting-row"><span><strong>選択前に確認</strong><br><small class="subtitle">誤操作を防ぐ</small></span><input type="checkbox" id="confirmChoicesSetting"></label>
       <label class="setting-row"><span><strong>選択後に自動スクロール</strong><br><small class="subtitle">次のイベントへ短く移動</small></span><input type="checkbox" id="autoScrollSetting"></label>
+      <label class="setting-row"><span><strong>BGM音量</strong><br><small class="subtitle">初回操作後にのみ再生</small></span><span class="setting-control"><input type="range" id="bgmVolumeSetting" min="0" max="100" step="1"><output id="bgmVolumeValue">45%</output></span></label>
+      <label class="setting-row"><span><strong>BGMをミュート</strong><br><small class="subtitle">音楽スロットを無音にする</small></span><input type="checkbox" id="bgmMutedSetting"></label>
+      <label class="setting-row"><span><strong>SE音量</strong><br><small class="subtitle">選択・警告・節目の効果音</small></span><span class="setting-control"><input type="range" id="seVolumeSetting" min="0" max="100" step="1"><output id="seVolumeValue">65%</output></span></label>
+      <label class="setting-row"><span><strong>SEをミュート</strong><br><small class="subtitle">視覚情報はそのまま維持</small></span><input type="checkbox" id="seMutedSetting"></label>
+      <label class="setting-row"><span><strong>触覚フィードバック</strong><br><small class="subtitle">対応端末のみ短く振動</small></span><input type="checkbox" id="hapticsSetting"></label>
+      <label class="setting-row"><span><strong>画像演出を軽くする</strong><br><small class="subtitle">画像を使わず絵文字と本文で表示</small></span><input type="checkbox" id="lightVisualsSetting"></label>
     </div>
   </section>
 
@@ -320,7 +378,7 @@
         <div class="brand-icon" aria-hidden="true">🍽️</div>
         <div>
           <h1>食べないと死ぬ：50日目の晩餐</h1>
-          <div class="subtitle">二択だけで進む、怪食サバイバル・ノベル <strong>v4.5.0</strong></div>
+          <div class="subtitle">二択だけで進む、怪食サバイバル・ノベル <strong>v4.6.0</strong></div>
         </div>
       </div>
       <details class="app-menu" id="appMenu">
@@ -363,20 +421,29 @@
 
     <div class="layout">
       <section class="card scene" id="sceneCard">
-        <div class="scene-meta">
-          <span class="badge accent" id="dayBadge">第1日</span>
-          <span class="badge" id="modeBadge">STORY 50</span>
-          <span class="badge" id="statusBadge">健康</span>
-          <span class="badge" id="sceneCountBadge">選択 0</span>
-          <span class="badge" id="seedBadge">SEED</span>
+        <div class="scene-visual" id="sceneVisual" aria-label="イベント演出">
+          <img class="scene-layer scene-background-layer" id="sceneBackground" alt="" hidden>
+          <img class="scene-layer scene-character-layer" id="sceneCharacter" alt="" hidden>
+          <span class="scene-character-fallback" id="sceneCharacterFallback" aria-hidden="true" hidden></span>
+          <img class="scene-layer scene-art-layer" id="sceneArt" alt="" hidden>
+          <div class="scene-layer scene-effect-layer" id="sceneEffect" aria-live="off"></div>
+          <div class="scene-icon" id="sceneIcon" aria-hidden="true">🍙</div>
         </div>
-        <div class="scene-icon" id="sceneIcon">🍙</div>
-        <h2 id="sceneTitle">少し温かいおにぎり</h2>
-        <div class="scene-text" id="sceneText"></div>
-        <div class="result" id="resultBox" aria-live="polite"></div>
-        <div class="choices" id="choices">
-          <button class="choice" id="choiceA"><span class="choice-key">A</span><span><strong id="choiceATitle"></strong><span id="choiceADesc"></span></span></button>
-          <button class="choice" id="choiceB"><span class="choice-key">B</span><span><strong id="choiceBTitle"></strong><span id="choiceBDesc"></span></span></button>
+        <div class="scene-content" id="sceneContent">
+          <div class="scene-meta">
+            <span class="badge accent" id="dayBadge">第1日</span>
+            <span class="badge" id="modeBadge">STORY 50</span>
+            <span class="badge" id="statusBadge">健康</span>
+            <span class="badge" id="sceneCountBadge">選択 0</span>
+            <span class="badge" id="seedBadge">SEED</span>
+          </div>
+          <h2 id="sceneTitle">少し温かいおにぎり</h2>
+          <div class="scene-text" id="sceneText"></div>
+          <div class="result" id="resultBox" aria-live="polite"></div>
+          <div class="choices" id="choices">
+            <button class="choice" id="choiceA"><span class="choice-key">A</span><span><strong id="choiceATitle"></strong><span id="choiceADesc"></span></span></button>
+            <button class="choice" id="choiceB"><span class="choice-key">B</span><span><strong id="choiceBTitle"></strong><span id="choiceBDesc"></span></span></button>
+          </div>
         </div>
       </section>
 
@@ -418,7 +485,7 @@
           <li>50日目の最後の晩餐では、集めた手がかりと過去の選択が結末を変えます。</li>
         </ul>
         <p>エンディングは複数あります。四皿すべてを二段階の二択で選べます。正解を知っていても、仲間・記憶・怪物化・古い存在の状態で結末が変化します。</p>
-        <p class="subtitle">v4.5更新：SURVIVAL 50「怪食サバイバル」、日替わりイベント、低確率遭遇、節目と四つの箱を追加。STORY 50／HARD 50とPWA機能はそのまま維持。</p>
+        <p class="subtitle">v4.6更新：画像・音・触覚を安全に差し替えられる演出基盤を追加。画像や音声がなくても、既存の絵文字・本文と二択だけですべて進行できます。</p>
       </div>
       <button class="primary" id="closeRules">閉じる</button>
     </div>
@@ -471,13 +538,18 @@
   </aside>
 
   <div class="toast" id="toast">保存しました</div>
+  <aside class="achievement-presentation" id="achievementPresentation" role="status" aria-live="polite" hidden>
+    <span class="achievement-icon" data-achievement-icon>🏆</span>
+    <span><small>ACHIEVEMENT UNLOCKED</small><strong data-achievement-name>実績解除</strong></span>
+  </aside>
 
   <script src="./survival-engine.js"></script>
+  <script src="./presentation-engine.js"></script>
   <script>
 (() => {
   'use strict';
 
-  const APP_VERSION = '4.5.0';
+  const APP_VERSION = '4.6.0';
   const VERSION = 4;
   const SAVE_KEY = 'tabenai-to-shinu-50days-v4';
   const LEGACY_KEYS = ['tabenai-to-shinu-50days-v3', 'tabenai-to-shinu-50days-v2'];
@@ -662,6 +734,10 @@
   let hasActiveRun = !!loadedState;
   let state = loadedState || freshState();
   let meta = loadMeta();
+  const presentation = globalThis.TabenaiPresentation
+    ? globalThis.TabenaiPresentation.create({ manifestUrl: './assets/manifest.json', settings: meta.settings })
+    : null;
+  globalThis.__TABENAI_PRESENTATION__ = presentation;
   if (requestedNewGame || requestedDataTransfer || requestedResume) {
     try { history.replaceState(null, '', location.pathname + location.hash); } catch (_) {}
   }
@@ -679,7 +755,7 @@
     choiceATitle: $('choiceATitle'), choiceADesc: $('choiceADesc'),
     choiceBTitle: $('choiceBTitle'), choiceBDesc: $('choiceBDesc'),
     companionList: $('companionList'), clueList: $('clueList'), clueEmpty: $('clueEmpty'),
-    logList: $('logList'), rulesModal: $('rulesModal'), toast: $('toast'), sceneCard: $('sceneCard'),
+    logList: $('logList'), rulesModal: $('rulesModal'), toast: $('toast'), sceneCard: $('sceneCard'), sceneContent: $('sceneContent'),
     titleScreen: $('titleScreen'), modeScreen: $('modeScreen'), recordsScreen: $('recordsScreen'),
     settingsScreen: $('settingsScreen'), gameScreen: $('gameScreen')
   };
@@ -712,7 +788,13 @@
         fontSize: 'standard',
         reducedMotion: false,
         confirmChoices: false,
-        autoScroll: true
+        autoScroll: true,
+        bgmVolume: 0.45,
+        seVolume: 0.65,
+        bgmMuted: false,
+        seMuted: false,
+        haptics: true,
+        lightVisuals: false
       }
     };
   }
@@ -734,6 +816,11 @@
     out.stats.survival.boxesOpened = Object.assign({}, base.stats.survival.boxesOpened, inputSurvival.boxesOpened && typeof inputSurvival.boxesOpened === 'object' ? inputSurvival.boxesOpened : {});
     out.settings = Object.assign({}, base.settings, input.settings && typeof input.settings === 'object' ? input.settings : {});
     if (!['small', 'standard', 'large'].includes(out.settings.fontSize)) out.settings.fontSize = 'standard';
+    out.settings.bgmVolume = Number.isFinite(Number(out.settings.bgmVolume)) ? clamp(Number(out.settings.bgmVolume), 0, 1) : base.settings.bgmVolume;
+    out.settings.seVolume = Number.isFinite(Number(out.settings.seVolume)) ? clamp(Number(out.settings.seVolume), 0, 1) : base.settings.seVolume;
+    for (const key of ['reducedMotion', 'confirmChoices', 'autoScroll', 'bgmMuted', 'seMuted', 'haptics', 'lightVisuals']) {
+      if (typeof out.settings[key] !== 'boolean') out.settings[key] = base.settings[key];
+    }
     out.version = 1;
     return out;
   }
@@ -769,6 +856,7 @@
     meta.achievements[id] = { unlockedAt: new Date().toISOString() };
     saveMeta();
     if (announce && !silentMode) toast(`実績解除：${achievement.name}`);
+    if (announce && !silentMode && presentation) presentation.notifyAchievement(achievement);
     return true;
   }
 
@@ -828,6 +916,20 @@
     if ($('reducedMotionSetting')) $('reducedMotionSetting').checked = !!meta.settings.reducedMotion;
     if ($('confirmChoicesSetting')) $('confirmChoicesSetting').checked = !!meta.settings.confirmChoices;
     if ($('autoScrollSetting')) $('autoScrollSetting').checked = !!meta.settings.autoScroll;
+    if ($('bgmVolumeSetting')) $('bgmVolumeSetting').value = String(Math.round(meta.settings.bgmVolume * 100));
+    if ($('bgmVolumeValue')) $('bgmVolumeValue').textContent = `${Math.round(meta.settings.bgmVolume * 100)}%`;
+    if ($('seVolumeSetting')) $('seVolumeSetting').value = String(Math.round(meta.settings.seVolume * 100));
+    if ($('seVolumeValue')) $('seVolumeValue').textContent = `${Math.round(meta.settings.seVolume * 100)}%`;
+    if ($('bgmMutedSetting')) $('bgmMutedSetting').checked = !!meta.settings.bgmMuted;
+    if ($('seMutedSetting')) $('seMutedSetting').checked = !!meta.settings.seMuted;
+    if ($('hapticsSetting')) $('hapticsSetting').checked = !!meta.settings.haptics;
+    if ($('lightVisualsSetting')) $('lightVisualsSetting').checked = !!meta.settings.lightVisuals;
+    if (presentation) presentation.setSettings(meta.settings);
+  }
+
+  function reducedMotionActive() {
+    return !!meta.settings.reducedMotion
+      || (typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches);
   }
 
   function formatTimestamp(value) {
@@ -862,8 +964,9 @@
     if (name === 'title') renderTitle();
     if (name === 'records') renderRecords('achievements');
     if (name === 'settings') applySettings();
+    if (presentation && name !== 'game') presentation.presentScreen(name);
     if (name === 'game') render();
-    scrollTo({ top: 0, behavior: meta.settings.reducedMotion ? 'auto' : 'smooth' });
+    scrollTo({ top: 0, behavior: reducedMotionActive() ? 'auto' : 'smooth' });
   }
 
   function startNewRun(mode, seed = makeSeed()) {
@@ -1170,6 +1273,7 @@
     const choice = event.choices[index];
     if (!choice) return;
     if (!silentMode && meta.settings.confirmChoices && !confirm(`「${choice.title}」を選びますか？`)) return;
+    if (!silentMode && presentation) presentation.action(choice.kind, { warning: choice.visibleRisk === 'high' });
     clickLocked = true;
 
     state.choiceCount += 1;
@@ -1211,7 +1315,7 @@
       saveState();
       render();
       if (meta.settings.autoScroll && ui.sceneCard && ui.sceneCard.scrollIntoView) {
-        ui.sceneCard.scrollIntoView({ behavior: meta.settings.reducedMotion ? 'auto' : 'smooth', block: 'start' });
+        ui.sceneCard.scrollIntoView({ behavior: reducedMotionActive() ? 'auto' : 'smooth', block: 'start' });
       }
       setTimeout(() => { clickLocked = false; }, 180);
     } else {
@@ -1231,6 +1335,7 @@
     const choice = scene.choices(state)[index];
     if (!choice) return;
     if (!silentMode && meta.settings.confirmChoices && !confirm(`「${choice.title}」を選びますか？`)) return;
+    if (!silentMode && presentation) presentation.action(choice.kind);
     clickLocked = true;
 
     state.choiceCount += 1;
@@ -1263,7 +1368,7 @@
       saveState();
       render();
       if (meta.settings.autoScroll && ui.sceneCard && ui.sceneCard.scrollIntoView) {
-        ui.sceneCard.scrollIntoView({ behavior: meta.settings.reducedMotion ? 'auto' : 'smooth', block: 'start' });
+        ui.sceneCard.scrollIntoView({ behavior: reducedMotionActive() ? 'auto' : 'smooth', block: 'start' });
       }
       setTimeout(() => { clickLocked = false; }, 180);
     } else {
@@ -2000,9 +2105,9 @@
 
   function renderEnding() {
     const e = state.ending;
-    ui.sceneCard.innerHTML = `
+    ui.sceneContent.innerHTML = `
       <div class="ending">
-        <div class="scene-icon">${escapeHtml(e.icon || '🏁')}</div>
+        <div class="ending-icon">${escapeHtml(e.icon || '🏁')}</div>
         <span class="badge accent">ENDING：${escapeHtml(e.code || 'END')}</span>
         <h2>${escapeHtml(e.title)}</h2>
         <p class="scene-text">${escapeHtml(e.text)}</p>
@@ -2023,7 +2128,14 @@
     $('sameSeedRestart').addEventListener('click', () => restartWithSeed(state.seed));
     $('endingLog').addEventListener('click', () => {
       const details = document.querySelector('.side details');
-      if (details) { details.open = true; details.scrollIntoView({ behavior: 'smooth' }); }
+      if (details) { details.open = true; details.scrollIntoView({ behavior: reducedMotionActive() ? 'auto' : 'smooth' }); }
+    });
+    if (presentation) presentation.presentEnding({
+      mode: state.mode,
+      endingCode: e.code,
+      title: e.title,
+      icon: e.icon,
+      token: `${state.mode}:${e.code}:${state.seed}:${state.choiceCount}`
     });
   }
 
@@ -2063,6 +2175,19 @@
       }
       renderStats();
       ui.statusBadge.textContent = `${state.status} ／ ${category}`;
+      if (presentation) presentation.presentScene({
+        mode: 'survival',
+        sceneId: event.eventId,
+        category: event.category,
+        icon: event.icon,
+        title: event.title,
+        status: state.status,
+        artKey: event.artKey,
+        backgroundKey: event.backgroundKey,
+        characterKey: event.characterKey,
+        moodKey: event.moodKey,
+        token: `survival:${event.eventId}:${state.day}:${state.choiceCount}`
+      });
       return;
     }
     const scene = scenes[state.scene];
@@ -2089,6 +2214,19 @@
       ui.resultBox.classList.remove('show');
     }
     renderStats();
+    if (presentation) presentation.presentScene({
+      mode: state.mode,
+      sceneId: state.scene,
+      category: state.day === 50 ? 'final' : ([10, 20, 30, 40].includes(state.day) ? 'milestone' : 'common'),
+      icon: scene.icon,
+      title: scene.title,
+      status: state.status,
+      artKey: scene.artKey,
+      backgroundKey: scene.backgroundKey,
+      characterKey: scene.characterKey,
+      moodKey: scene.moodKey,
+      token: `${state.mode}:${state.scene}:${state.day}:${state.choiceCount}`
+    });
   }
 
   function escapeHtml(value) {
@@ -2355,16 +2493,29 @@
   document.querySelectorAll('[data-record-tab]').forEach(button => {
     button.addEventListener('click', () => renderRecords(button.dataset.recordTab));
   });
-  for (const id of ['fontSizeSetting', 'reducedMotionSetting', 'confirmChoicesSetting', 'autoScrollSetting']) {
-    $(id).addEventListener('change', () => {
-      meta.settings.fontSize = $('fontSizeSetting').value;
-      meta.settings.reducedMotion = $('reducedMotionSetting').checked;
-      meta.settings.confirmChoices = $('confirmChoicesSetting').checked;
-      meta.settings.autoScroll = $('autoScrollSetting').checked;
-      saveMeta();
-      applySettings();
-    });
+  function saveSettingsFromControls() {
+    meta.settings.fontSize = $('fontSizeSetting').value;
+    meta.settings.reducedMotion = $('reducedMotionSetting').checked;
+    meta.settings.confirmChoices = $('confirmChoicesSetting').checked;
+    meta.settings.autoScroll = $('autoScrollSetting').checked;
+    meta.settings.bgmVolume = clamp(Number($('bgmVolumeSetting').value) / 100, 0, 1);
+    meta.settings.seVolume = clamp(Number($('seVolumeSetting').value) / 100, 0, 1);
+    meta.settings.bgmMuted = $('bgmMutedSetting').checked;
+    meta.settings.seMuted = $('seMutedSetting').checked;
+    meta.settings.haptics = $('hapticsSetting').checked;
+    meta.settings.lightVisuals = $('lightVisualsSetting').checked;
+    saveMeta();
+    applySettings();
   }
+  for (const id of [
+    'fontSizeSetting', 'reducedMotionSetting', 'confirmChoicesSetting', 'autoScrollSetting',
+    'bgmVolumeSetting', 'seVolumeSetting', 'bgmMutedSetting', 'seMutedSetting',
+    'hapticsSetting', 'lightVisualsSetting'
+  ]) {
+    $(id).addEventListener('change', saveSettingsFromControls);
+  }
+  $('bgmVolumeSetting').addEventListener('input', saveSettingsFromControls);
+  $('seVolumeSetting').addEventListener('input', saveSettingsFromControls);
   $('titleInstallBtn').addEventListener('click', () => $('installBtn').click());
   $('titleDataBtn').addEventListener('click', () => $('dataBtn').click());
   $('titleShareBtn').addEventListener('click', shareGame);
@@ -2448,7 +2599,13 @@
         simulateSurvivalPolicies: count => SURVIVAL.simulatePolicies(Math.max(1, Number(count) || 1)),
         survivalTerminal: run => SURVIVAL.terminalStatus(clone(run)),
         survivalAssessment: run => clone(SURVIVAL.assessEnding(clone(run))),
-        survivalPublicChoice: (run, eventId, choiceIndex) => clone(SURVIVAL.publicChoiceInfo(clone(run), eventId, choiceIndex))
+        survivalPublicChoice: (run, eventId, choiceIndex) => clone(SURVIVAL.publicChoiceInfo(clone(run), eventId, choiceIndex)),
+        presentation: () => presentation ? presentation.snapshot() : null,
+        presentationResolve: context => presentation ? presentation.debugResolve(clone(context)) : null,
+        presentationManifest: manifest => { if (presentation) presentation.setManifestForTest(clone(manifest)); },
+        presentationScene: context => { if (presentation) presentation.presentScene(clone(context)); },
+        presentationEnding: context => { if (presentation) presentation.presentEnding(clone(context)); },
+        presentationAchievement: value => { if (presentation) presentation.notifyAchievement(clone(value)); }
       };
     }
   } catch (_) {}
@@ -2578,7 +2735,7 @@
           });
           registration.update().catch(() => {});
           globalThis.__TABENAI_PWA__ = {
-            version: '4.5.0',
+            version: '4.6.0',
             scope: registration.scope,
             hasWaitingUpdate: () => !!registration.waiting,
             checkForUpdate: updateApp,

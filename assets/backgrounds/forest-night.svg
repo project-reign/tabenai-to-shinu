@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
+  <title id="title">夜の怪食の森</title>
+  <desc id="desc">深紺の夜、細い月と無数の小さな目が一本の赤い道を見守る、寂しく不穏な森。</desc>
+  <defs>
+    <linearGradient id="night" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#070b16"/>
+      <stop offset="0.65" stop-color="#111725"/>
+      <stop offset="1" stop-color="#080707"/>
+    </linearGradient>
+    <radialGradient id="haze">
+      <stop offset="0" stop-color="#c99240" stop-opacity="0.26"/>
+      <stop offset="1" stop-color="#c99240" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="redRoad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#8e4035" stop-opacity="0.25"/>
+      <stop offset="1" stop-color="#aa5340" stop-opacity="0.8"/>
+    </linearGradient>
+  </defs>
+  <rect width="1600" height="900" fill="url(#night)"/>
+  <circle cx="800" cy="215" r="220" fill="url(#haze)"/>
+  <path d="M834 95a132 132 0 1 0 74 230a150 150 0 1 1-74-230Z" fill="#d9aa55"/>
+  <circle cx="790" cy="222" r="7" fill="#0b0c12"/>
+  <circle cx="826" cy="220" r="7" fill="#0b0c12"/>
+  <path d="M780 250q28 18 56 0" fill="none" stroke="#6d2c29" stroke-width="7" stroke-linecap="round"/>
+  <path d="M0 530Q240 390 470 490T800 442T1130 490T1600 410V900H0Z" fill="#090a0b"/>
+  <path d="M714 900C740 730 770 600 800 478c31 123 63 252 91 422Z" fill="url(#redRoad)"/>
+  <g fill="#050506">
+    <path d="M0 0h240l76 900H0Z"/><path d="M300 0h164l88 900H405Z"/>
+    <path d="M470 0h104l65 900H540Z"/><path d="M1600 0h-240l-76 900h316Z"/>
+    <path d="M1300 0h-164l-88 900h147Z"/><path d="M1130 0h-104l-65 900h99Z"/>
+  </g>
+  <g stroke="#050506" stroke-width="34" stroke-linecap="round" fill="none">
+    <path d="M190 130L560 30M390 280L650 140M1410 130L1040 30M1210 280L950 140"/>
+  </g>
+  <g fill="#c18a40">
+    <ellipse cx="590" cy="330" rx="10" ry="4"/><ellipse cx="619" cy="330" rx="10" ry="4"/>
+    <ellipse cx="980" cy="360" rx="9" ry="4"/><ellipse cx="1007" cy="360" rx="9" ry="4"/>
+    <ellipse cx="674" cy="516" rx="7" ry="3"/><ellipse cx="695" cy="516" rx="7" ry="3"/>
+    <ellipse cx="902" cy="535" rx="7" ry="3"/><ellipse cx="923" cy="535" rx="7" ry="3"/>
+  </g>
+  <path d="M765 742l35-18l35 18l-12 41h-46Z" fill="#221713" stroke="#c18a40" stroke-width="5"/>
+  <path d="M783 746l17 12l17-12" fill="none" stroke="#8e4035" stroke-width="6" stroke-linecap="round"/>
+</svg>

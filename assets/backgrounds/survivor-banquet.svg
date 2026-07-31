@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
+  <title id="title">生存者の祝宴</title>
+  <desc id="desc">琥珀色の祝宴会場に一脚だけ椅子が置かれ、食器たちが紙吹雪のように祝う寂しく可笑しい景色。</desc>
+  <defs>
+    <linearGradient id="hall" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#101827"/><stop offset="0.6" stop-color="#3a2118"/><stop offset="1" stop-color="#090807"/></linearGradient>
+    <radialGradient id="celebrate"><stop offset="0" stop-color="#e5b45b" stop-opacity="0.62"/><stop offset="1" stop-color="#e5b45b" stop-opacity="0"/></radialGradient>
+  </defs>
+  <rect width="1600" height="900" fill="url(#hall)"/>
+  <ellipse cx="800" cy="415" rx="420" ry="410" fill="url(#celebrate)"/>
+  <path d="M0 690Q300 580 565 670T1035 670T1600 590V900H0Z" fill="#0a0908"/>
+  <g stroke="#7c3c2e" stroke-width="16" fill="none" opacity="0.8">
+    <path d="M0 155q250 120 500 0t500 0t600 0"/><path d="M0 242q250 120 500 0t500 0t600 0"/>
+  </g>
+  <g fill="#d7a34e">
+    <path d="M210 128l14 31l34 3l-26 22l8 33l-30-18l-29 18l8-33l-26-22l34-3Z"/>
+    <path d="M1330 110l11 25l28 2l-21 19l6 27l-24-15l-24 15l7-27l-22-19l28-2Z"/>
+    <circle cx="470" cy="132" r="10"/><circle cx="1120" cy="202" r="9"/><circle cx="620" cy="94" r="7"/><circle cx="980" cy="112" r="7"/>
+  </g>
+  <g fill="#964536">
+    <path d="M330 208l22 8l-12 34l-22-8Z"/><path d="M1240 260l22-8l12 34l-22 8Z"/>
+    <path d="M550 230l20 12l-18 31l-20-12Z"/><path d="M1050 180l20-12l18 31l-20 12Z"/>
+  </g>
+  <path d="M560 900L645 555H955L1040 900Z" fill="#4d281e" stroke="#0b0908" stroke-width="14"/>
+  <g fill="#d2a04b" stroke="#17100d" stroke-width="7">
+    <ellipse cx="680" cy="665" rx="78" ry="27"/><ellipse cx="920" cy="665" rx="78" ry="27"/>
+    <ellipse cx="800" cy="790" rx="105" ry="35"/>
+  </g>
+  <g fill="#111827"><path d="M648 660q32-44 64 0q-32 17-64 0Z"/><path d="M888 660q32-44 64 0q-32 17-64 0Z"/><path d="M755 783q45-55 90 0q-45 21-90 0Z"/></g>
+  <path d="M713 430h174l35 211H678Z" fill="#291713" stroke="#a65b36" stroke-width="11"/>
+  <path d="M730 430q70-130 140 0" fill="#6f3029" stroke="#a65b36" stroke-width="11"/>
+  <path d="M753 390l23-54l24 35l24-35l23 54Z" fill="#d5a24d" stroke="#17100d" stroke-width="8"/>
+  <circle cx="800" cy="380" r="7" fill="#8e4035"/>
+  <g stroke="#c58b3d" stroke-width="10" stroke-linecap="round"><path d="M530 500l-58-70M1070 500l58-70"/><circle cx="462" cy="420" r="17" fill="#101725"/><circle cx="1138" cy="420" r="17" fill="#101725"/></g>
+</svg>
