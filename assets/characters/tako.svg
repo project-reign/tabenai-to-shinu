@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="1200" viewBox="0 0 800 1200" role="img" aria-labelledby="title desc">
+  <title id="title">寄生タコ</title>
+  <desc id="desc">深紅の丸い頭と琥珀色の目を持ち、缶帽子をかぶって八本の触腕で丁寧にお辞儀する少し可愛い寄生タコ。</desc>
+  <defs>
+
+    <radialGradient id="halo">
+      <stop offset="0" stop-color="#d9a64f" stop-opacity=".28"/>
+      <stop offset="1" stop-color="#d9a64f" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="warm" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f3d58a"/>
+      <stop offset=".48" stop-color="#b8732e"/>
+      <stop offset="1" stop-color="#7e2c2a"/>
+    </linearGradient>
+    <linearGradient id="dark" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1d4c4b"/>
+      <stop offset="1" stop-color="#08090b"/>
+    </linearGradient>
+  </defs>
+
+
+      <ellipse cx="400" cy="590" rx="360" ry="520" fill="url(#halo)"/>
+      <ellipse cx="400" cy="1090" rx="260" ry="54" fill="#08090b" opacity=".5"/>
+
+      <g id="tentacles" fill="none" stroke="#7e2c2a" stroke-width="58" stroke-linecap="round"><path data-tentacle="1" d="M326 694Q84 760 128 1040"/><path data-tentacle="2" d="M354 718Q165 856 230 1090"/><path data-tentacle="3" d="M382 728Q280 890 330 1100"/><path data-tentacle="4" d="M410 730Q370 900 384 1105"/><path data-tentacle="5" d="M390 730Q430 900 416 1105"/><path data-tentacle="6" d="M418 728Q520 890 470 1100"/><path data-tentacle="7" d="M446 718Q635 856 570 1090"/><path data-tentacle="8" d="M474 694Q716 760 672 1040"/></g>
+      <ellipse cx="400" cy="510" rx="245" ry="290" fill="url(#warm)" stroke="#08090b" stroke-width="24"/>
+      <path d="M220 400q180-190 360 0" fill="none" stroke="#f3d58a" stroke-opacity=".38" stroke-width="34" stroke-linecap="round"/>
+      <g id="can-hat"><path d="M310 236h180l-19-130H329Z" fill="#121419" stroke="#d9a64f" stroke-width="15"/><ellipse cx="400" cy="106" rx="71" ry="22" fill="#573024" stroke="#d9a64f" stroke-width="12"/><ellipse cx="400" cy="236" rx="90" ry="25" fill="#08090b" stroke="#d9a64f" stroke-width="13"/><path d="M350 150h100" stroke="#f3d58a" stroke-width="11" stroke-linecap="round"/><circle cx="365" cy="193" r="9" fill="#d9a64f"/><circle cx="435" cy="193" r="9" fill="#d9a64f"/></g>
+      <ellipse cx="325" cy="515" rx="42" ry="30" fill="#08090b"/><ellipse cx="475" cy="515" rx="42" ry="30" fill="#08090b"/><circle cx="337" cy="506" r="9" fill="#d9a64f"/><circle cx="487" cy="506" r="9" fill="#d9a64f"/>
+      <path d="M337 615q63 58 126 0" fill="none" stroke="#08090b" stroke-width="18" stroke-linecap="round"/>
+      <g fill="#d9a64f"><circle cx="174" cy="847" r="15"/><circle cx="283" cy="939" r="14"/><circle cx="517" cy="939" r="14"/><circle cx="626" cy="847" r="15"/></g>
+</svg>

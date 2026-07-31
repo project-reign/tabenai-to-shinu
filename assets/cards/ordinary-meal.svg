@@ -1,18 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" width="800" height="800" viewBox="0 0 800 800" role="img" aria-labelledby="title desc">
-  <title id="title">完全に普通の定食</title>
-  <desc id="desc">あまりに整ったご飯、汁、主菜が不自然な後光を放つ、完全に普通だと言い張る定食。</desc>
-  <defs><radialGradient id="bg"><stop offset="0" stop-color="#3a261b"/><stop offset="1" stop-color="#070a11"/></radialGradient><radialGradient id="halo"><stop offset="0" stop-color="#edc66f" stop-opacity="0.7"/><stop offset="1" stop-color="#edc66f" stop-opacity="0"/></radialGradient></defs>
-  <rect x="24" y="24" width="752" height="752" rx="92" fill="url(#bg)" stroke="#c18b3d" stroke-width="18"/>
-  <circle cx="400" cy="390" r="310" fill="url(#halo)"/>
-  <rect x="132" y="226" width="536" height="370" rx="58" fill="#2c1813" stroke="#a95a36" stroke-width="18" transform="rotate(-2 400 411)"/>
-  <ellipse cx="400" cy="391" rx="155" ry="115" fill="#d6aa5d" stroke="#11100e" stroke-width="15"/>
-  <path d="M300 398q100-141 200 0q-100 85-200 0Z" fill="#7d352e" stroke="#17100e" stroke-width="12"/>
-  <path d="M334 366q66-65 132 0" fill="none" stroke="#ddae55" stroke-width="14" stroke-linecap="round"/>
-  <path d="M162 443h155q-5 122-78 122t-77-122Z" fill="#111827" stroke="#b97d38" stroke-width="13"/>
-  <ellipse cx="239" cy="443" rx="78" ry="27" fill="#79372e" stroke="#13100e" stroke-width="12"/>
-  <path d="M496 480h142q-8 91-71 91t-71-91Z" fill="#d1a250" stroke="#12100d" stroke-width="13"/>
-  <ellipse cx="567" cy="480" rx="71" ry="22" fill="#f0cf87" stroke="#12100d" stroke-width="11"/>
-  <g fill="#0f1622"><circle cx="379" cy="409" r="9"/><circle cx="421" cy="409" r="9"/></g>
-  <path d="M380 443q20 14 40 0" fill="none" stroke="#d9aa55" stroke-width="8" stroke-linecap="round"/>
-  <g stroke="#d7a34d" stroke-width="9" stroke-linecap="round"><path d="M400 103v65M211 166l43 49M589 166l-43 49M115 340l66 13M685 340l-66 13"/></g>
+  <title id="title">完全に普通の焼き魚定食</title>
+  <desc id="desc">ご飯、味噌汁、焼き魚、漬物が異常なほど整然と金縁の膳に並び、普通であることだけが不気味な定食。</desc>
+  <defs>
+
+    <radialGradient id="cardBg">
+      <stop offset="0" stop-color="#573024"/>
+      <stop offset=".55" stop-color="#2d1914"/>
+      <stop offset="1" stop-color="#08090b"/>
+    </radialGradient>
+    <radialGradient id="cardGlow">
+      <stop offset="0" stop-color="#f3d58a" stop-opacity=".56"/>
+      <stop offset="1" stop-color="#d9a64f" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="foodWarm" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f3d58a"/>
+      <stop offset=".5" stop-color="#b8732e"/>
+      <stop offset="1" stop-color="#7e2c2a"/>
+    </linearGradient>
+    <linearGradient id="foodCool" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#65a09a"/>
+      <stop offset=".52" stop-color="#1d4c4b"/>
+      <stop offset="1" stop-color="#0b1220"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="800" fill="#08090b"/>
+
+      <rect x="22" y="22" width="756" height="756" rx="92" fill="url(#cardBg)" stroke="#d9a64f" stroke-width="18"/>
+      <circle cx="400" cy="392" r="306" fill="url(#cardGlow)"/>
+      <circle cx="400" cy="400" r="316" fill="none" stroke="#b6503f" stroke-opacity=".45" stroke-width="7" stroke-dasharray="10 23"/>
+      <path d="M126 650Q400 711 674 650" fill="none" stroke="#d9a64f" stroke-width="17" stroke-linecap="round"/>
+
+      <rect x="105" y="205" width="590" height="420" rx="62" fill="#2d1914" stroke="#d9a64f" stroke-width="19"/>
+      <ellipse cx="415" cy="392" rx="170" ry="120" fill="#d8c8a3" stroke="#08090b" stroke-width="16"/><path d="M282 403q133-164 266 0q-133 97-266 0Z" fill="#7e2c2a" stroke="#08090b" stroke-width="14"/><path d="M323 373q92-76 184 0" fill="none" stroke="#d9a64f" stroke-width="15" stroke-linecap="round"/>
+      <path d="M135 440h170q-6 136-85 136t-85-136Z" fill="#0b1220" stroke="#d9a64f" stroke-width="14"/><ellipse cx="220" cy="440" rx="85" ry="29" fill="#7e2c2a" stroke="#08090b" stroke-width="12"/>
+      <path d="M520 474h145q-8 98-73 98t-72-98Z" fill="#d9a64f" stroke="#08090b" stroke-width="14"/><ellipse cx="592" cy="474" rx="72" ry="23" fill="#f3d58a" stroke="#08090b" stroke-width="11"/>
+      <g fill="#08090b"><circle cx="390" cy="412" r="9"/><circle cx="440" cy="412" r="9"/></g><path d="M393 449q22 15 44 0" fill="none" stroke="#d9a64f" stroke-width="8" stroke-linecap="round"/>
 </svg>

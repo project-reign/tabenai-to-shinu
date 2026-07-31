@@ -15,7 +15,7 @@
   <link rel="icon" type="image/png" sizes="32x32" href="./icons/favicon-32.png" />
   <link rel="apple-touch-icon" sizes="180x180" href="./icons/apple-touch-icon.png" />
   <meta name="theme-color" content="#171717" />
-  <title>食べないと死ぬ：50日目の晩餐 v4.6.0</title>
+  <title>食べないと死ぬ：50日目の晩餐 v4.7.0</title>
   <style>
     :root {
       --bg: #0f1115;
@@ -96,6 +96,13 @@
     .record-item strong { display:block; }
     .record-item small { color:var(--muted); }
     .settings-list { display:grid; gap:15px; }
+    .credit-actions { display:flex; justify-content:flex-end; margin-top:14px; }
+    .credit-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }
+    .credit-card { padding:16px; border:1px solid #3a4050; border-radius:15px; background:#12151a; }
+    .credit-card h2 { margin:0 0 7px; font-size:1rem; color:#ffe49a; }
+    .credit-card p { margin:0; color:#cfd4dd; font-size:.86rem; line-height:1.65; }
+    .credit-card code { color:#f4c95d; overflow-wrap:anywhere; }
+    .credit-wide { grid-column:1/-1; }
     .setting-row { display:flex; align-items:center; justify-content:space-between; gap:14px; padding:12px 0; border-bottom:1px solid #2d3340; }
     .setting-row:last-child { border-bottom:0; }
     .setting-row select, .setting-row input { accent-color:#f4c95d; }
@@ -219,6 +226,8 @@
     @media (max-width:760px) {
       .shell-screen { align-content:start; padding-top:max(18px,env(safe-area-inset-top)); }
       .mode-grid, .record-grid { grid-template-columns:1fr; }
+      .credit-grid { grid-template-columns:1fr; }
+      .credit-wide { grid-column:auto; }
       .app { width:min(100% - 16px, 1040px); padding-top:max(8px,env(safe-area-inset-top)); }
       .stats { grid-template-columns:1fr 1fr; }
       .layout { grid-template-columns:1fr; }
@@ -279,7 +288,7 @@
       <div class="title-icon"><img src="./icons/icon-192.png" alt="食べないと死ぬ アプリアイコン"></div>
       <h1>食べないと死ぬ</h1>
       <div class="subtitle">50日目の晩餐</div>
-      <div class="title-version">v4.6.0</div>
+      <div class="title-version">v4.7.0</div>
       <div class="network-pill" id="networkStatus">● ONLINE</div>
     </div>
     <div class="title-card">
@@ -296,6 +305,7 @@
           <button class="small-btn" id="titleInstallBtn">インストール・更新</button>
           <button class="small-btn" id="titleDataBtn">セーブ移行</button>
           <button class="small-btn" id="titleShareBtn">共有</button>
+          <button class="small-btn" id="titleCreditsBtn">クレジット／ライセンス</button>
         </div>
       </details>
     </div>
@@ -363,12 +373,27 @@
       <label class="setting-row"><span><strong>動きを減らす</strong><br><small class="subtitle">アニメーションを抑える</small></span><input type="checkbox" id="reducedMotionSetting"></label>
       <label class="setting-row"><span><strong>選択前に確認</strong><br><small class="subtitle">誤操作を防ぐ</small></span><input type="checkbox" id="confirmChoicesSetting"></label>
       <label class="setting-row"><span><strong>選択後に自動スクロール</strong><br><small class="subtitle">次のイベントへ短く移動</small></span><input type="checkbox" id="autoScrollSetting"></label>
-      <label class="setting-row"><span><strong>BGM音量</strong><br><small class="subtitle">初回操作後にのみ再生。正式BGMはv4.7で追加予定</small></span><span class="setting-control"><input type="range" id="bgmVolumeSetting" min="0" max="100" step="1"><output id="bgmVolumeValue">45%</output></span></label>
+      <label class="setting-row"><span><strong>BGM音量</strong><br><small class="subtitle">オリジナル6曲。最初のユーザー操作後にのみ再生</small></span><span class="setting-control"><input type="range" id="bgmVolumeSetting" min="0" max="100" step="1"><output id="bgmVolumeValue">45%</output></span></label>
       <label class="setting-row"><span><strong>BGMをミュート</strong><br><small class="subtitle">音楽スロットを無音にする</small></span><input type="checkbox" id="bgmMutedSetting"></label>
       <label class="setting-row"><span><strong>SE音量</strong><br><small class="subtitle">選択・警告・節目の効果音</small></span><span class="setting-control"><input type="range" id="seVolumeSetting" min="0" max="100" step="1"><output id="seVolumeValue">65%</output></span></label>
       <label class="setting-row"><span><strong>SEをミュート</strong><br><small class="subtitle">視覚情報はそのまま維持</small></span><input type="checkbox" id="seMutedSetting"></label>
       <label class="setting-row"><span><strong>触覚フィードバック</strong><br><small class="subtitle">対応端末のみ短く振動</small></span><input type="checkbox" id="hapticsSetting"></label>
-      <label class="setting-row"><span><strong>画像演出を軽くする</strong><br><small class="subtitle">画像を使わず絵文字と本文で表示</small></span><input type="checkbox" id="lightVisualsSetting"></label>
+      <label class="setting-row"><span><strong>軽量モード（画像とBGM編成を簡略化）</strong><br><small class="subtitle">画像を絵文字と本文へ切り替え、BGMの音数を減らします</small></span><input type="checkbox" id="lightVisualsSetting"></label>
+    </div>
+    <div class="credit-actions"><button class="secondary" id="settingsCreditsBtn">クレジット／アセットライセンス</button></div>
+  </section>
+
+  <section class="shell-screen" id="creditsScreen" hidden>
+    <div class="screen-head">
+      <div><div class="subtitle">CREDITS &amp; LICENSES</div><h1>いただきますの森</h1></div>
+      <button class="small-btn" id="creditsBackBtn">タイトルへ</button>
+    </div>
+    <div class="credit-grid">
+      <article class="credit-card"><h2>正式アート</h2><p>背景8点、キャラクター10点、フード／イベントカード23点。すべて本プロジェクトのために図形とグラデーションから制作したオリジナルSVGです。</p></article>
+      <article class="credit-card"><h2>正式音響</h2><p>「空の皿」「腹の鳴る森」「あり得ない一皿」「五十日目」「残された器」「朝食のない朝」と全SEは、外部楽曲・サンプルを使わず、決定論的なWeb Audioシーケンスで演奏します。軽量モードでは曲・長さ・ループを保ったまま音数と装飾音を減らします。</p></article>
+      <article class="credit-card"><h2>制作・著作</h2><p>企画・ゲーム・アート・音響：project-reign。開発支援：OpenAI ChatGPT / Codex。特定の作品・作家の画風模倣、外部画像、外部フォント、無断素材は使用していません。</p></article>
+      <article class="credit-card"><h2>ライセンスID</h2><p><code>project-v4.7-original-svg</code><br><code>project-v4.7-generated-audio</code><br><code>project-v4.7-synth</code></p></article>
+      <article class="credit-card credit-wide"><h2>監査資料</h2><p>個別アセットのID、subject、alt、ライセンスは <a href="./asset-gallery.html">開発用アセットギャラリー</a> とリポジトリの <code>ASSET_LICENSES.md</code> で確認できます。画像・台帳・音響が読み込めない場合も、絵文字・本文・常時二択だけで最後まで進行できます。</p></article>
     </div>
   </section>
 
@@ -378,7 +403,7 @@
         <div class="brand-icon" aria-hidden="true">🍽️</div>
         <div>
           <h1>食べないと死ぬ：50日目の晩餐</h1>
-          <div class="subtitle">二択だけで進む、怪食サバイバル・ノベル <strong>v4.6.0</strong></div>
+          <div class="subtitle">二択だけで進む、怪食サバイバル・ノベル <strong>v4.7.0</strong></div>
         </div>
       </div>
       <details class="app-menu" id="appMenu">
@@ -485,7 +510,7 @@
           <li>50日目の最後の晩餐では、集めた手がかりと過去の選択が結末を変えます。</li>
         </ul>
         <p>エンディングは複数あります。四皿すべてを二段階の二択で選べます。正解を知っていても、仲間・記憶・怪物化・古い存在の状態で結末が変化します。</p>
-        <p class="subtitle">v4.6更新：画像・音・触覚を安全に差し替えられる演出基盤を追加。画像や音声がなくても、既存の絵文字・本文と二択だけですべて進行できます。</p>
+        <p class="subtitle">v4.7更新：正式アートとオリジナルBGM・強化SEを追加。画像や音声がなくても、既存の絵文字・本文と二択だけですべて進行できます。</p>
       </div>
       <button class="primary" id="closeRules">閉じる</button>
     </div>
@@ -544,12 +569,13 @@
   </aside>
 
   <script src="./survival-engine.js"></script>
+  <script src="./music-engine.js"></script>
   <script src="./presentation-engine.js"></script>
   <script>
 (() => {
   'use strict';
 
-  const APP_VERSION = '4.6.0';
+  const APP_VERSION = '4.7.0';
   const VERSION = 4;
   const SAVE_KEY = 'tabenai-to-shinu-50days-v4';
   const LEGACY_KEYS = ['tabenai-to-shinu-50days-v3', 'tabenai-to-shinu-50days-v2'];
@@ -757,7 +783,7 @@
     companionList: $('companionList'), clueList: $('clueList'), clueEmpty: $('clueEmpty'),
     logList: $('logList'), rulesModal: $('rulesModal'), toast: $('toast'), sceneCard: $('sceneCard'), sceneContent: $('sceneContent'),
     titleScreen: $('titleScreen'), modeScreen: $('modeScreen'), recordsScreen: $('recordsScreen'),
-    settingsScreen: $('settingsScreen'), gameScreen: $('gameScreen')
+    settingsScreen: $('settingsScreen'), creditsScreen: $('creditsScreen'), gameScreen: $('gameScreen')
   };
 
   function freshMeta() {
@@ -958,6 +984,7 @@
       modes: ui.modeScreen,
       records: ui.recordsScreen,
       settings: ui.settingsScreen,
+      credits: ui.creditsScreen,
       game: ui.gameScreen
     };
     for (const [key, element] of Object.entries(screens)) element.hidden = key !== name;
@@ -2185,6 +2212,9 @@
         artKey: event.artKey,
         backgroundKey: event.backgroundKey,
         characterKey: event.characterKey,
+        beanSoil: state.flags && state.flags.beanSoil,
+        beanPossessed: !!(state.flags && state.flags.beanPossessed),
+        beanChild: !!(state.companions && state.companions.beanChild),
         moodKey: event.moodKey,
         token: `survival:${event.eventId}:${state.day}:${state.choiceCount}`
       });
@@ -2224,6 +2254,9 @@
       artKey: scene.artKey,
       backgroundKey: scene.backgroundKey,
       characterKey: scene.characterKey,
+      beanSoil: state.flags && state.flags.beanSoil,
+      beanPossessed: !!(state.flags && state.flags.beanPossessed),
+      beanChild: !!(state.companions && state.companions.beanChild),
       moodKey: scene.moodKey,
       token: `${state.mode}:${state.scene}:${state.day}:${state.choiceCount}`
     });
@@ -2480,9 +2513,12 @@
   $('newGameBtn').addEventListener('click', () => showScreen('modes'));
   $('recordsBtn').addEventListener('click', () => showScreen('records'));
   $('settingsBtn').addEventListener('click', () => showScreen('settings'));
+  $('titleCreditsBtn').addEventListener('click', () => showScreen('credits'));
+  $('settingsCreditsBtn').addEventListener('click', () => showScreen('credits'));
   $('modeBackBtn').addEventListener('click', () => showScreen('title'));
   $('recordsBackBtn').addEventListener('click', () => showScreen('title'));
   $('settingsBackBtn').addEventListener('click', () => showScreen('title'));
+  $('creditsBackBtn').addEventListener('click', () => showScreen('title'));
   $('modeStoryBtn').addEventListener('click', () => startNewRun('story'));
   $('modeHardBtn').addEventListener('click', () => startNewRun('hard'));
   $('modeSurvivalBtn').addEventListener('click', () => startNewRun('survival'));
@@ -2735,7 +2771,7 @@
           });
           registration.update().catch(() => {});
           globalThis.__TABENAI_PWA__ = {
-            version: '4.6.0',
+            version: '4.7.0',
             scope: registration.scope,
             hasWaitingUpdate: () => !!registration.waiting,
             checkForUpdate: updateApp,

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="800" viewBox="0 0 800 800" role="img" aria-labelledby="title desc">
+  <title id="title">苺の香りの石鹸</title>
+  <desc id="desc">苺そっくりの深紅の石鹸が金色の泡をまとい、青緑の葉の形をした受け皿で甘そうに輝く。</desc>
+  <defs>
+
+    <radialGradient id="cardBg">
+      <stop offset="0" stop-color="#573024"/>
+      <stop offset=".55" stop-color="#2d1914"/>
+      <stop offset="1" stop-color="#08090b"/>
+    </radialGradient>
+    <radialGradient id="cardGlow">
+      <stop offset="0" stop-color="#f3d58a" stop-opacity=".56"/>
+      <stop offset="1" stop-color="#d9a64f" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="foodWarm" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f3d58a"/>
+      <stop offset=".5" stop-color="#b8732e"/>
+      <stop offset="1" stop-color="#7e2c2a"/>
+    </linearGradient>
+    <linearGradient id="foodCool" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#65a09a"/>
+      <stop offset=".52" stop-color="#1d4c4b"/>
+      <stop offset="1" stop-color="#0b1220"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="800" fill="#08090b"/>
+
+      <rect x="22" y="22" width="756" height="756" rx="92" fill="url(#cardBg)" stroke="#d9a64f" stroke-width="18"/>
+      <circle cx="400" cy="392" r="306" fill="url(#cardGlow)"/>
+      <circle cx="400" cy="400" r="316" fill="none" stroke="#b6503f" stroke-opacity=".45" stroke-width="7" stroke-dasharray="10 23"/>
+      <path d="M126 650Q400 711 674 650" fill="none" stroke="#d9a64f" stroke-width="17" stroke-linecap="round"/>
+
+      <path d="M400 592Q238 514 226 346Q238 210 400 250Q562 210 574 346Q562 514 400 592Z" fill="#b6503f" stroke="#08090b" stroke-width="22"/>
+      <path d="M400 253q-94-128-190-47q72 112 190 98q94-128 190-47q-72 112-190 98Z" fill="#1d4c4b" stroke="#08090b" stroke-width="18"/>
+      <g fill="#f3d58a"><ellipse cx="330" cy="352" rx="8" ry="14"/><ellipse cx="402" cy="332" rx="8" ry="14"/><ellipse cx="475" cy="361" rx="8" ry="14"/><ellipse cx="360" cy="438" rx="8" ry="14"/><ellipse cx="444" cy="456" rx="8" ry="14"/></g>
+      <g fill="none" stroke="#d9a64f" stroke-width="10"><circle cx="225" cy="255" r="25"/><circle cx="600" cy="315" r="18"/><circle cx="184" cy="420" r="14"/><circle cx="625" cy="480" r="27"/></g>
+      <ellipse cx="400" cy="596" rx="215" ry="56" fill="#1d4c4b" fill-opacity=".55" stroke="#d9a64f" stroke-width="11"/>
+</svg>

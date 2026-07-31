@@ -8,7 +8,7 @@ const assetsRoot = resolve(root, 'assets');
 
 const ASSET_TYPES = ['background', 'character', 'art', 'effect', 'bgm', 'se'];
 const ASSIGNMENT_GROUPS = ['screens', 'scenes', 'survival', 'categories', 'endings'];
-const ROOT_FIELDS = ['schemaVersion', 'manifestVersion', 'budgets', 'assets', 'assignments', 'hooks', 'actions'];
+const ROOT_FIELDS = ['schemaVersion', 'manifestVersion', 'budgets', 'assets', 'variants', 'assignments', 'hooks', 'actions'];
 const BUDGET_FIELDS = ['precacheBytes', 'presentationPrecacheBytes', 'lazyBytes'];
 const REFERENCE_FIELDS = new Map([
   ['backgroundKey', 'background'],
@@ -20,11 +20,11 @@ const REFERENCE_FIELDS = new Map([
 ]);
 const PRESENTATION_TYPES = new Set(['background', 'character', 'art', 'effect']);
 const ASSET_FIELDS = {
-  background: new Set(['src', 'mime', 'cache', 'alt', 'licenseId']),
-  character: new Set(['src', 'mime', 'cache', 'fallback', 'alt', 'licenseId']),
+  background: new Set(['src', 'mime', 'cache', 'alt', 'subject', 'subjectLabel', 'licenseId']),
+  character: new Set(['src', 'mime', 'cache', 'fallback', 'alt', 'subject', 'subjectLabel', 'licenseId']),
   art: new Set(['src', 'mime', 'cache', 'alt', 'subject', 'subjectLabel', 'licenseId']),
   effect: new Set(['src', 'mime', 'cache', 'className', 'alt', 'licenseId']),
-  bgm: new Set(['src', 'mime', 'cache', 'loop', 'label', 'licenseId']),
+  bgm: new Set(['src', 'mime', 'cache', 'generator', 'durationSeconds', 'bpm', 'bars', 'loop', 'label', 'licenseId']),
   se: new Set(['src', 'mime', 'cache', 'synth', 'label', 'licenseId'])
 };
 const MIME_BY_EXTENSION = new Map([
@@ -48,6 +48,7 @@ const SOURCE_PATTERN = /^\.\/assets\/[A-Za-z0-9][A-Za-z0-9._/-]*$/;
 const CORE_SHELL_FILES = [
   'index.html',
   'survival-engine.js',
+  'music-engine.js',
   'presentation-engine.js',
   'manifest.webmanifest',
   'icons/favicon-32.png',
@@ -59,6 +60,7 @@ const CORE_SHELL_FILES = [
 ];
 const EXPECTED_SVG_DIMENSIONS = {
   background: [1600, 900],
+  character: [800, 1200],
   art: [800, 800]
 };
 
@@ -252,8 +254,8 @@ async function main() {
       if (Object.hasOwn(entry, 'cache') && !['precache', 'lazy'].includes(entry.cache)) {
         fail(`${entryPath}.cache must be "precache" or "lazy".`);
       }
-      if (type === 'art') {
-        const expectedSubject = id.startsWith('art.') ? id.slice('art.'.length) : '';
+      if (PRESENTATION_TYPES.has(type) && type !== 'effect' && typeof entry.src === 'string') {
+        const expectedSubject = id.startsWith(`${type}.`) ? id.slice(type.length + 1).replaceAll('.', '-') : '';
         if (typeof entry.subject !== 'string' || !SUBJECT_PATTERN.test(entry.subject)) {
           fail(`${entryPath}.subject must be a lowercase semantic identifier.`);
         } else if (entry.subject !== expectedSubject) {
@@ -264,6 +266,25 @@ async function main() {
           fail(`${entryPath}.subjectLabel must be a non-empty Japanese label.`);
         } else if (typeof entry.alt !== 'string' || !entry.alt.includes(entry.subjectLabel)) {
           fail(`${entryPath}.alt must include subjectLabel ${JSON.stringify(entry.subjectLabel)}.`);
+        }
+      }
+      if (type === 'character' && (typeof entry.fallback !== 'string' || !entry.fallback.trim())) {
+        fail(`${entryPath}.fallback must be a non-empty emoji/text fallback.`);
+      }
+      if (type === 'bgm' && entry.generator === 'deterministic-web-audio') {
+        if (entry.src !== null) fail(`${entryPath}.src must be null for generated Web Audio music.`);
+        if (!(Number.isFinite(entry.durationSeconds) && entry.durationSeconds >= 10 && entry.durationSeconds <= 90)) {
+          fail(`${entryPath}.durationSeconds must be between 10 and 90.`);
+        }
+        if (!(Number.isFinite(entry.bpm) && entry.bpm >= 30 && entry.bpm <= 180)) {
+          fail(`${entryPath}.bpm must be between 30 and 180.`);
+        }
+        if (!Number.isSafeInteger(entry.bars) || entry.bars < 1) fail(`${entryPath}.bars must be a positive integer.`);
+        if (typeof entry.loop !== 'boolean') fail(`${entryPath}.loop must be boolean.`);
+        if (typeof entry.label !== 'string' || !entry.label.trim()) fail(`${entryPath}.label must be non-empty.`);
+        const calculatedDuration = entry.bars * 4 * 60 / entry.bpm;
+        if (Number.isFinite(entry.durationSeconds) && Math.abs(calculatedDuration - entry.durationSeconds) > 1e-9) {
+          fail(`${entryPath}.durationSeconds must match bars * 4 * 60 / bpm.`);
         }
       }
 
@@ -427,6 +448,22 @@ async function main() {
     else walkReferenceTree(assignments[key], `assignments.${key}`, true);
   }
 
+  const variants = isObject(manifest.variants) ? manifest.variants : {};
+  if (!isObject(manifest.variants)) fail('variants must be an object.');
+  for (const key of Object.keys(variants)) {
+    if (key !== 'beanCharacters') fail(`Unknown variant group: variants.${key}`);
+  }
+  const beanCharacters = isObject(variants.beanCharacters) ? variants.beanCharacters : {};
+  if (!isObject(variants.beanCharacters)) fail('variants.beanCharacters must be an object.');
+  const beanVariantNames = ['child', 'white', 'red', 'gray', 'body'];
+  for (const key of Object.keys(beanCharacters)) {
+    if (!beanVariantNames.includes(key)) fail(`Unknown bean character variant: variants.beanCharacters.${key}`);
+  }
+  for (const key of beanVariantNames) {
+    if (!Object.hasOwn(beanCharacters, key)) fail(`Missing bean character variant: variants.beanCharacters.${key}`);
+    else validateReference('characterKey', beanCharacters[key], `variants.beanCharacters.${key}`);
+  }
+
   const hooks = isObject(manifest.hooks) ? manifest.hooks : {};
   if (!isObject(manifest.hooks)) fail('hooks must be an object.');
   for (const [name, hook] of Object.entries(hooks)) walkReferenceTree(hook, `hooks.${name}`);
@@ -438,6 +475,14 @@ async function main() {
   for (const { id, type } of assetRows) {
     if (!referenced.has(id)) fail(`Unused asset ${id} (${type}) is not referenced by assignments, hooks, or actions.`);
   }
+
+  const formalMinimums = { background: 8, character: 10, art: 18 };
+  for (const [type, minimum] of Object.entries(formalMinimums)) {
+    const sourced = assetRows.filter(item => item.type === type && item.src).length;
+    if (sourced < minimum) fail(`Formal ${type} inventory requires at least ${minimum} sourced assets; received ${sourced}.`);
+  }
+  const generatedBgm = Object.values(assets.bgm || {}).filter(entry => entry && entry.generator === 'deterministic-web-audio');
+  if (generatedBgm.length !== 6) fail(`Formal generated BGM inventory must contain exactly 6 tracks; received ${generatedBgm.length}.`);
 
   const uniqueSources = [...sourceRows.values()];
   let coreShellBytes = 0;

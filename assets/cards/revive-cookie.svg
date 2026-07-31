@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="800" viewBox="0 0 800 800" role="img" aria-labelledby="title desc">
+  <title id="title">脈打つ復活クッキー</title>
+  <desc id="desc">焦げ茶の丸いクッキーに深紅の心臓模様と金の砂糖粒が刻まれ、欠けた縁が小さく脈打つ。</desc>
+  <defs>
+
+    <radialGradient id="cardBg">
+      <stop offset="0" stop-color="#573024"/>
+      <stop offset=".55" stop-color="#2d1914"/>
+      <stop offset="1" stop-color="#08090b"/>
+    </radialGradient>
+    <radialGradient id="cardGlow">
+      <stop offset="0" stop-color="#f3d58a" stop-opacity=".56"/>
+      <stop offset="1" stop-color="#d9a64f" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="foodWarm" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f3d58a"/>
+      <stop offset=".5" stop-color="#b8732e"/>
+      <stop offset="1" stop-color="#7e2c2a"/>
+    </linearGradient>
+    <linearGradient id="foodCool" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#65a09a"/>
+      <stop offset=".52" stop-color="#1d4c4b"/>
+      <stop offset="1" stop-color="#0b1220"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="800" fill="#08090b"/>
+
+      <rect x="22" y="22" width="756" height="756" rx="92" fill="url(#cardBg)" stroke="#d9a64f" stroke-width="18"/>
+      <circle cx="400" cy="392" r="306" fill="url(#cardGlow)"/>
+      <circle cx="400" cy="400" r="316" fill="none" stroke="#b6503f" stroke-opacity=".45" stroke-width="7" stroke-dasharray="10 23"/>
+      <path d="M126 650Q400 711 674 650" fill="none" stroke="#d9a64f" stroke-width="17" stroke-linecap="round"/>
+
+      <circle cx="400" cy="400" r="244" fill="#573024" stroke="#08090b" stroke-width="24"/><path d="M587 244a54 54 0 0 0 65 77a56 56 0 0 0-1 82a52 52 0 0 0-55 70c54-49 68-150 35-218a52 52 0 0 0-44-11Z" fill="#08090b"/>
+      <path d="M400 533C274 448 287 318 355 300c38-10 45 25 45 25s7-35 45-25c68 18 81 148-45 233Z" fill="#b6503f" stroke="#08090b" stroke-width="17"/>
+      <path d="M310 420h66l27-67l39 118l28-51h63" fill="none" stroke="#f3d58a" stroke-width="13" stroke-linejoin="round"/>
+      <g fill="#d9a64f"><circle cx="290" cy="270" r="14"/><circle cx="492" cy="250" r="11"/><circle cx="277" cy="530" r="10"/><circle cx="500" cy="552" r="13"/></g>
+</svg>

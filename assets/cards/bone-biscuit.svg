@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="800" viewBox="0 0 800 800" role="img" aria-labelledby="title desc">
+  <title id="title">骨型の保存ビスケット</title>
+  <desc id="desc">骨の形に焼かれた焦茶のビスケットへ金色の塩粒と小さな歯形が付き、深紅の布の上に二本並ぶ。</desc>
+  <defs>
+
+    <radialGradient id="cardBg">
+      <stop offset="0" stop-color="#573024"/>
+      <stop offset=".55" stop-color="#2d1914"/>
+      <stop offset="1" stop-color="#08090b"/>
+    </radialGradient>
+    <radialGradient id="cardGlow">
+      <stop offset="0" stop-color="#f3d58a" stop-opacity=".56"/>
+      <stop offset="1" stop-color="#d9a64f" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="foodWarm" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f3d58a"/>
+      <stop offset=".5" stop-color="#b8732e"/>
+      <stop offset="1" stop-color="#7e2c2a"/>
+    </linearGradient>
+    <linearGradient id="foodCool" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#65a09a"/>
+      <stop offset=".52" stop-color="#1d4c4b"/>
+      <stop offset="1" stop-color="#0b1220"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="800" fill="#08090b"/>
+
+      <rect x="22" y="22" width="756" height="756" rx="92" fill="url(#cardBg)" stroke="#d9a64f" stroke-width="18"/>
+      <circle cx="400" cy="392" r="306" fill="url(#cardGlow)"/>
+      <circle cx="400" cy="400" r="316" fill="none" stroke="#b6503f" stroke-opacity=".45" stroke-width="7" stroke-dasharray="10 23"/>
+      <path d="M126 650Q400 711 674 650" fill="none" stroke="#d9a64f" stroke-width="17" stroke-linecap="round"/>
+
+      <path d="M130 600Q400 672 670 600V270Q400 202 130 270Z" fill="#7e2c2a" stroke="#d9a64f" stroke-width="16"/>
+      <g fill="#573024" stroke="#08090b" stroke-width="20"><path d="M194 350c-66-75 37-146 96-83l220 220c63-59 134 44 59 96c75 52 4 155-59 96L290 459c-59 63-162-8-96-83c-72-53-3-126 0-26Z"/><path d="M246 540c-54-61 31-120 79-68l147-147c52-48 111 37 50 79c61 42 2 127-50 79L325 630c-48 52-133-7-79-68c-59-43-2-103 0-22Z" transform="translate(50 -62) scale(.82)"/></g>
+      <g fill="#f3d58a"><circle cx="295" cy="362" r="10"/><circle cx="380" cy="445" r="9"/><circle cx="482" cy="520" r="10"/><circle cx="350" cy="555" r="8"/></g>
+      <path d="M520 316a39 39 0 0 0 45 61a37 37 0 0 0-2 56" fill="#08090b"/>
+      <ellipse cx="342" cy="430" rx="18" ry="10" fill="#d9a64f"/><ellipse cx="440" cy="480" rx="18" ry="10" fill="#d9a64f"/>
+</svg>

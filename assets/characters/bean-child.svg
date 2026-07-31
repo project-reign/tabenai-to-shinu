@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="1200" viewBox="0 0 800 1200" role="img" aria-labelledby="title desc">
+  <title id="title">黒豆の幼体</title>
+  <desc id="desc">艶のある黒豆の体から二枚の金色の若葉を伸ばした幼体が、小さな根を足のように揃えて座る。</desc>
+  <defs>
+
+    <radialGradient id="halo">
+      <stop offset="0" stop-color="#d9a64f" stop-opacity=".28"/>
+      <stop offset="1" stop-color="#d9a64f" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="warm" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f3d58a"/>
+      <stop offset=".48" stop-color="#b8732e"/>
+      <stop offset="1" stop-color="#7e2c2a"/>
+    </linearGradient>
+    <linearGradient id="dark" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1d4c4b"/>
+      <stop offset="1" stop-color="#08090b"/>
+    </linearGradient>
+  </defs>
+
+
+      <ellipse cx="400" cy="590" rx="360" ry="520" fill="url(#halo)"/>
+      <ellipse cx="400" cy="1090" rx="260" ry="54" fill="#08090b" opacity=".5"/>
+
+      <ellipse cx="400" cy="665" rx="245" ry="306" fill="#08090b" stroke="#d9a64f" stroke-width="22" transform="rotate(-9 400 665)"/>
+      <path d="M382 378Q322 199 162 270Q223 418 382 425Z" fill="#d9a64f" stroke="#08090b" stroke-width="20"/><path d="M418 378Q484 185 651 285Q571 430 418 425Z" fill="#1d4c4b" stroke="#08090b" stroke-width="20"/>
+      <path d="M400 436V304" stroke="#f3d58a" stroke-width="18" stroke-linecap="round"/>
+      <ellipse cx="325" cy="652" rx="31" ry="21" fill="#d9a64f"/><ellipse cx="470" cy="631" rx="31" ry="21" fill="#d9a64f"/><circle cx="335" cy="647" r="8" fill="#08090b"/><circle cx="480" cy="626" r="8" fill="#08090b"/>
+      <path d="M349 730q56 44 112-6" fill="none" stroke="#b6503f" stroke-width="16" stroke-linecap="round"/>
+      <g fill="none" stroke="#d9a64f" stroke-width="20" stroke-linecap="round"><path d="M300 916q-53 101-142 136"/><path d="M460 946q43 104 139 128"/></g>
+</svg>

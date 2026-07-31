@@ -1,6 +1,6 @@
 'use strict';
 
-const APP_VERSION = '4.6.0';
+const APP_VERSION = '4.7.0';
 const CACHE_PREFIX = 'tabenai-to-shinu-';
 const CORE_CACHE_NAME = `${CACHE_PREFIX}core-${APP_VERSION}`;
 const PRESENTATION_CACHE_NAME = `${CACHE_PREFIX}presentation-${APP_VERSION}`;
@@ -13,6 +13,7 @@ const CORE_URLS = [
   './',
   './index.html',
   './survival-engine.js',
+  './music-engine.js',
   './presentation-engine.js',
   './manifest.webmanifest',
   './icons/favicon-32.png',

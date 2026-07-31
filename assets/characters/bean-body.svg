@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="1200" viewBox="0 0 800 1200" role="img" aria-labelledby="title desc">
+  <title id="title">身体から発芽した黒豆</title>
+  <desc id="desc">人のような焦茶の身体の胸から黒豆の芽が伸び、琥珀色の葉と小さな黒い実が静かに呼吸する姿。</desc>
+  <defs>
+
+    <radialGradient id="halo">
+      <stop offset="0" stop-color="#d9a64f" stop-opacity=".28"/>
+      <stop offset="1" stop-color="#d9a64f" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="warm" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f3d58a"/>
+      <stop offset=".48" stop-color="#b8732e"/>
+      <stop offset="1" stop-color="#7e2c2a"/>
+    </linearGradient>
+    <linearGradient id="dark" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1d4c4b"/>
+      <stop offset="1" stop-color="#08090b"/>
+    </linearGradient>
+  </defs>
+
+
+      <ellipse cx="400" cy="590" rx="360" ry="520" fill="url(#halo)"/>
+      <ellipse cx="400" cy="1090" rx="260" ry="54" fill="#08090b" opacity=".5"/>
+
+      <circle cx="400" cy="285" r="145" fill="#573024" stroke="#08090b" stroke-width="23"/>
+      <path d="M230 985q15-458 170-520q155 62 170 520Z" fill="#2d1914" stroke="#08090b" stroke-width="26"/>
+      <path d="M280 535Q115 660 145 930M520 535Q685 660 655 930" fill="none" stroke="#573024" stroke-width="76" stroke-linecap="round"/>
+      <ellipse cx="350" cy="287" rx="27" ry="18" fill="#d9a64f"/><ellipse cx="450" cy="287" rx="27" ry="18" fill="#d9a64f"/><path d="M360 352q40 31 80 0" fill="none" stroke="#b6503f" stroke-width="14" stroke-linecap="round"/>
+      <ellipse cx="400" cy="644" rx="86" ry="112" fill="#08090b" stroke="#d9a64f" stroke-width="17"/>
+      <path d="M400 548V370" stroke="#d9a64f" stroke-width="19"/><path d="M392 458Q300 350 214 422Q279 514 392 504Z" fill="#d9a64f" stroke="#08090b" stroke-width="16"/><path d="M408 458Q500 350 586 422Q521 514 408 504Z" fill="#1d4c4b" stroke="#08090b" stroke-width="16"/>
+      <path d="M400 760q-50 112-125 218M400 760q50 112 125 218" fill="none" stroke="#d9a64f" stroke-width="15" stroke-linecap="round"/>
+</svg>
