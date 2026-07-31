@@ -4,7 +4,7 @@
 
 ### Added
 
-- “いただきますの森” formal presentation set: eight 1600×900 backgrounds, ten 800×1200 characters, and twenty-three 800×800 food/event cards. The 41 self-contained SVGs total 105,047 bytes and use the project-authored black, dark-brown, gold, deep-red, and amber art direction.
+- “いただきますの森” formal presentation set: eight 1600×900 backgrounds, ten 800×1200 characters, and twenty-three 800×800 food/event cards. The 41 self-contained SVGs total 106,134 bytes and use the project-authored black, dark-brown, gold, deep-red, and amber art direction.
 - Japanese `<title>` and `<desc>`, semantic alt text, subject metadata, dimensions, MIME, cache tier, and `project-v4.7-original-svg` license records for every formal SVG. No external images, fonts, scripts, third-party artwork, or artist/style imitation are included.
 - Six playable original BGM compositions generated deterministically with Web Audio and no recorded samples: “空の皿” (51.428571 s, loop), “腹の鳴る森” (56.470588 s, loop), “あり得ない一皿” (40 s, loop), “五十日目” (73.846154 s, loop), “残された器” (16 s, non-loop), and “朝食のない朝” (56.25 s, loop).
 - Poison, fatigue, and injury cues, expanding the project-authored runtime Web Audio effect set to thirteen distinct SE triggers.
@@ -17,7 +17,9 @@
 - Replaced the v4.6 image placeholders and empty character/BGM slots with formal project-created art and deterministic Web Audio sequences while preserving stable asset IDs or explicit compatible additions.
 - Added the formal 41-SVG set to best-effort per-file presentation precaching. Core shell install remains independent of the asset manifest and every optional visual/audio asset.
 - Replaced the v4.6 “formal BGM arrives in v4.7” notice with working BGM controls and links to credits/license information.
-- Kept audio locked until the first trusted user gesture, pause/resume on visibility changes, independent BGM/SE volume and mute, reduced motion, light visuals, and capability-gated haptics.
+- Connected the white-, red-, gray-, and body-germinated bean portraits to the live STORY/HARD route state through presentation-only manifest variants, while preserving explicit scene characters such as Tako and Jr.
+- Corrected Tako to eight tentacles and a can hat, aligned Jr.'s alt with its amber medicine bag, and redrew the full-heal drop as a wrapped golden drop candy.
+- Kept audio locked until the first trusted user gesture, pause/resume on visibility changes, independent BGM/SE volume and mute, reduced motion, capability-gated haptics, and an explicitly labelled light mode that omits images and reduces BGM note density without changing the track, duration, or loop.
 
 ### Compatibility
 
@@ -29,10 +31,10 @@
 
 ### Validation
 
-- Retained all 46 pre-v4.7 Playwright tests without deleting or weakening game, save, simulation, PWA, offline, update, failure-injection, and iPhone coverage, and added 13 v4.7 tests for 59 total.
+- Retained all 46 pre-v4.7 Playwright tests without deleting or weakening game, save, simulation, PWA, offline, update, failure-injection, and iPhone coverage, and added 14 v4.7 tests for 60 total.
 - Added exhaustive formal-asset reference, MIME, dimensions, Japanese accessibility metadata, semantic alt/subject, license, orphan-file, external-resource, and encoded-byte-budget validation.
 - Added six-theme playback, loop/non-loop, volume, mute, first-gesture, visibility, offline, and synthesis/decode failure coverage, plus all thirteen SE trigger checks.
-- Added credits, gallery, reduced-motion, light-visual, iPhone 390×844, desktop, manifest 503, visual/audio 404, decode-failure, complete-offline, and zero normal-launch browser warning/error coverage.
+- Added credits, gallery, reduced-motion, bean-route portrait, light-mode image/BGM, iPhone 390×844, desktop, manifest 503, visual/audio 404, decode-failure, complete-offline, and zero normal-launch browser warning/error coverage.
 - Re-ran STORY/HARD canonical digest and all 50,005 SURVIVAL policy simulations to confirm presentation-only changes leave deterministic results unchanged.
 
 ## [4.6.0] - 2026-07-31

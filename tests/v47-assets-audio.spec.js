@@ -38,6 +38,11 @@ function svgDimension(source, name) {
   return match ? Number(match[1]) : null;
 }
 
+function svgText(source, name) {
+  const match = source.match(new RegExp(`<${name}\\b[^>]*>([\\s\\S]*?)<\\/${name}>`, 'i'));
+  return match ? match[1].replace(/<[^>]+>/g, '').trim() : null;
+}
+
 function setRange(page, selector, value) {
   return page.locator(selector).evaluate((element, nextValue) => {
     element.value = String(nextValue);
@@ -175,6 +180,33 @@ test('正式SVG 41点の参照・MIME・寸法・alt・subject・licenseを固�
     }
   }
 
+  const tako = await readFile(path.join(process.cwd(), 'assets', 'characters', 'tako.svg'), 'utf8');
+  const takoTentacles = [...tako.matchAll(/data-tentacle=["'](\d+)["']/g)].map(match => Number(match[1]));
+  expect(takoTentacles).toEqual([1, 2, 3, 4, 5, 6, 7, 8]);
+  expect(tako).toContain('id="can-hat"');
+  expect(svgText(tako, 'desc')).toBe(manifest.assets.character['character.tako'].alt);
+  expect(manifest.assets.character['character.tako'].alt).toContain('缶帽子');
+  expect(manifest.assets.character['character.tako'].alt).toContain('八本の触腕');
+
+  expect(manifest.assets.character['character.jr'].alt).toBe('琥珀色の薬鞄を掛けたJr.');
+
+  const fullHeal = await readFile(path.join(process.cwd(), 'assets', 'cards', 'full-heal-drop.svg'), 'utf8');
+  const fullHealEntry = manifest.assets.art['art.full-heal-drop'];
+  expect(fullHeal).toContain('id="full-heal-drop-candy"');
+  expect(svgText(fullHeal, 'title')).toBe('全快ドロップ');
+  expect(svgText(fullHeal, 'desc')).toBe(fullHealEntry.alt);
+  expect(fullHealEntry).toMatchObject({
+    subject: 'full-heal-drop',
+    subjectLabel: '全快ドロップ'
+  });
+  expect(fullHealEntry.alt).toContain('ドロップ飴「全快ドロップ」');
+
+  const generator = await readFile(path.join(process.cwd(), 'scripts', 'generate-v47-assets.mjs'), 'utf8');
+  expect([...generator.matchAll(/data-tentacle=["'](\d+)["']/g)].map(match => Number(match[1])))
+    .toEqual([1, 2, 3, 4, 5, 6, 7, 8]);
+  expect(generator).toContain('id="can-hat"');
+  expect(generator).toContain('id="full-heal-drop-candy"');
+
   const diskSvgs = (await filesBelow(path.join(process.cwd(), 'assets')))
     .filter(file => file.toLowerCase().endsWith('.svg'))
     .map(file => path.relative(path.join(process.cwd(), 'assets'), file).replaceAll('\\', '/'))
@@ -254,6 +286,8 @@ test('クレジット／ライセンス画面と開発ギャラリーから全�
   await expect(page.getByText('正式音響', { exact: true })).toBeVisible();
   await expect(page.getByText('project-v4.7-original-svg')).toBeVisible();
   await expect(page.getByText('project-v4.7-generated-audio')).toBeVisible();
+  await expect(page.getByText(/軽量モードでは曲・長さ・ループを保ったまま音数と装飾音を減らします/)).toBeVisible();
+  await expect(page.getByText(/開発支援：OpenAI ChatGPT \/ Codex/)).toBeVisible();
   await page.locator('#creditsBackBtn').click();
   await expect(page.locator('#titleScreen')).toBeVisible();
 

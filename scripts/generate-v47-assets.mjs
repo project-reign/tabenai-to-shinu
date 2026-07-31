@@ -216,11 +216,12 @@ const characterBase = body => `
 const characters = [
   {
     file: 'assets/characters/tako.svg', title: '寄生タコ',
-    desc: '深紅の丸い頭、琥珀色の目、金の吸盤を持つ少し可愛い寄生タコが八本の腕で丁寧にお辞儀する。',
+    desc: '深紅の丸い頭と琥珀色の目を持ち、缶帽子をかぶって八本の触腕で丁寧にお辞儀する少し可愛い寄生タコ。',
     body: characterBase(`
-      <g fill="none" stroke="${palette.crimson}" stroke-width="64" stroke-linecap="round"><path d="M345 700Q105 775 185 1045"/><path d="M380 720Q245 850 325 1080"/><path d="M420 720Q555 850 475 1080"/><path d="M455 700Q695 775 615 1045"/><path d="M330 690Q130 610 105 830"/><path d="M470 690Q670 610 695 830"/></g>
+      <g id="tentacles" fill="none" stroke="${palette.crimson}" stroke-width="58" stroke-linecap="round"><path data-tentacle="1" d="M326 694Q84 760 128 1040"/><path data-tentacle="2" d="M354 718Q165 856 230 1090"/><path data-tentacle="3" d="M382 728Q280 890 330 1100"/><path data-tentacle="4" d="M410 730Q370 900 384 1105"/><path data-tentacle="5" d="M390 730Q430 900 416 1105"/><path data-tentacle="6" d="M418 728Q520 890 470 1100"/><path data-tentacle="7" d="M446 718Q635 856 570 1090"/><path data-tentacle="8" d="M474 694Q716 760 672 1040"/></g>
       <ellipse cx="400" cy="510" rx="245" ry="290" fill="url(#warm)" stroke="${palette.ink}" stroke-width="24"/>
       <path d="M220 400q180-190 360 0" fill="none" stroke="${palette.goldLight}" stroke-opacity=".38" stroke-width="34" stroke-linecap="round"/>
+      <g id="can-hat"><path d="M310 236h180l-19-130H329Z" fill="${palette.charcoal}" stroke="${palette.gold}" stroke-width="15"/><ellipse cx="400" cy="106" rx="71" ry="22" fill="${palette.brownLight}" stroke="${palette.gold}" stroke-width="12"/><ellipse cx="400" cy="236" rx="90" ry="25" fill="${palette.ink}" stroke="${palette.gold}" stroke-width="13"/><path d="M350 150h100" stroke="${palette.goldLight}" stroke-width="11" stroke-linecap="round"/><circle cx="365" cy="193" r="9" fill="${palette.gold}"/><circle cx="435" cy="193" r="9" fill="${palette.gold}"/></g>
       <ellipse cx="325" cy="515" rx="42" ry="30" fill="${palette.ink}"/><ellipse cx="475" cy="515" rx="42" ry="30" fill="${palette.ink}"/><circle cx="337" cy="506" r="9" fill="${palette.gold}"/><circle cx="487" cy="506" r="9" fill="${palette.gold}"/>
       <path d="M337 615q63 58 126 0" fill="none" stroke="${palette.ink}" stroke-width="18" stroke-linecap="round"/>
       <g fill="${palette.gold}"><circle cx="174" cy="847" r="15"/><circle cx="283" cy="939" r="14"/><circle cx="517" cy="939" r="14"/><circle cx="626" cy="847" r="15"/></g>`)
@@ -558,13 +559,17 @@ const cards = [
       <path d="M390 292V145" stroke="${palette.gold}" stroke-width="22"/><path d="M400 137c-55-43 4-88 19-122c36 70 27 108-19 122Z" fill="${palette.goldLight}" stroke="${palette.crimson}" stroke-width="10"/></g>`)
   },
   {
-    file: 'assets/cards/full-heal-drop.svg', title: '全快の琥珀雫',
-    desc: '金と青緑に透ける大きな雫の中で小さな食卓と心臓の印が浮かび、周囲へ回復の輪を広げる。',
+    file: 'assets/cards/full-heal-drop.svg', title: '全快ドロップ',
+    desc: '金色の包み紙にくるまれ、琥珀色に光るドロップ飴「全快ドロップ」。',
     body: cardBase(`
-      <path d="M400 120C332 243 205 382 205 505c0 130 87 207 195 207s195-77 195-207c0-123-127-262-195-385Z" fill="url(#foodCool)" stroke="${palette.gold}" stroke-width="22"/>
-      <path d="M290 434q42-168 150-211" fill="none" stroke="${palette.goldLight}" stroke-opacity=".55" stroke-width="28" stroke-linecap="round"/>
-      <path d="M400 595C295 523 306 414 363 399c32-9 37 20 37 20s5-29 37-20c57 15 68 124-37 196Z" fill="${palette.crimsonLight}" stroke="${palette.ink}" stroke-width="15"/><path d="M333 496h52l20-54l30 95l22-41h47" fill="none" stroke="${palette.goldLight}" stroke-width="11"/>
-      <g fill="none" stroke="${palette.gold}" stroke-width="10"><circle cx="400" cy="420" r="260" stroke-dasharray="8 24"/><circle cx="400" cy="420" r="300" stroke-opacity=".42" stroke-dasharray="6 30"/></g>`)
+      <g id="full-heal-drop-candy">
+        <path d="M246 314L111 240l43 128l-62 83l145 28l42-68Z" fill="${palette.gold}" stroke="${palette.ink}" stroke-width="20" stroke-linejoin="round"/><path d="M554 314l135-74l-43 128l62 83l-145 28l-42-68Z" fill="${palette.gold}" stroke="${palette.ink}" stroke-width="20" stroke-linejoin="round"/>
+        <path d="M223 287l63 54v126l-63 54M577 287l-63 54v126l63 54" fill="none" stroke="${palette.goldLight}" stroke-width="15" stroke-linecap="round"/>
+        <rect x="245" y="248" width="310" height="312" rx="112" fill="url(#foodWarm)" stroke="${palette.gold}" stroke-width="24"/>
+        <ellipse cx="400" cy="386" rx="105" ry="112" fill="${palette.goldLight}" opacity=".4"/><path d="M400 487C304 421 318 328 368 315c27-7 32 18 32 18s5-25 32-18c50 13 64 106-32 172Z" fill="${palette.crimsonLight}" stroke="${palette.ink}" stroke-width="15"/>
+        <path d="M306 284q94-55 188 0" fill="none" stroke="${palette.goldLight}" stroke-width="19" stroke-linecap="round" opacity=".72"/>
+      </g>
+      <g fill="none" stroke="${palette.gold}" stroke-width="10"><circle cx="400" cy="404" r="258" stroke-dasharray="8 24"/><circle cx="400" cy="404" r="298" stroke-opacity=".42" stroke-dasharray="6 30"/></g>`)
   },
   {
     file: 'assets/cards/four-dishes.svg', title: '最後の晩餐の四皿',

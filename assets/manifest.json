@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "manifestVersion": "4.7.0-1",
+  "manifestVersion": "4.7.0-2",
   "budgets": {
     "precacheBytes": 5242880,
     "presentationPrecacheBytes": 2097152,
@@ -18,8 +18,8 @@
       "background.dawn-escape": { "src": "./assets/backgrounds/dawn-escape.svg", "mime": "image/svg+xml", "cache": "precache", "alt": "森の出口へ琥珀色の朝日が差す朝焼けの脱出路", "subject": "dawn-escape", "subjectLabel": "朝焼けの脱出路", "licenseId": "project-v4.7-original-svg" }
     },
     "character": {
-      "character.tako": { "src": "./assets/characters/tako.svg", "mime": "image/svg+xml", "cache": "precache", "fallback": "🐙", "alt": "缶を帽子にした少し可愛い寄生タコ", "subject": "tako", "subjectLabel": "寄生タコ", "licenseId": "project-v4.7-original-svg" },
-      "character.jr": { "src": "./assets/characters/jr.svg", "mime": "image/svg+xml", "cache": "precache", "fallback": "🪱", "alt": "青い薬瓶を抱えた解毒寄生虫Jr.", "subject": "jr", "subjectLabel": "解毒寄生虫Jr.", "licenseId": "project-v4.7-original-svg" },
+      "character.tako": { "src": "./assets/characters/tako.svg", "mime": "image/svg+xml", "cache": "precache", "fallback": "🐙", "alt": "深紅の丸い頭と琥珀色の目を持ち、缶帽子をかぶって八本の触腕で丁寧にお辞儀する少し可愛い寄生タコ。", "subject": "tako", "subjectLabel": "寄生タコ", "licenseId": "project-v4.7-original-svg" },
+      "character.jr": { "src": "./assets/characters/jr.svg", "mime": "image/svg+xml", "cache": "precache", "fallback": "🪱", "alt": "琥珀色の薬鞄を掛けたJr.", "subject": "jr", "subjectLabel": "琥珀色の薬鞄", "licenseId": "project-v4.7-original-svg" },
       "character.bean-child": { "src": "./assets/characters/bean-child.svg", "mime": "image/svg+xml", "cache": "precache", "fallback": "🌱", "alt": "小さな芽と金色の目を持つ黒豆の幼体", "subject": "bean-child", "subjectLabel": "黒豆の幼体", "licenseId": "project-v4.7-original-svg" },
       "character.bean-past-white": { "src": "./assets/characters/bean-past-white.svg", "mime": "image/svg+xml", "cache": "precache", "fallback": "⚪", "alt": "白い土をまとった過去の黒豆が遠くを見つめる", "subject": "bean-past-white", "subjectLabel": "過去の黒豆", "licenseId": "project-v4.7-original-svg" },
       "character.bean-future-red": { "src": "./assets/characters/bean-future-red.svg", "mime": "image/svg+xml", "cache": "precache", "fallback": "🔴", "alt": "赤い土をまとった未来の黒豆が行く先を指す", "subject": "bean-future-red", "subjectLabel": "未来の黒豆", "licenseId": "project-v4.7-original-svg" },
@@ -50,7 +50,7 @@
       "art.burnt-meat": { "src": "./assets/cards/burnt-meat.svg", "mime": "image/svg+xml", "cache": "precache", "alt": "深紅の肉汁が光る声のする焦げた肉", "subject": "burnt-meat", "subjectLabel": "焦げた肉", "licenseId": "project-v4.7-original-svg" },
       "art.empty-soup": { "src": "./assets/cards/empty-soup.svg", "mime": "image/svg+xml", "cache": "precache", "alt": "器の中だけ背景が欠落した空のスープ", "subject": "empty-soup", "subjectLabel": "スープ", "licenseId": "project-v4.7-original-svg" },
       "art.rotten-cake": { "src": "./assets/cards/rotten-cake.svg", "mime": "image/svg+xml", "cache": "precache", "alt": "契約文字が崩れていく腐りかけのケーキ", "subject": "rotten-cake", "subjectLabel": "ケーキ", "licenseId": "project-v4.7-original-svg" },
-      "art.full-heal-drop": { "src": "./assets/cards/full-heal-drop.svg", "mime": "image/svg+xml", "cache": "precache", "alt": "ひび割れた瓶の中で金色に脈打つ全快の雫", "subject": "full-heal-drop", "subjectLabel": "全快の雫", "licenseId": "project-v4.7-original-svg" },
+      "art.full-heal-drop": { "src": "./assets/cards/full-heal-drop.svg", "mime": "image/svg+xml", "cache": "precache", "alt": "金色の包み紙にくるまれ、琥珀色に光るドロップ飴「全快ドロップ」。", "subject": "full-heal-drop", "subjectLabel": "全快ドロップ", "licenseId": "project-v4.7-original-svg" },
       "art.four-dishes": { "src": "./assets/cards/four-dishes.svg", "mime": "image/svg+xml", "cache": "precache", "alt": "サラダ、焦げた肉、空のスープ、腐ったケーキの四つの皿", "subject": "four-dishes", "subjectLabel": "四つの皿", "licenseId": "project-v4.7-original-svg" },
       "art.four-boxes": { "src": "./assets/cards/four-boxes.svg", "mime": "image/svg+xml", "cache": "precache", "alt": "保存食、生きている、空、帰還の四つの箱", "subject": "four-boxes", "subjectLabel": "四つの箱", "licenseId": "project-v4.7-original-svg" }
     },
@@ -88,17 +88,22 @@
       "se.menu": { "synth": { "frequency": 440, "endFrequency": 440, "duration": 0.045, "wave": "sine" }, "label": "メニュー", "licenseId": "project-v4.7-synth" }
     }
   },
+  "variants": {
+    "beanCharacters": {
+      "child": "character.bean-child",
+      "white": "character.bean-past-white",
+      "red": "character.bean-future-red",
+      "gray": "character.bean-present-gray",
+      "body": "character.bean-body"
+    }
+  },
   "assignments": {
     "screens": {
       "title": { "backgroundKey": "background.title-night", "moodKey": "mood.title" },
       "modes": { "backgroundKey": "background.forest.day", "moodKey": "mood.normal" },
       "records": { "backgroundKey": "background.abandoned-diner", "moodKey": "mood.normal" },
       "settings": { "backgroundKey": "background.shrine", "moodKey": "mood.normal" },
-      "credits": { "backgroundKey": "background.final-dining-room", "moodKey": "mood.normal" },
-      "gallery-bean-past": { "characterKey": "character.bean-past-white" },
-      "gallery-bean-future": { "characterKey": "character.bean-future-red" },
-      "gallery-bean-present": { "characterKey": "character.bean-present-gray" },
-      "gallery-bean-body": { "characterKey": "character.bean-body" }
+      "credits": { "backgroundKey": "background.final-dining-room", "moodKey": "mood.normal" }
     },
     "scenes": {
       "riceball": { "backgroundKey": "background.forest.day", "artKey": "art.rice-ball", "contentSubject": "rice-ball", "moodKey": "mood.normal" },

@@ -83,6 +83,17 @@ test('asset manifestの全参照・実体・HTTP MIMEが一致し、未使用ま
     }
   };
   inspect(manifest.assignments, 'assignments');
+  expect(manifest.variants && manifest.variants.beanCharacters).toEqual({
+    child: 'character.bean-child',
+    white: 'character.bean-past-white',
+    red: 'character.bean-future-red',
+    gray: 'character.bean-present-gray',
+    body: 'character.bean-body'
+  });
+  for (const [variant, key] of Object.entries(manifest.variants.beanCharacters)) {
+    if (!Object.hasOwn(manifest.assets.character, key)) unknown.push(`variants.beanCharacters.${variant}=${key}`);
+    else references.get('character').add(key);
+  }
   inspect(manifest.hooks, 'hooks');
   for (const [action, key] of Object.entries(manifest.actions)) {
     if (!Object.hasOwn(manifest.assets.se, key)) unknown.push(`actions.${action}=${key}`);
@@ -169,6 +180,63 @@ test('visual layersと全presentation hookはゲームstate/rngを変更しな�
   expect(after).toEqual(before);
 });
 
+test('白・赤・灰・身体豆の正式立ち絵を成立直後と後続シーンへ表示し、明示キャラクターを優先する', async ({ page }) => {
+  await openApp(page);
+  await waitForPresentation(page);
+
+  const routes = [
+    { name: 'white', scene: 'soilColor', choice: 0, asset: 'bean-past-white.svg', alt: '過去' },
+    { name: 'red', scene: 'soilColor', choice: 1, asset: 'bean-future-red.svg', alt: '未来' },
+    { name: 'gray', scene: 'graySoil', choice: 0, asset: 'bean-present-gray.svg', alt: '現在' },
+    { name: 'body', scene: 'beanDeadlineAction', choice: 1, asset: 'bean-body.svg', alt: '身体' }
+  ];
+
+  for (const route of routes) {
+    const immediate = await page.evaluate(({ scene, choice }) => {
+      const api = globalThis.__TABENAI_DEBUG__;
+      const run = api.fresh(4700, 'story');
+      run.scene = scene;
+      run.hp = 100;
+      run.hunger = 0;
+      run.flags.beanCarried = true;
+      api.setState(run);
+      return api.step(choice);
+    }, route);
+    expect(immediate.flags.beanSoil, `${route.name} soil`).toBe(route.name);
+    expect(immediate.companions.beanChild, `${route.name} companion`).toBe(true);
+    await expect(page.locator('#sceneCharacter'), `${route.name} immediately`).toHaveAttribute('src', new RegExp(route.asset));
+    await expect(page.locator('#sceneCharacter')).toHaveAttribute('alt', new RegExp(route.alt));
+    await expect(page.locator('#sceneCharacter')).toHaveAttribute('data-asset-state', 'ready');
+
+    await page.evaluate(() => {
+      const api = globalThis.__TABENAI_DEBUG__;
+      const later = api.snapshot();
+      later.scene = 'moss';
+      api.setState(later);
+    });
+    await expect(page.locator('#sceneCharacter'), `${route.name} later`).toHaveAttribute('src', new RegExp(route.asset));
+    await expect(page.locator('#sceneCharacter')).toHaveAttribute('alt', new RegExp(route.alt));
+    await expect(page.locator('#sceneCharacter')).toHaveAttribute('data-asset-state', 'ready');
+  }
+
+  const precedence = await page.evaluate(() => {
+    const api = globalThis.__TABENAI_DEBUG__;
+    const context = {
+      mode: 'survival', sceneId: 'tako-return', category: 'conditional', token: 'bean-priority',
+      icon: '🐙', title: '寄生タコの帰還', beanSoil: 'red', beanChild: true
+    };
+    api.presentationScene(context);
+    return api.presentationResolve(context).assets.character.key;
+  });
+  expect(precedence).toBe('character.tako');
+  await expect(page.locator('#sceneCharacter')).toHaveAttribute('src', /characters\/tako\.svg/);
+
+  const child = await page.evaluate(() => globalThis.__TABENAI_DEBUG__.presentationResolve({
+    mode: 'story', sceneId: 'moss', beanChild: true
+  }).assets.character.key);
+  expect(child).toBe('character.bean-child');
+});
+
 test('未知キーと画像404ではemoji/text/two choicesへ安全にfallbackする（SWを遮断）', async ({ browser }) => {
   const context = await browser.newContext({ serviceWorkers: 'block' });
   const page = await context.newPage();
@@ -246,6 +314,8 @@ test('BGM/SE・mute・haptics・lightVisualsをmeta/reload/format2に保持し�
   await page.evaluate(() => globalThis.__TABENAI_DEBUG__.screen('settings'));
   await expect(page.locator('#settingsScreen')).toBeVisible();
   await expect(page.getByText('オリジナル6曲。最初のユーザー操作後にのみ再生')).toBeVisible();
+  await expect(page.getByText('軽量モード（画像とBGM編成を簡略化）', { exact: true })).toBeVisible();
+  await expect(page.getByText('画像を絵文字と本文へ切り替え、BGMの音数を減らします', { exact: true })).toBeVisible();
 
   await setRange(page, '#bgmVolumeSetting', 23);
   await setRange(page, '#seVolumeSetting', 71);
@@ -392,6 +462,7 @@ test('BGM/SE音量・mute・haptics・lightVisualsを実際の出力へ反映す
       action,
       bgmVolume,
       lightClass: document.documentElement.classList.contains('presentation-light-visuals'),
+      musicLightVisuals: engine.snapshot().music && engine.snapshot().music.lightVisuals,
       artSrc: document.getElementById('sceneArt').getAttribute('src'),
       artHidden: document.getElementById('sceneArt').hidden,
       fallbackHidden: document.getElementById('sceneIcon').hidden
@@ -405,6 +476,7 @@ test('BGM/SE音量・mute・haptics・lightVisualsを実際の出力へ反映す
   expect(disabled.after.oscillatorStarts).toBe(disabled.before.oscillatorStarts);
   expect(disabled.after.vibrations).toEqual(disabled.before.vibrations);
   expect(disabled.lightClass).toBe(true);
+  expect(disabled.musicLightVisuals).toBe(true);
   expect(disabled.artSrc).toBeNull();
   expect(disabled.artHidden).toBe(true);
   expect(disabled.fallbackHidden).toBe(false);

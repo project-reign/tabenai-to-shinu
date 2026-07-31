@@ -63,9 +63,9 @@ Background subtotal: 8 files, 23,740 bytes.
 | `character.invisible-cleaner` | `assets/characters/invisible-cleaner.svg` | 800×1200 | 2,192 | 透明清掃員 | Original formal v4.7 SVG |
 | `character.jr` | `assets/characters/jr.svg` | 800×1200 | 2,222 | 解毒寄生虫Jr. | Original formal v4.7 SVG |
 | `character.shadow` | `assets/characters/shadow.svg` | 800×1200 | 2,071 | 自我を持つ影 | Original formal v4.7 SVG |
-| `character.tako` | `assets/characters/tako.svg` | 800×1200 | 2,162 | 寄生タコ | Original formal v4.7 SVG |
+| `character.tako` | `assets/characters/tako.svg` | 800×1200 | 2,888 | 八本の触腕と缶帽子を持つ寄生タコ | Original formal v4.7 SVG |
 
-Character subtotal: 10 files, 21,554 bytes.
+Character subtotal: 10 files, 22,280 bytes.
 
 ### Formal food and event cards
 
@@ -79,7 +79,7 @@ Character subtotal: 10 files, 21,554 bytes.
 | `art.empty-soup` | `assets/cards/empty-soup.svg` | 800×800 | 2,563 | 背景を欠いた空のスープ | Original formal v4.7 SVG |
 | `art.four-boxes` | `assets/cards/four-boxes.svg` | 800×800 | 3,004 | 生存者の四つの箱 | Original formal v4.7 SVG |
 | `art.four-dishes` | `assets/cards/four-dishes.svg` | 800×800 | 3,125 | 最後の晩餐の四皿 | Original formal v4.7 SVG |
-| `art.full-heal-drop` | `assets/cards/full-heal-drop.svg` | 800×800 | 2,442 | 全快の琥珀雫 | Original formal v4.7 SVG |
+| `art.full-heal-drop` | `assets/cards/full-heal-drop.svg` | 800×800 | 2,803 | 金色の包み紙にくるまれたドロップ飴「全快ドロップ」 | Original formal v4.7 SVG |
 | `art.golden-apple` | `assets/cards/golden-apple.svg` | 800×800 | 2,619 | 願いを映す黄金の林檎 | Original formal v4.7 SVG |
 | `art.inverted-rain` | `assets/cards/inverted-rain.svg` | 800×800 | 2,547 | 空へ落ちる逆さ雨水 | Original formal v4.7 SVG |
 | `art.ordinary-meal` | `assets/cards/ordinary-meal.svg` | 800×800 | 2,736 | 完全に普通の焼き魚定食 | Original formal v4.7 SVG |
@@ -95,7 +95,7 @@ Character subtotal: 10 files, 21,554 bytes.
 | `art.whisper-can` | `assets/cards/whisper-can.svg` | 800×800 | 2,687 | 吸盤跡のある囁く缶詰 | Original formal v4.7 SVG |
 | `art.white-tablet` | `assets/cards/white-tablet.svg` | 800×800 | 2,578 | 刻印のある白い錠剤 | Original formal v4.7 SVG |
 
-Card subtotal: 23 files, 59,753 bytes. Combined v4.7 formal SVG total: 41 files, 105,047 bytes.
+Card subtotal: 23 files, 60,114 bytes. Combined v4.7 formal SVG total: 41 files, 106,134 bytes.
 
 ## v4.7 deterministic music and synthesized sound
 
@@ -115,6 +115,8 @@ The thirteen SE entries use `project-v4.7-synth`: `se.choice`, `se.warning`, `se
 ## v4.7 credits and asset gallery
 
 `asset-gallery.html`, `asset-gallery.js`, and the in-app credits/license screen use `project-v4.7-gallery`. They display metadata and local registered assets only. They do not download or embed an external font, image, audio file, script, UI library, or analytics service. The gallery is a development and audit surface and is not a new source of game-state data.
+
+The in-app credits retain project-reign as the creator and rightsholder for planning, game, art, and audio, and record “OpenAI ChatGPT / Codex” as development assistance. This process credit does not transfer authorship, ownership, or a media license to OpenAI.
 
 ## v4.6 historical project-created SVG backgrounds
 
@@ -239,8 +241,8 @@ The v4.7 review captures are stored under `docs/screenshots/v4.7/`. Each capture
 | `docs/screenshots/v4.7/four-boxes.png` | SURVIVAL final four boxes | 1265×800 | 292,081 | project-reign application | Repository documentation and release reporting |
 | `docs/screenshots/v4.7/death.png` | Death presentation | 1265×800 | 245,481 | project-reign application | Repository documentation and release reporting |
 | `docs/screenshots/v4.7/escape.png` | Escape presentation | 1265×800 | 282,020 | project-reign application | Repository documentation and release reporting |
-| `docs/screenshots/v4.7/settings.png` | BGM／SE and accessibility settings | 1265×1198 | 218,384 | project-reign application | Repository documentation and release reporting |
-| `docs/screenshots/v4.7/credits.png` | Credits and asset licenses | 1265×800 | 215,158 | project-reign application | Repository documentation and release reporting |
+| `docs/screenshots/v4.7/settings.png` | BGM／SE, accessibility, and labelled light-mode settings | 1265×1198 | 60,995 | project-reign application | Repository documentation and release reporting |
+| `docs/screenshots/v4.7/credits.png` | Credits, light-mode audio note, and development assistance | 1280×720 | 70,877 | project-reign application | Repository documentation and release reporting |
 
 ## Platform-provided emoji
 

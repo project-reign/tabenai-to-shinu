@@ -24,6 +24,7 @@
       background: Object.freeze({}), character: Object.freeze({}), art: Object.freeze({}),
       effect: Object.freeze({}), bgm: Object.freeze({}), se: Object.freeze({})
     }),
+    variants: Object.freeze({ beanCharacters: Object.freeze({}) }),
     assignments: Object.freeze({ screens: {}, scenes: {}, survival: {}, categories: {}, endings: {} }),
     hooks: Object.freeze({}),
     actions: Object.freeze({})
@@ -62,6 +63,7 @@
       manifestVersion: String(value.manifestVersion || 'unknown'),
       budgets: isObject(value.budgets) ? { ...value.budgets } : {},
       assets: {},
+      variants: isObject(value.variants) ? value.variants : {},
       assignments: isObject(value.assignments) ? value.assignments : {},
       hooks: isObject(value.hooks) ? value.hooks : {},
       actions: isObject(value.actions) ? value.actions : {}
@@ -93,6 +95,20 @@
       return { key, type, ...entry, url };
     }
 
+    beanCharacterKey(context = {}) {
+      const variants = this.manifest.variants && this.manifest.variants.beanCharacters;
+      if (!isObject(variants)) return null;
+      const soil = String(context.beanSoil || '');
+      const hasBean = context.beanChild === true
+        || context.beanPossessed === true
+        || ['white', 'red', 'gray', 'body'].includes(soil);
+      if (!hasBean) return null;
+      const variant = context.beanPossessed === true || soil === 'body'
+        ? 'body'
+        : (['white', 'red', 'gray'].includes(soil) ? soil : 'child');
+      return typeof variants[variant] === 'string' ? variants[variant] : null;
+    }
+
     assignment(context = {}) {
       const assignments = this.manifest.assignments || {};
       let resolved = {};
@@ -112,6 +128,10 @@
         const table = context.mode === 'survival' ? assignments.survival : assignments.scenes;
         if (table && context.sceneId && table[context.sceneId]) {
           resolved = { ...resolved, ...table[context.sceneId] };
+        }
+        if (!resolved.characterKey) {
+          const beanCharacterKey = this.beanCharacterKey(context);
+          if (beanCharacterKey) resolved.characterKey = beanCharacterKey;
         }
       }
       for (const field of Object.keys(KEY_FIELDS)) {
@@ -427,6 +447,9 @@
         artKey: context.artKey || undefined,
         backgroundKey: context.backgroundKey || undefined,
         characterKey: context.characterKey || undefined,
+        beanSoil: context.beanSoil || undefined,
+        beanPossessed: context.beanPossessed === true,
+        beanChild: context.beanChild === true,
         moodKey: context.moodKey || (warning ? 'mood.warning' : undefined)
       };
       safeContext.statusCue = /(?:毒|中毒)/.test(status)

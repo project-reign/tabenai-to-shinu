@@ -378,7 +378,7 @@
       <label class="setting-row"><span><strong>SE音量</strong><br><small class="subtitle">選択・警告・節目の効果音</small></span><span class="setting-control"><input type="range" id="seVolumeSetting" min="0" max="100" step="1"><output id="seVolumeValue">65%</output></span></label>
       <label class="setting-row"><span><strong>SEをミュート</strong><br><small class="subtitle">視覚情報はそのまま維持</small></span><input type="checkbox" id="seMutedSetting"></label>
       <label class="setting-row"><span><strong>触覚フィードバック</strong><br><small class="subtitle">対応端末のみ短く振動</small></span><input type="checkbox" id="hapticsSetting"></label>
-      <label class="setting-row"><span><strong>画像演出を軽くする</strong><br><small class="subtitle">画像を使わず絵文字と本文で表示</small></span><input type="checkbox" id="lightVisualsSetting"></label>
+      <label class="setting-row"><span><strong>軽量モード（画像とBGM編成を簡略化）</strong><br><small class="subtitle">画像を絵文字と本文へ切り替え、BGMの音数を減らします</small></span><input type="checkbox" id="lightVisualsSetting"></label>
     </div>
     <div class="credit-actions"><button class="secondary" id="settingsCreditsBtn">クレジット／アセットライセンス</button></div>
   </section>
@@ -390,8 +390,8 @@
     </div>
     <div class="credit-grid">
       <article class="credit-card"><h2>正式アート</h2><p>背景8点、キャラクター10点、フード／イベントカード23点。すべて本プロジェクトのために図形とグラデーションから制作したオリジナルSVGです。</p></article>
-      <article class="credit-card"><h2>正式音響</h2><p>「空の皿」「腹の鳴る森」「あり得ない一皿」「五十日目」「残された器」「朝食のない朝」と全SEは、外部楽曲・サンプルを使わず、決定論的なWeb Audioシーケンスで演奏します。</p></article>
-      <article class="credit-card"><h2>制作・著作</h2><p>企画・ゲーム・アート・音響：project-reign。特定の作品・作家の画風模倣、外部画像、外部フォント、無断素材は使用していません。</p></article>
+      <article class="credit-card"><h2>正式音響</h2><p>「空の皿」「腹の鳴る森」「あり得ない一皿」「五十日目」「残された器」「朝食のない朝」と全SEは、外部楽曲・サンプルを使わず、決定論的なWeb Audioシーケンスで演奏します。軽量モードでは曲・長さ・ループを保ったまま音数と装飾音を減らします。</p></article>
+      <article class="credit-card"><h2>制作・著作</h2><p>企画・ゲーム・アート・音響：project-reign。開発支援：OpenAI ChatGPT / Codex。特定の作品・作家の画風模倣、外部画像、外部フォント、無断素材は使用していません。</p></article>
       <article class="credit-card"><h2>ライセンスID</h2><p><code>project-v4.7-original-svg</code><br><code>project-v4.7-generated-audio</code><br><code>project-v4.7-synth</code></p></article>
       <article class="credit-card credit-wide"><h2>監査資料</h2><p>個別アセットのID、subject、alt、ライセンスは <a href="./asset-gallery.html">開発用アセットギャラリー</a> とリポジトリの <code>ASSET_LICENSES.md</code> で確認できます。画像・台帳・音響が読み込めない場合も、絵文字・本文・常時二択だけで最後まで進行できます。</p></article>
     </div>
@@ -2212,6 +2212,9 @@
         artKey: event.artKey,
         backgroundKey: event.backgroundKey,
         characterKey: event.characterKey,
+        beanSoil: state.flags && state.flags.beanSoil,
+        beanPossessed: !!(state.flags && state.flags.beanPossessed),
+        beanChild: !!(state.companions && state.companions.beanChild),
         moodKey: event.moodKey,
         token: `survival:${event.eventId}:${state.day}:${state.choiceCount}`
       });
@@ -2251,6 +2254,9 @@
       artKey: scene.artKey,
       backgroundKey: scene.backgroundKey,
       characterKey: scene.characterKey,
+      beanSoil: state.flags && state.flags.beanSoil,
+      beanPossessed: !!(state.flags && state.flags.beanPossessed),
+      beanChild: !!(state.companions && state.companions.beanChild),
       moodKey: scene.moodKey,
       token: `${state.mode}:${state.scene}:${state.day}:${state.choiceCount}`
     });

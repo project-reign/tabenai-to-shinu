@@ -8,7 +8,7 @@ const assetsRoot = resolve(root, 'assets');
 
 const ASSET_TYPES = ['background', 'character', 'art', 'effect', 'bgm', 'se'];
 const ASSIGNMENT_GROUPS = ['screens', 'scenes', 'survival', 'categories', 'endings'];
-const ROOT_FIELDS = ['schemaVersion', 'manifestVersion', 'budgets', 'assets', 'assignments', 'hooks', 'actions'];
+const ROOT_FIELDS = ['schemaVersion', 'manifestVersion', 'budgets', 'assets', 'variants', 'assignments', 'hooks', 'actions'];
 const BUDGET_FIELDS = ['precacheBytes', 'presentationPrecacheBytes', 'lazyBytes'];
 const REFERENCE_FIELDS = new Map([
   ['backgroundKey', 'background'],
@@ -446,6 +446,22 @@ async function main() {
   for (const key of ASSIGNMENT_GROUPS) {
     if (!isObject(assignments[key])) fail(`assignments.${key} must be an object.`);
     else walkReferenceTree(assignments[key], `assignments.${key}`, true);
+  }
+
+  const variants = isObject(manifest.variants) ? manifest.variants : {};
+  if (!isObject(manifest.variants)) fail('variants must be an object.');
+  for (const key of Object.keys(variants)) {
+    if (key !== 'beanCharacters') fail(`Unknown variant group: variants.${key}`);
+  }
+  const beanCharacters = isObject(variants.beanCharacters) ? variants.beanCharacters : {};
+  if (!isObject(variants.beanCharacters)) fail('variants.beanCharacters must be an object.');
+  const beanVariantNames = ['child', 'white', 'red', 'gray', 'body'];
+  for (const key of Object.keys(beanCharacters)) {
+    if (!beanVariantNames.includes(key)) fail(`Unknown bean character variant: variants.beanCharacters.${key}`);
+  }
+  for (const key of beanVariantNames) {
+    if (!Object.hasOwn(beanCharacters, key)) fail(`Missing bean character variant: variants.beanCharacters.${key}`);
+    else validateReference('characterKey', beanCharacters[key], `variants.beanCharacters.${key}`);
   }
 
   const hooks = isObject(manifest.hooks) ? manifest.hooks : {};

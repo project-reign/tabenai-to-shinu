@@ -52,6 +52,7 @@ v4.6.0「森が目を覚ます」で画像、音、画面効果、触覚をゲ�
 - `manifestVersion`: アセット集合と割当のキャッシュ版。アプリ版や保存スキーマとは独立
 - `budgets`: `precacheBytes`、`presentationPrecacheBytes`、`lazyBytes`
 - `assets`: `background`、`character`、`art`、`effect`、`bgm`、`se`
+- `variants`: 保存状態から演出だけを派生させる正式素材対応表。v4.7.0では `beanCharacters` が幼体、白、赤、灰、身体豆を宣言する
 - `assignments`: `screens`、`scenes`、`survival`、`categories`、`endings`
 - `hooks`: タイトルや結末などの演出フック
 - `actions`: 選択、警告、摂取、拒否、メニューの効果音割当
@@ -81,7 +82,10 @@ v4.6.0「森が目を覚ます」で画像、音、画面効果、触覚をゲ�
 2. 結末の場合は `assignments.endings`
 3. ゲーム中はイベント分類の `assignments.categories`
 4. STORY／HARDは `assignments.scenes`、SURVIVALは `assignments.survival`
-5. 呼出側が明示した `backgroundKey`、`characterKey`、`artKey`、`moodKey`
+5. シーン／イベントに明示キャラクターがない場合だけ、`beanSoil`、`beanPossessed`、`beanChild` から `variants.beanCharacters` の立ち絵を演出専用で派生
+6. 呼出側が明示した `backgroundKey`、`characterKey`、`artKey`、`moodKey`
+
+豆立ち絵の派生順は、`body` または `beanPossessed`、`white`、`red`、`gray`、その他の幼体です。寄生タコ、Jr.、影、森の管理者など、シーン／イベントに明示されたキャラクターを豆立ち絵で上書きしません。この派生値は保存せず、ゲーム状態、分岐、PRNG、セーブ形式を変更しません。
 
 解決したIDが存在しない、項目に `src` がない、台帳を取得できない、HTTPエラー、decodeエラーのいずれかが起きた場合は、画像を非表示にして既存の絵文字と本文を表示します。例外をゲーム側へ投げず、選択肢、保存、PRNGを変更しません。
 
@@ -103,9 +107,9 @@ v4.6.0「森が目を覚ます」で画像、音、画面効果、触覚をゲ�
 | 分類 | 点数 | 寸法 | 容量 |
 | --- | ---: | ---: | ---: |
 | 正式背景 | 8 | 1600×900 | 23,740 bytes |
-| 正式キャラクター | 10 | 800×1200 | 21,554 bytes |
-| 正式カード | 23 | 800×800 | 59,753 bytes |
-| 合計 | 41 | - | 105,047 bytes |
+| 正式キャラクター | 10 | 800×1200 | 22,280 bytes |
+| 正式カード | 23 | 800×800 | 60,114 bytes |
+| 合計 | 41 | - | 106,134 bytes |
 
 背景は中央の主要構図が9:16の中央クロップに残るよう制作します。すべての正式SVGは次を満たします。
 
@@ -165,7 +169,7 @@ SEは `choice`、`warning`、`rare`、`milestone`、`consume`、`refuse`、`achi
 ## motionとアクセシビリティ
 
 - 明示設定 `reducedMotion` または `prefers-reduced-motion: reduce` のどちらかが有効なら、非本質的なanimationとtransitionを抑制する
-- `lightVisuals` が有効なら背景、キャラクター、カード画像を読み込まず、絵文字と本文を使う
+- `lightVisuals` が有効なら背景、キャラクター、カード画像を読み込まず、絵文字と本文を使う。同時にBGMは曲ID、長さ、loopを維持した簡易編成へ切り替え、音数と装飾音を減らす
 - 振動、音、色、動き、画像だけで警告、成功、失敗、選択結果を伝えない
 - 画像404、音声非対応、振動非対応を通常の対応環境として扱う
 - achievement通知はaria live領域と本文記録を維持する
@@ -198,7 +202,7 @@ app shellの版とasset manifestの版を別に管理します。URLのqueryや�
 | presentation precache | 2 MiB（2,097,152 bytes） | 台帳でprecache指定した演出素材 |
 | lazy assets | 25 MiB（26,214,400 bytes） | 台帳でlazy指定した実ファイルの合計 |
 
-いずれかの上限を超えたbuildは失敗させます。v4.7.0の正式SVG 41点は105,047 bytesで、presentation上限の約5.0%です。BGMとSEは実行時合成のため音声delivery bytesを追加しません。個別ファイルだけでなく三階層ごとの合計を毎回確認します。
+いずれかの上限を超えたbuildは失敗させます。v4.7.0の正式SVG 41点は106,134 bytesで、presentation上限の約5.1%です。BGMとSEは実行時合成のため音声delivery bytesを追加しません。個別ファイルだけでなく三階層ごとの合計を毎回確認します。
 
 ## GitHub Pagesサブパス
 
@@ -266,7 +270,7 @@ npm run build
 - 各cache tierと全precacheの容量
 - fallbackに必要な既存emoji・本文UI
 
-Playwrightではunknown ID、manifest取得失敗、画像／音源404、画像／音声decode失敗、全BGMとSE、offline、trusted gesture前後、visibility change、mute、volume、credits、gallery、haptics非対応、明示reduced motion、`prefers-reduced-motion`、light visuals、GitHub Pagesサブパス、明示更新、iPhone 390×844とPC表示を検証します。初回Service Worker install時のasset manifest 503とprecache SVG一枚の404も個別に注入し、coreのactivate、404非cache、完全offlineでの本文・絵文字・二択を確認します。通常起動と完全オフライン再起動ではブラウザwarning／errorを0件にし、意図的なHTTP失敗ではブラウザがnetwork errorを記録しても、未処理例外とゲーム中断を0件にします。
+Playwrightではunknown ID、manifest取得失敗、画像／音源404、画像／音声decode失敗、全BGMとSE、offline、trusted gesture前後、visibility change、mute、volume、credits、gallery、haptics非対応、明示reduced motion、`prefers-reduced-motion`、画像省略とBGM簡易編成を組み合わせたlight visuals、GitHub Pagesサブパス、明示更新、iPhone 390×844とPC表示を検証します。初回Service Worker install時のasset manifest 503とprecache SVG一枚の404も個別に注入し、coreのactivate、404非cache、完全offlineでの本文・絵文字・二択を確認します。通常起動と完全オフライン再起動ではブラウザwarning／errorを0件にし、意図的なHTTP失敗ではブラウザがnetwork errorを記録しても、未処理例外とゲーム中断を0件にします。
 
 ## v4.7.0リリース契約
 
