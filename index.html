@@ -31,6 +31,7 @@
       --shadow: 0 18px 60px rgba(0,0,0,.38);
     }
     * { box-sizing: border-box; }
+    [hidden] { display: none !important; }
     html { min-height: 100%; background: var(--bg); }
     body {
       min-height: 100vh;
@@ -330,7 +331,7 @@
       <h1>食べないと死ぬ</h1>
       <div class="subtitle">50日目の晩餐</div>
       <div class="title-version">v4.8.0</div>
-      <div class="network-pill" id="networkStatus">● ONLINE</div>
+      <div class="network-pill" id="networkStatus" hidden></div>
     </div>
     <div class="title-card">
       <div class="run-summary" id="runSummary"><strong>記録なし</strong>新しい運命を始めよう。</div>
@@ -345,12 +346,12 @@
         <button class="primary" id="dailyStartBtn">挑戦</button>
       </article>
       <details class="title-manage">
-        <summary>管理メニュー</summary>
+        <summary>メニュー</summary>
         <div class="title-manage-grid">
-          <button class="small-btn" id="titleInstallBtn">インストール・更新</button>
-          <button class="small-btn" id="titleDataBtn">セーブ移行</button>
+          <button class="small-btn" id="titleInstallBtn">アプリ情報・更新</button>
+          <button class="small-btn" id="titleDataBtn">データ管理</button>
           <button class="small-btn" id="titleShareBtn">共有</button>
-          <button class="small-btn" id="titleCreditsBtn">クレジット／ライセンス</button>
+          <button class="small-btn" id="titleCreditsBtn" hidden>技術情報</button>
         </div>
       </details>
     </div>
@@ -435,21 +436,22 @@
       <label class="setting-row"><span><strong>SEをミュート</strong><br><small class="subtitle">視覚情報はそのまま維持</small></span><input type="checkbox" id="seMutedSetting"></label>
       <label class="setting-row"><span><strong>触覚フィードバック</strong><br><small class="subtitle">対応端末のみ短く振動</small></span><input type="checkbox" id="hapticsSetting"></label>
       <label class="setting-row"><span><strong>軽量モード（画像とBGM編成を簡略化）</strong><br><small class="subtitle">画像を絵文字と本文へ切り替え、BGMの音数を減らします</small></span><input type="checkbox" id="lightVisualsSetting"></label>
+      <label class="setting-row"><span><strong>詳細な判定情報</strong><br><small class="subtitle">上級者向け。運命の内部値と再現情報を表示します</small></span><input type="checkbox" id="detailedJudgementSetting"></label>
     </div>
-    <div class="credit-actions"><button class="secondary" id="settingsCreditsBtn">クレジット／アセットライセンス</button></div>
+    <div class="credit-actions"><button class="secondary" id="settingsCreditsBtn">このゲームについて</button></div>
   </section>
 
   <section class="shell-screen" id="creditsScreen" hidden>
     <div class="screen-head">
       <div><div class="subtitle">CREDITS &amp; LICENSES</div><h1>いただきますの森</h1></div>
-      <button class="small-btn" id="creditsBackBtn">タイトルへ</button>
+      <button class="small-btn" id="creditsBackBtn">設定へ</button>
     </div>
     <div class="credit-grid">
       <article class="credit-card"><h2>正式アート</h2><p>背景8点、キャラクター10点、フード／イベントカード23点。すべて本プロジェクトのために図形とグラデーションから制作したオリジナルSVGです。</p></article>
       <article class="credit-card"><h2>正式音響</h2><p>「空の皿」「腹の鳴る森」「あり得ない一皿」「五十日目」「残された器」「朝食のない朝」と全SEは、外部楽曲・サンプルを使わず、決定論的なWeb Audioシーケンスで演奏します。軽量モードでは曲・長さ・ループを保ったまま音数と装飾音を減らします。</p></article>
       <article class="credit-card"><h2>制作・著作</h2><p>企画・ゲーム・アート・音響：project-reign。開発支援：OpenAI ChatGPT / Codex。特定の作品・作家の画風模倣、外部画像、外部フォント、無断素材は使用していません。</p></article>
-      <article class="credit-card"><h2>ライセンスID</h2><p><code>project-v4.7-original-svg</code><br><code>project-v4.7-generated-audio</code><br><code>project-v4.7-synth</code></p></article>
-      <article class="credit-card credit-wide"><h2>監査資料</h2><p>個別アセットのID、subject、alt、ライセンスは <a href="./asset-gallery.html">開発用アセットギャラリー</a> とリポジトリの <code>ASSET_LICENSES.md</code> で確認できます。画像・台帳・音響が読み込めない場合も、絵文字・本文・常時二択だけで最後まで進行できます。</p></article>
+      <article class="credit-card"><h2>利用条件</h2><p>正式アートと音響はproject-reignが本作のために制作したオリジナル素材です。画像や音響を読み込めない場合も、絵文字・本文・二択だけで最後まで進行できます。</p></article>
+      <article class="credit-card credit-wide" id="technicalCredits" hidden><h2>技術・監査情報</h2><p><code>project-v4.7-original-svg</code><br><code>project-v4.7-generated-audio</code><br><code>project-v4.7-synth</code></p><p>個別アセットのID、subject、alt、ライセンスは <a href="./asset-gallery.html">開発用アセットギャラリー</a> とリポジトリの <code>ASSET_LICENSES.md</code> で確認できます。</p></article>
     </div>
   </section>
 
@@ -463,13 +465,13 @@
         </div>
       </div>
       <details class="app-menu" id="appMenu">
-        <summary aria-label="管理メニュー">☰</summary>
-        <nav class="menu-panel" aria-label="管理操作">
+        <summary aria-label="メニュー">☰</summary>
+        <nav class="menu-panel" aria-label="メニュー操作">
           <button class="small-btn" id="rulesBtn">遊び方</button>
-          <button class="small-btn" id="installBtn">インストール・更新</button>
-          <button class="small-btn" id="seedBtn">シード</button>
+          <button class="small-btn" id="installBtn">アプリ情報・更新</button>
+          <button class="small-btn" id="seedBtn" hidden>判定情報</button>
           <button class="small-btn" id="shareBtn">共有</button>
-          <button class="small-btn" id="dataBtn">セーブ移行</button>
+          <button class="small-btn" id="dataBtn">データ管理</button>
           <button class="small-btn" id="saveBtn">手動保存</button>
           <button class="small-btn" id="resetBtn">最初から</button>
           <button class="small-btn" id="titleBtn">タイトルへ戻る</button>
@@ -516,7 +518,7 @@
             <span class="badge" id="modeBadge">STORY 50</span>
             <span class="badge" id="statusBadge">健康</span>
             <span class="badge" id="sceneCountBadge">選択 0</span>
-            <span class="badge" id="seedBadge">SEED</span>
+            <span class="badge" id="seedBadge" hidden></span>
           </div>
           <h2 id="sceneTitle">少し温かいおにぎり</h2>
           <div class="scene-text" id="sceneText"></div>
@@ -557,7 +559,7 @@
           <li><strong>体力</strong>が0になると死亡。</li>
           <li><strong>空腹</strong>が100になると餓死。</li>
           <li>食べ物には毒・時間・記憶・寄生・変質・契約などの効果があります。</li>
-          <li><strong>確率判定</strong>は運命シードで固定されます。同じシードなら同じ選択で同じ結果になります。</li>
+          <li><strong>運命判定</strong>は運命コードで再現できます。同じコードなら同じ選択で同じ結果になります。</li>
           <li>ランダム要素はキノコ、回避、半存在サンド、記憶・手がかりの消失、皿の入れ替えなどにあります。</li>
           <li><strong>何もしない</strong>選択にも結果があります。拒否は可能ですが、安全とは限りません。</li>
           <li>黒豆は、白い土・赤い土・灰色の土で育ち方と手がかりが変わります。</li>
@@ -600,11 +602,11 @@
       <h2 id="dataTitle">セーブの書き出し・読み込み</h2>
       <div class="rules">
         <p>全3スロット、永続meta、図鑑、ラン履歴、今日の献立をまとめて移行できます。単一スロットだけの書き出しにも対応します。</p>
-        <p class="subtitle">文字列を他人へ渡すと、プレイ状況や運命シードも共有されます。パスワード等は含まれません。</p>
+        <p class="subtitle">文字列を他人へ渡すと、プレイ状況と再現に必要な情報も共有されます。パスワード等は含まれません。</p>
       </div>
       <div class="data-options">
-        <label>書き出し範囲<select id="exportScope"><option value="all">全体バックアップ</option><option value="active">使用中スロットのみ</option><option value="slot-1">Slot 1のみ</option><option value="slot-2">Slot 2のみ</option><option value="slot-3">Slot 3のみ</option></select></label>
-        <label>formatVersion 3・単一スロットの読込先（v1／v2はSlot 1固定）<select id="importTargetSlot"><option value="slot-1">Slot 1</option><option value="slot-2">Slot 2</option><option value="slot-3">Slot 3</option></select></label>
+        <label>書き出し範囲<select id="exportScope"><option value="all">全体バックアップ</option><option value="active">使用中スロットのみ</option><option value="slot-1">スロット 1のみ</option><option value="slot-2">スロット 2のみ</option><option value="slot-3">スロット 3のみ</option></select></label>
+        <label>単一スロットの読込先（旧形式はスロット 1）<select id="importTargetSlot"><option value="slot-1">スロット 1</option><option value="slot-2">スロット 2</option><option value="slot-3">スロット 3</option></select></label>
       </div>
       <textarea class="data-textarea" id="saveTransferText" spellcheck="false" placeholder="「書き出す」でセーブ文字列を作成、または受け取った文字列を貼り付けます。"></textarea>
       <div class="import-preview" id="importPreview" hidden></div>
@@ -620,7 +622,7 @@
   <div class="modal" id="fateModal" role="dialog" aria-modal="true" aria-labelledby="fateTitle">
     <div class="modal-box">
       <h2 id="fateTitle">運命コード</h2>
-      <div class="rules"><p>モード、seed、明示選択列、ゲーム版を含む再現コードです。内容を確認してから新規スロットへ開始します。</p></div>
+      <div class="rules"><p>モードと選択の流れを含む再現コードです。内容を確認してから新規スロットへ開始します。</p></div>
       <textarea class="data-textarea" id="fateCodeText" spellcheck="false" placeholder="TABENAI-FATE-1... を貼り付け"></textarea>
       <div class="import-preview" id="fatePreview" hidden></div>
       <div class="data-actions">
@@ -927,6 +929,7 @@
   let recordRenderGeneration = 0;
   let pendingImport = null;
   let pendingFate = null;
+  let creditsOrigin = 'settings';
   const presentation = globalThis.TabenaiPresentation
     ? globalThis.TabenaiPresentation.create({ manifestUrl: './assets/manifest.json', settings: meta.settings })
     : null;
@@ -994,9 +997,10 @@
         bgmVolume: 0.45,
         seVolume: 0.65,
         bgmMuted: false,
-        seMuted: false,
-        haptics: true,
-        lightVisuals: false
+         seMuted: false,
+         haptics: true,
+         lightVisuals: false,
+         detailedJudgement: false
       }
     };
   }
@@ -1054,7 +1058,7 @@
     if (!['small', 'standard', 'large'].includes(out.settings.fontSize)) out.settings.fontSize = 'standard';
     out.settings.bgmVolume = Number.isFinite(Number(out.settings.bgmVolume)) ? clamp(Number(out.settings.bgmVolume), 0, 1) : base.settings.bgmVolume;
     out.settings.seVolume = Number.isFinite(Number(out.settings.seVolume)) ? clamp(Number(out.settings.seVolume), 0, 1) : base.settings.seVolume;
-    for (const key of ['reducedMotion', 'confirmChoices', 'autoScroll', 'bgmMuted', 'seMuted', 'haptics', 'lightVisuals']) {
+    for (const key of ['reducedMotion', 'confirmChoices', 'autoScroll', 'bgmMuted', 'seMuted', 'haptics', 'lightVisuals', 'detailedJudgement']) {
       if (typeof out.settings[key] !== 'boolean') out.settings[key] = base.settings[key];
     }
     out.version = 1;
@@ -1206,6 +1210,13 @@
     return workspace && workspace.slots.find(slot => slot.id === id) || null;
   }
 
+  function displaySlotId(id) {
+    const normalized = RECORDS && RECORDS.normalizeSlotId(id);
+    if (!normalized) return '保存先';
+    const playerLabel = `スロット ${normalized.slice(-1)}`;
+    return technicalDetailsEnabled() ? normalized : playerLabel;
+  }
+
   function storyCatalogEvents() {
     return Object.entries(scenes).map(([id, scene]) => ({
       id: `story:${id}`,
@@ -1273,6 +1284,7 @@
       slotId: activeSlotId() || 'slot-1',
       choices: [],
       timeline: [],
+      rareEncounterLog: [],
       encounterTokens: [],
       dailyDate: null,
       fateReplay: false,
@@ -1435,6 +1447,7 @@
           return event && event.category === 'rare';
         })
       : [];
+    const rareEncounterLog = RECORDS.normalizeRareEncounterLog(recording.rareEncounterLog);
     const unlockedAtStart = new Set(recording.achievementIdsAtStart || []);
     const willAdd = !workspace.history.some(item => item.runId === recording.runId);
     updateDailyProgress(true);
@@ -1449,6 +1462,11 @@
       choices: recording.choices,
       timeline: recording.timeline,
       rareEncounters: rareIds,
+      rareEncounterLog,
+      rareTotal: rareEncounterLog.length,
+      naturalTotal: rareEncounterLog.filter(item => item.naturalHit && !item.pityForced).length,
+      pityTotal: rareEncounterLog.filter(item => item.pityForced).length,
+      longestRareDrought: state.survival && state.survival.longestRareDrought,
       finalDish: state.flags.selectedTrueDish,
       finalBox: state.survival && state.survival.selectedBox,
       broughtHome: assessment && assessment.carried,
@@ -1550,6 +1568,10 @@
     saveMeta();
   }
 
+  function technicalDetailsEnabled() {
+    return debugMode || !!(meta && meta.settings && meta.settings.detailedJudgement);
+  }
+
   function applySettings() {
     document.documentElement.dataset.fontSize = meta.settings.fontSize;
     document.documentElement.classList.toggle('reduce-motion', !!meta.settings.reducedMotion);
@@ -1565,6 +1587,11 @@
     if ($('seMutedSetting')) $('seMutedSetting').checked = !!meta.settings.seMuted;
     if ($('hapticsSetting')) $('hapticsSetting').checked = !!meta.settings.haptics;
     if ($('lightVisualsSetting')) $('lightVisualsSetting').checked = !!meta.settings.lightVisuals;
+    if ($('detailedJudgementSetting')) $('detailedJudgementSetting').checked = !!meta.settings.detailedJudgement;
+    if ($('seedBadge')) $('seedBadge').hidden = !technicalDetailsEnabled();
+    if ($('seedBtn')) $('seedBtn').hidden = !technicalDetailsEnabled();
+    if ($('technicalCredits')) $('technicalCredits').hidden = !technicalDetailsEnabled();
+    if ($('titleCreditsBtn')) $('titleCreditsBtn').hidden = !debugMode;
     if (presentation) presentation.setSettings(meta.settings);
   }
 
@@ -1583,7 +1610,9 @@
   function renderTitle() {
     const status = $('networkStatus');
     if (status) {
-      status.textContent = navigator.onLine ? '● ONLINE' : '● OFFLINE';
+      const showOnlineDiagnostic = navigator.onLine && technicalDetailsEnabled();
+      status.hidden = navigator.onLine && !showOnlineDiagnostic;
+      status.textContent = navigator.onLine ? (showOnlineDiagnostic ? '● ONLINE' : '') : '● OFFLINE';
       status.classList.toggle('offline', !navigator.onLine);
     }
     const occupied = workspace ? workspace.slots.filter(slot => !!slot.run) : [];
@@ -1604,9 +1633,13 @@
       const daily = RECORDS.dailyInfo(new Date());
       const record = workspace.dailyRecords[daily.date];
       $('dailyTitle').textContent = `今日の献立 ${daily.date}`;
-      $('dailySummary').textContent = record
-        ? `SEED ${daily.seed} ／ ${RECORDS.dailyAlgorithm}（JST日付） ／ 挑戦 ${record.attempts}回 ／ 最高第${record.bestDay}日 ／ 選択 ${record.choiceCount}回 ／ 初回 ${formatTimestamp(record.firstStartedAt)} ／ ${record.cleared ? '生還済み' : (record.deathReason || '挑戦中')}`
-        : `SEED ${daily.seed} ／ ${RECORDS.dailyAlgorithm}（JST日付） ／ 未挑戦・完全オフライン対応`;
+      const playerSummary = record
+        ? `挑戦 ${record.attempts}回 ／ 最高第${record.bestDay}日 ／ 選択 ${record.choiceCount}回 ／ ${record.cleared ? '生還済み' : (record.deathReason || '挑戦中')}`
+        : '未挑戦・完全オフライン対応';
+      const technicalSummary = technicalDetailsEnabled()
+        ? ` ／ SEED ${daily.seed} ／ ${RECORDS.dailyAlgorithm}（JST日付）`
+        : '';
+      $('dailySummary').textContent = `${playerSummary}${technicalSummary}`;
       $('dailyStartBtn').dataset.dailyDate = daily.date;
       $('dailyStartBtn').dataset.dailySeed = String(daily.seed);
     }
@@ -1660,6 +1693,7 @@
         slotId,
         choices: [],
         timeline: [],
+        rareEncounterLog: [],
         encounterTokens: [],
         dailyDate: options.dailyDate || null,
         fateReplay: options.source === 'fate',
@@ -1719,7 +1753,7 @@
     const creating = purpose === 'new' && pendingLaunch;
     $('slotScreenTitle').textContent = creating ? '保存先スロットを選ぶ' : 'つづきから';
     $('slotContext').textContent = creating
-      ? `${MODE_CONFIG[pendingLaunch.mode].label} ／ SEED ${pendingLaunch.seed}${pendingLaunch.dailyDate ? ` ／ 今日の献立 ${pendingLaunch.dailyDate}` : ''}${pendingLaunch.source === 'fate' ? ' ／ 運命コード再生' : ''}`
+      ? `${MODE_CONFIG[pendingLaunch.mode].label}${pendingLaunch.dailyDate ? ` ／ 今日の献立 ${pendingLaunch.dailyDate}` : ''}${pendingLaunch.source === 'fate' ? ' ／ 運命コード再生' : ''}${technicalDetailsEnabled() ? ` ／ SEED ${pendingLaunch.seed}` : ''}`
       : '3つの食卓から再開する記憶を選んでください。';
     $('slotList').innerHTML = workspace.slots.map(slot => {
       const summary = RECORDS.slotSummary(slot);
@@ -1730,12 +1764,12 @@
       const sceneLabel = sceneDefinition && sceneDefinition.title || summary.scene || '不明';
       const details = summary.empty
         ? '<p class="empty">まだ記録はありません。</p>'
-        : `<dl><dt>モード</dt><dd>${escapeHtml(MODE_CONFIG[summary.mode].label)}</dd><dt>日数</dt><dd>第${summary.day}日${summary.ended ? '・完了' : ''}</dd><dt>HP／空腹</dt><dd>${summary.hp}／${summary.hunger}</dd><dt>seed</dt><dd>${summary.seed}</dd><dt>場面</dt><dd>${escapeHtml(sceneLabel)}</dd><dt>仲間</dt><dd>${escapeHtml(summary.companions.join('、') || 'なし')}</dd><dt>最終プレイ</dt><dd>${escapeHtml(formatTimestamp(summary.lastPlayedAt))}</dd></dl>`;
+        : `<dl><dt>モード</dt><dd>${escapeHtml(MODE_CONFIG[summary.mode].label)}</dd><dt>日数</dt><dd>第${summary.day}日${summary.ended ? '・完了' : ''}</dd><dt>HP／空腹</dt><dd>${summary.hp}／${summary.hunger}</dd>${technicalDetailsEnabled() ? `<dt>SEED</dt><dd>${summary.seed}</dd>` : ''}<dt>場面</dt><dd>${escapeHtml(sceneLabel)}</dd><dt>仲間</dt><dd>${escapeHtml(summary.companions.join('、') || 'なし')}</dd><dt>最終プレイ</dt><dd>${escapeHtml(formatTimestamp(summary.lastPlayedAt))}</dd></dl>`;
       const primary = creating
         ? `<button class="primary slot-primary" data-slot-start="${slot.id}">${summary.empty ? 'ここから始める' : '上書きして始める'}</button>`
         : (summary.empty ? '<button class="secondary slot-primary" disabled>空きスロット</button>' : `<button class="primary slot-primary" data-slot-continue="${slot.id}">つづきから</button>`);
       const actions = summary.empty ? '' : `<div class="slot-actions"><button class="small-btn" data-slot-rename="${slot.id}">名前変更</button><button class="small-btn" data-slot-copy="${slot.id}">複製</button><button class="small-btn" data-slot-delete="${slot.id}">削除</button></div>`;
-      return `<article class="slot-card ${summary.empty ? 'empty' : ''} ${active ? 'active' : ''}" data-slot="${slot.id}"><span class="badge ${active ? 'accent' : ''}">${active ? 'ACTIVE' : slot.id.toUpperCase()}</span><h2>${escapeHtml(slot.name)}</h2>${details}${primary}${actions}</article>`;
+      return `<article class="slot-card ${summary.empty ? 'empty' : ''} ${active ? 'active' : ''}" data-slot="${slot.id}"><span class="badge ${active ? 'accent' : ''}">${active ? '使用中' : `スロット ${slot.id.slice(-1)}`}</span><h2>${escapeHtml(slot.name)}</h2>${details}${primary}${actions}</article>`;
     }).join('');
     document.querySelectorAll('[data-slot-start]').forEach(button => button.addEventListener('click', () => {
       const launch = pendingLaunch;
@@ -1842,7 +1876,7 @@
     const ending = result.ending && result.ending.title || result.title || '未知の結末';
     return [
       '『食べないと死ぬ』詳細リザルト',
-      `${MODE_CONFIG[result.mode].label} ／ SEED ${result.seed} ／ 第${result.day}日`,
+      `${MODE_CONFIG[result.mode].label} ／ 第${result.day}日`,
       `${ending} ／ HP ${result.hp} ／ 空腹 ${result.hunger}`,
       `摂取 ${result.consumed}回 ／ 拒否 ${result.refused}回 ／ 選択 ${result.totalChoices}回`,
       result.broughtHome ? `持ち帰る物：${result.broughtHome}` : '',
@@ -1861,18 +1895,68 @@
     } catch (error) { if (error && error.name !== 'AbortError') toast('共有できませんでした'); }
   }
 
+  function displayAchievementName(id) {
+    const item = ACHIEVEMENTS.find(achievement => achievement.id === id);
+    return item ? item.name : '記録された実績';
+  }
+
+  function displayBeanRoute(route) {
+    return ({ white: '白い土', red: '赤い土', gray: '灰色の土', body: '身体発芽' }[route]) || (route ? '黒豆の記憶' : 'なし');
+  }
+
+  function displayFinalDish(id) {
+    return DISH[id] ? DISH[id].name : (id ? '記録された一皿' : 'なし');
+  }
+
+  function displayFinalBox(id) {
+    return ({ preserved: '保存食の箱', living: '生きている箱', empty: '空の箱', return: '帰還の箱' }[id]) || (id ? '記録された箱' : 'なし');
+  }
+
+  function displayCompanionName(id) {
+    return ({ tako: '寄生タコ', jr: 'Jr.', beanChild: '黒豆の幼体', clone: 'もう一人の自分' }[id]) || '名もない同行者';
+  }
+
+  function displayMemoryName(id) {
+    return ({ tako: '寄生タコの記憶', lastLost: '失われた最後の記憶', fakeChef: '偽りの料理人', join: '結び直した記憶' }[id]) || '名もない記憶';
+  }
+
+  function displayEventName(id) {
+    const rawId = String(id || '');
+    const withoutPrefix = rawId.replace(/^(story|survival):/, '');
+    const definition = catalogDefinition('events', rawId)
+      || catalogDefinition('events', `survival:${withoutPrefix}`)
+      || catalogDefinition('events', `story:${withoutPrefix}`);
+    if (definition && definition.name) return definition.name;
+    const survivalEvent = SURVIVAL && (SURVIVAL.events || []).find(event => event.id === withoutPrefix);
+    if (survivalEvent) return survivalEvent.title;
+    const storyScene = scenes[withoutPrefix];
+    return storyScene && storyScene.title || '名もない出来事';
+  }
+
   function historyCardMarkup(result) {
-    const companions = Object.entries(result.companions || {}).filter(([, value]) => !!value).map(([key]) => ({ tako: '寄生タコ', jr: 'Jr.', beanChild: '黒豆', clone: 'もう一人' }[key] || key));
-    const memories = Object.entries(result.memories || {}).filter(([, value]) => !!value).map(([key]) => key);
+    const companions = Object.entries(result.companions || {}).filter(([, value]) => !!value).map(([key]) => displayCompanionName(key));
+    const memories = Object.entries(result.memories || {}).filter(([, value]) => !!value).map(([key]) => displayMemoryName(key));
     const milestoneCount = Object.values(result.milestones || {}).filter(Boolean).length;
-    const timeline = (result.timeline || []).map(item => `<li>#${item.order} 第${item.day}日 ${escapeHtml(item.title || item.sceneId)} → ${escapeHtml(item.choice || String(item.choiceIndex))} ／ HP ${item.hpBefore}→${item.hpAfter} ／ 空腹 ${item.hungerBefore}→${item.hungerAfter}</li>`).join('');
+    const rareLog = RECORDS.normalizeRareEncounterLog(result.rareEncounterLog);
+    const rareItems = rareLog.length
+      ? rareLog.map(item => `${displayEventName(item.eventId)}（第${item.day}日）`)
+      : (result.rareEncounters || []).map(displayEventName);
+    const rareTotal = rareLog.length || Number(result.rareTotal) || rareItems.length;
+    const timeline = (result.timeline || []).map(item => `<li>#${item.order} 第${item.day}日 ${escapeHtml(item.title || displayEventName(item.sceneId))} → ${escapeHtml(item.choice || (item.choiceIndex === 0 ? 'A' : 'B'))} ／ HP ${item.hpBefore}→${item.hpAfter} ／ 空腹 ${item.hungerBefore}→${item.hungerAfter}</li>`).join('');
+    const technical = technicalDetailsEnabled() ? `<div class="technical-details"><p><strong>詳細な判定情報</strong></p>
+      <p>runId ${escapeHtml(result.runId)} ／ SEED ${result.seed} ／ endingCode ${escapeHtml(result.endingCode || 'none')} ／ beanRoute ${escapeHtml(result.beanRoute || 'none')}</p>
+      <p>achievement IDs：${escapeHtml((result.unlockedAchievements || []).join('、') || 'none')}</p>
+      <p>rare総数 ${rareTotal} ／ natural総数 ${Number(result.naturalTotal) || 0} ／ pity総数 ${Number(result.pityTotal) || 0} ／ longestRareDrought ${Number(result.longestRareDrought) || 0}</p>
+      <ol>${rareLog.map(item => `<li>eventId=${escapeHtml(item.eventId)} ／ day=${item.day} ／ ${item.pityForced ? 'pity' : (item.naturalHit ? 'natural' : 'other')} ／ rareChance=${item.rareChance === null ? 'n/a' : item.rareChance} ／ rareRoll=${item.rareRoll === null ? 'n/a' : item.rareRoll} ／ pity counter=${item.pityCounter}</li>`).join('') || '<li>rare logなし</li>'}</ol>
+    </div>` : '';
     return `<article class="history-card" data-run-id="${escapeHtml(result.runId)}">
       <header><strong>${escapeHtml(MODE_CONFIG[result.mode].label)} ／ ${escapeHtml(result.title || (result.ending && result.ending.title) || '結末')}</strong><small>${escapeHtml(formatTimestamp(result.completedAt))}</small></header>
-      <p>SEED ${result.seed} ／ 第${result.day}日 ／ HP ${result.hp} ／ 空腹 ${result.hunger} ／ 摂取 ${result.consumed} ／ 拒否 ${result.refused}</p>
-      <p>仲間：${escapeHtml(companions.join('、') || 'なし')} ／ 記憶：${escapeHtml(memories.join('、') || 'なし')} ／ 黒豆：${escapeHtml(result.beanRoute || 'なし')}</p>
-      <p>レア：${escapeHtml((result.rareEncounters || []).join('、') || 'なし')} ／ 節目 ${milestoneCount}/4 ／ 四皿：${escapeHtml(result.finalDish || 'なし')} ／ 四箱：${escapeHtml(result.finalBox || 'なし')}</p>
-      <p>持ち帰る物：${escapeHtml(result.broughtHome || 'なし')} ／ 解除実績：${escapeHtml((result.unlockedAchievements || []).join('、') || 'なし')}</p>
+      <p>第${result.day}日 ／ HP ${result.hp} ／ 空腹 ${result.hunger} ／ 摂取 ${result.consumed} ／ 拒否 ${result.refused}</p>
+      <p>仲間：${escapeHtml(companions.join('、') || 'なし')} ／ 記憶：${escapeHtml(memories.join('、') || 'なし')} ／ 黒豆：${escapeHtml(displayBeanRoute(result.beanRoute))}</p>
+      <p>レア遭遇 ${rareTotal}回：${escapeHtml(rareItems.join('、') || 'なし')} ／ 節目 ${milestoneCount}/4 ／ 四皿：${escapeHtml(displayFinalDish(result.finalDish))} ／ 四箱：${escapeHtml(displayFinalBox(result.finalBox))}</p>
+      <p>持ち帰る物：${escapeHtml(result.broughtHome || 'なし')} ／ 解除実績：${escapeHtml((result.unlockedAchievements || []).map(displayAchievementName).join('、') || 'なし')}</p>
       <details><summary>選択タイムライン ${result.totalChoices}件</summary>${result.timelineCompacted ? `<p>容量確保のため${result.timelineChoiceCount}件を要約済み。</p>` : `<ol class="timeline">${timeline}</ol>`}</details>
+      ${technical}
       <label>運命コード<textarea class="fate-code" readonly>${escapeHtml(result.fateCode)}</textarea></label>
       <div class="button-row"><button class="small-btn" data-share-result="${escapeHtml(result.runId)}">テキスト共有</button><button class="small-btn" data-copy-fate="${escapeHtml(result.runId)}">運命コードをコピー</button></div>
     </article>`;
@@ -1963,7 +2047,14 @@
 
   function rollText(label, probability, success) {
     const effectiveProbability = clamp(probability - (MODE_CONFIG[state.mode] || MODE_CONFIG.story).rollPenalty, .1, .95);
-    return `\n［運命判定：${label} ${success ? '成功' : '失敗'}／${Math.round(effectiveProbability * 100)}％］`;
+    if (technicalDetailsEnabled()) {
+      const rollValue = state.lastRoll && Number.isFinite(Number(state.lastRoll.value))
+        ? `／ロール ${Number(state.lastRoll.value).toFixed(5)}`
+        : '';
+      return `\n［詳細：${label} ${success ? '成功' : '失敗'}／${Math.round(effectiveProbability * 100)}％${rollValue}］`;
+    }
+    if (!success) return '\n［運命に見放された］';
+    return effectiveProbability >= 0.6 ? '\n［運命が味方した］' : '\n［どうにか切り抜けた］';
   }
 
   function addLog(text) {
@@ -2156,19 +2247,49 @@
       choices: (event.choices || []).map((choice, index) => ({
         ...choice,
         title: choice.title || choice.label || '選ぶ',
-        desc: SURVIVAL.visibleChoiceDescription(state, event.id, index)
+        desc: (() => {
+          if (technicalDetailsEnabled()) return SURVIVAL.visibleChoiceDescription(state, event.id, index);
+          const info = SURVIVAL.publicChoiceInfo(state, event.id, index);
+          const risk = ({ safe: '安全そう', low: '少し不穏', medium: '危険', high: '命懸け' }[info.risk]) || '正体不明';
+          const benefit = ({ food: '空腹を満たせそう', heal: '傷を癒やせそう', clue: '手掛かりになりそう', companion: '仲間につながりそう', none: '見返りは分からない' }[info.benefit]) || '見返りは分からない';
+          return `${choice.description || ''} ［${risk}／${benefit}］${info.note ? ` ${info.note}` : ''}`.trim();
+        })()
       }))
     };
   }
 
+  function currentRarePityCounter() {
+    const history = state.survival && Array.isArray(state.survival.history) ? state.survival.history : [];
+    let pityCounter = 0;
+    for (let index = history.length - 2; index >= 0; index -= 1) {
+      const previous = history[index];
+      if (previous && previous.category === 'rare') break;
+      if (previous && !['milestone', 'final'].includes(previous.category)) pityCounter += 1;
+    }
+    return pityCounter;
+  }
+
   function recordSurvivalEncounter(event) {
     if (!event || event.category !== 'rare') return;
+    const selection = state.survival.currentSelection || {};
     meta.stats.survival.rareEvents += 1;
-    if (state.survival.currentSelection && state.survival.currentSelection.pityForced) meta.stats.survival.pityEvents += 1;
+    if (selection.pityForced) meta.stats.survival.pityEvents += 1;
     meta.stats.survival.longestRareDrought = Math.max(
       meta.stats.survival.longestRareDrought || 0,
       Number(state.survival.longestRareDrought || 0)
     );
+    const recording = ensureRecording();
+    if (!recording) return;
+    if (!Array.isArray(recording.rareEncounterLog)) recording.rareEncounterLog = [];
+    recording.rareEncounterLog.push({
+      eventId: event.eventId || event.id,
+      day: Number(selection.day || state.day) || 0,
+      naturalHit: selection.naturalHit === true,
+      pityForced: selection.pityForced === true,
+      rareChance: Number.isFinite(Number(selection.rareChance)) ? Number(selection.rareChance) : null,
+      rareRoll: Number.isFinite(Number(selection.rareRoll)) ? Number(selection.rareRoll) : null,
+      pityCounter: currentRarePityCounter()
+    });
   }
 
   function recordSurvivalEndingDetails(event, choice) {
@@ -2714,7 +2835,7 @@
           addLog('石柱から仲間を庇った。');
           return 'bean';
         }),
-        C('全力で避ける', '成功率72％。失敗しても即死はしにくい。', () => {
+        C('全力で避ける', '身軽なら切り抜けやすいが、失敗すれば大きく負傷する。', () => {
           const p = state.flags.monsterForm ? 0.88 : 0.72;
           const clean = roll('石柱回避', p);
           adjust({ hp: clean ? -12 : -34, hunger: 7, status: clean ? '打撲' : '重い打撲' });
@@ -2776,7 +2897,7 @@
       day: 37, icon: '🥪', title: '半分だけ存在するサンドイッチ',
       text: () => '存在する半分を食べれば満腹。\n存在しない半分なら、「空腹だった事実」が影へ移る。噛むまで分からない。',
       choices: () => [
-        E('食べる', '二つの結果は50％ずつ。シードで固定される。', () => {
+        E('食べる', '噛むまで、どちらの半分を引くか分からない。', () => {
           const existing = roll('存在する半分', 0.5);
           if (existing) {
             adjust({ hunger: -50, hp: 4 });
@@ -3004,7 +3125,10 @@
     if (ui.modeBadge) ui.modeBadge.textContent = MODE_CONFIG[state.mode].label;
     ui.statusBadge.textContent = state.status;
     ui.sceneCountBadge.textContent = `選択 ${state.choiceCount}`;
-    if (ui.seedBadge) ui.seedBadge.textContent = `SEED ${state.seed}`;
+    if (ui.seedBadge) {
+      ui.seedBadge.hidden = !technicalDetailsEnabled();
+      ui.seedBadge.textContent = technicalDetailsEnabled() ? `SEED ${state.seed}` : '';
+    }
   }
 
   function renderCompanions() {
@@ -3049,19 +3173,20 @@
     ui.sceneContent.innerHTML = `
       <div class="ending">
         <div class="ending-icon">${escapeHtml(e.icon || '🏁')}</div>
-        <span class="badge accent">ENDING：${escapeHtml(e.code || 'END')}</span>
+        <span class="badge accent">エンディング</span>
         <h2>${escapeHtml(e.title)}</h2>
         <p class="scene-text">${escapeHtml(e.text)}</p>
         <div class="ending-score">
           <div><span class="subtitle">生存日数</span><b>${escapeHtml(state.day)}日</b></div>
           <div><span class="subtitle">選択回数</span><b>${escapeHtml(state.choiceCount)}</b></div>
           <div><span class="subtitle">仲間・影</span><b>${escapeHtml(companionCount())}人</b></div>
-          <div><span class="subtitle">運命判定</span><b>${escapeHtml(state.stats.randomChecks)}回</b></div>
+          <div><span class="subtitle">運命の巡り</span><b>${state.stats.lucky >= state.stats.unlucky ? '味方した' : '試された'}</b></div>
         </div>
-        <p class="subtitle">SEED ${escapeHtml(state.seed)} ／ エンディング記録：${escapeHtml(endingRecordsText())}</p>
+        <p class="subtitle">エンディング記録：${escapeHtml(endingRecordsText())}</p>
+        ${technicalDetailsEnabled() ? `<details class="technical-details"><summary>詳細な判定情報</summary><p>endingCode ${escapeHtml(e.code || 'END')} ／ SEED ${escapeHtml(state.seed)} ／ 運命判定 ${escapeHtml(state.stats.randomChecks)}回</p></details>` : ''}
         <div class="ending-actions">
           <button class="primary" id="newSeedRestart">新しい運命</button>
-          <button class="secondary" id="sameSeedRestart">同じシード</button>
+          <button class="secondary" id="sameSeedRestart">同じ運命</button>
           <button class="secondary" id="endingLog">ログを見る</button>
         </div>
       </div>`;
@@ -3094,10 +3219,15 @@
       }
       ui.sceneIcon.textContent = event.icon || '🏕️';
       ui.sceneTitle.textContent = event.title;
-      const category = String(event.category || 'common').toUpperCase();
+      const category = ({
+        common: '通常遭遇', uncommon: '少し珍しい遭遇', conditional: '条件付き遭遇',
+        rare: 'レア遭遇', milestone: '節目', final: '最終日'
+      }[event.category]) || '遭遇';
       const selection = state.survival && state.survival.currentSelection;
       const rareNote = event.category === 'rare' && selection
-        ? `\n\n［RARE ${Math.round(Number(selection.rareChance || SURVIVAL.rareRate(state.day)) * 100)}％${selection.pityForced ? '／PITY' : ''}］`
+        ? (technicalDetailsEnabled()
+          ? `\n\n［eventId=${event.eventId} ／ rareChance=${Number(selection.rareChance || SURVIVAL.rareRate(state.day)).toFixed(5)} ／ rareRoll=${Number(selection.rareRoll).toFixed(5)} ／ ${selection.pityForced ? 'pity' : (selection.naturalHit ? 'natural' : 'other')} ／ pity counter=${currentRarePityCounter()}］`
+          : '\n\n［正体不明の稀少な遭遇］')
         : '';
       ui.sceneText.textContent = `${event.text || ''}${rareNote}`;
       ui.choiceATitle.textContent = event.choices[0].title;
@@ -3287,6 +3417,7 @@
         slotId: RECORDS && RECORDS.normalizeSlotId(out.recording.slotId) || null,
         choices: Array.isArray(out.recording.choices) ? out.recording.choices.filter(value => value === 0 || value === 1).slice(0, 10000) : [],
         timeline: Array.isArray(out.recording.timeline) ? out.recording.timeline.slice(-10000) : [],
+        rareEncounterLog: RECORDS ? RECORDS.normalizeRareEncounterLog(out.recording.rareEncounterLog) : [],
         encounterTokens: Array.isArray(out.recording.encounterTokens) ? [...new Set(out.recording.encounterTokens.map(String))].slice(-10000) : [],
         dailyDate,
         fateReplay: out.recording.fateReplay === true,
@@ -3472,11 +3603,13 @@
       $('importTargetSlot').disabled = preview.formatVersion < 3 || (preview.formatVersion === 3 && preview.scope === 'all');
       if (preview.formatVersion < 3) $('importTargetSlot').value = 'slot-1';
       pendingImport = { text: box.value, payload, targetSlotId, preview };
-      const slotLines = preview.slots.map(slot => `${slot.name}：${MODE_CONFIG[slot.mode].label} 第${slot.day}日 / seed ${slot.seed}`).join('\n');
+      const slotLines = preview.slots.map(slot => `${slot.name}：${MODE_CONFIG[slot.mode].label} 第${slot.day}日${technicalDetailsEnabled() ? ` ／ SEED ${slot.seed}` : ''}`).join('\n');
       const replacementNotice = preview.formatVersion === 3
         ? '\n永続meta・設定・実績・図鑑・履歴・日替わり記録もバックアップ内容で置き換えます。'
         : '';
-      previewBox.textContent = `formatVersion ${preview.formatVersion} ／ ${preview.scope}\n${slotLines || '保存スロット：すべて空'}\n図鑑 ${preview.codexCount}件 ／ 履歴 ${preview.historyCount}件 ／ 日替わり ${preview.dailyCount}日${preview.targetSlotId ? `\n読込先：${preview.targetSlotId}` : ''}${preview.overwriteSlotIds.length ? `\n上書き／消去対象：${preview.overwriteSlotIds.join('、')}` : ''}${replacementNotice}`;
+      const transferKind = preview.formatVersion < 3 ? '旧形式のセーブ' : (preview.scope === 'all' ? '全体バックアップ' : '単一スロットのバックアップ');
+      const technicalTransfer = technicalDetailsEnabled() ? ` ／ formatVersion ${preview.formatVersion} ／ scope ${preview.scope}` : '';
+      previewBox.textContent = `${transferKind}${technicalTransfer}\n${slotLines || '保存スロット：すべて空'}\n図鑑 ${preview.codexCount}件 ／ 履歴 ${preview.historyCount}件 ／ 日替わり ${preview.dailyCount}日${preview.targetSlotId ? `\n読込先：${displaySlotId(preview.targetSlotId)}` : ''}${preview.overwriteSlotIds.length ? `\n上書き／消去対象：${preview.overwriteSlotIds.map(displaySlotId).join('、')}` : ''}${replacementNotice}`;
       previewBox.hidden = false;
       return pendingImport;
     } catch (error) {
@@ -3538,13 +3671,7 @@
       };
       try {
         const applied = RECORDS.applyTransfer(workspace, pendingImport.payload, { targetSlotId: pendingImport.targetSlotId });
-        let importedWorkspace = normalizeImportedRuns(applied.workspace);
-        if (applied.formatVersion < 3) {
-          importedWorkspace.codex = before.codex;
-          importedWorkspace.history = before.history;
-          importedWorkspace.dailyRecords = before.dailyRecords;
-        }
-        workspace = importedWorkspace;
+        workspace = normalizeImportedRuns(applied.workspace);
         if (applied.formatVersion === 3) meta = normalizeMeta(applied.meta || {});
         else if (applied.meta && Object.keys(applied.meta).length) meta = normalizeMeta(applied.meta);
         const mirror = RECORDS.activeMirror(workspace);
@@ -3576,7 +3703,8 @@
     try {
       const preview = RECORDS.previewFateCode($('fateCodeText').value);
       pendingFate = preview;
-      box.textContent = `${MODE_CONFIG[preview.mode].label} ／ SEED ${preview.seed} ／ 明示選択 ${preview.choiceCount}回 ／ ゲーム版 ${preview.gameVersion}${preview.gameVersion !== APP_VERSION ? '\n※別バージョンのコードです。現行ロジックで再生します。' : ''}`;
+      const technicalFate = technicalDetailsEnabled() ? ` ／ SEED ${preview.seed} ／ ゲーム版 ${preview.gameVersion}` : '';
+      box.textContent = `${MODE_CONFIG[preview.mode].label} ／ 明示選択 ${preview.choiceCount}回${technicalFate}${preview.gameVersion !== APP_VERSION ? '\n※別バージョンのコードです。現行ロジックで再生します。' : ''}`;
       box.hidden = false;
       $('fateStartBtn').disabled = false;
       return preview;
@@ -3626,13 +3754,13 @@
   $('newGameBtn').addEventListener('click', () => showScreen('modes'));
   $('recordsBtn').addEventListener('click', () => showScreen('records'));
   $('settingsBtn').addEventListener('click', () => showScreen('settings'));
-  $('titleCreditsBtn').addEventListener('click', () => showScreen('credits'));
-  $('settingsCreditsBtn').addEventListener('click', () => showScreen('credits'));
+  $('titleCreditsBtn').addEventListener('click', () => { creditsOrigin = 'title'; showScreen('credits'); });
+  $('settingsCreditsBtn').addEventListener('click', () => { creditsOrigin = 'settings'; showScreen('credits'); });
   $('modeBackBtn').addEventListener('click', () => showScreen('title'));
   $('slotBackBtn').addEventListener('click', () => { pendingLaunch = null; showScreen(slotScreenOrigin === 'modes' ? 'modes' : 'title'); });
   $('recordsBackBtn').addEventListener('click', () => showScreen('title'));
   $('settingsBackBtn').addEventListener('click', () => showScreen('title'));
-  $('creditsBackBtn').addEventListener('click', () => showScreen('title'));
+  $('creditsBackBtn').addEventListener('click', () => showScreen(creditsOrigin === 'title' ? 'title' : 'settings'));
   $('modeStoryBtn').addEventListener('click', () => prepareNewRun('story'));
   $('modeHardBtn').addEventListener('click', () => prepareNewRun('hard'));
   $('modeSurvivalBtn').addEventListener('click', () => prepareNewRun('survival'));
@@ -3663,13 +3791,14 @@
     meta.settings.seMuted = $('seMutedSetting').checked;
     meta.settings.haptics = $('hapticsSetting').checked;
     meta.settings.lightVisuals = $('lightVisualsSetting').checked;
+    meta.settings.detailedJudgement = $('detailedJudgementSetting').checked;
     saveMeta();
     applySettings();
   }
   for (const id of [
     'fontSizeSetting', 'reducedMotionSetting', 'confirmChoicesSetting', 'autoScrollSetting',
     'bgmVolumeSetting', 'seVolumeSetting', 'bgmMutedSetting', 'seMutedSetting',
-    'hapticsSetting', 'lightVisualsSetting'
+    'hapticsSetting', 'lightVisualsSetting', 'detailedJudgementSetting'
   ]) {
     $(id).addEventListener('change', saveSettingsFromControls);
   }

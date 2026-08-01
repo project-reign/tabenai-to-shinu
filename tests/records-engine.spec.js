@@ -207,6 +207,38 @@ test('formatVersion 1/2をslot 1へ移行し、formatVersion 3を全体・単一
   expect(preview.slots[0].seed).toBe(3001);
 });
 
+test('formatVersion 1/2のapplyTransferは既存codex・history・dailyRecordsをエンジン内で保護する', () => {
+  let current = records.setSlot(records.freshWorkspace(), 2, run(3299, 'hard'), { timestamp: ISO_A });
+  current.codex = records.recordCodex(current.codex, {
+    source: 'play', committed: true, phase: 'encounter', category: 'events', id: 'story:riceball',
+    token: 'protected-codex', occurredAt: ISO_A, mode: 'story'
+  }).codex;
+  current.history = [records.makeRunResult(run(3298, 'survival', {
+    ended: true, ending: { code: 'survival_return', title: '帰還' }
+  }), { runId: 'protected-history', completedAt: ISO_B, choices: [0, 1] })];
+  current.dailyRecords = records.updateDailyRecord({}, {
+    date: '2026-08-01', started: true, attemptId: 'protected-daily', startedAt: ISO_A, day: 18
+  }).records;
+  const expected = {
+    codex: structuredClone(current.codex),
+    history: structuredClone(current.history),
+    dailyRecords: structuredClone(current.dailyRecords)
+  };
+
+  for (const formatVersion of [1, 2]) {
+    const payload = {
+      format: 'tabenai-save', formatVersion, exportedAt: ISO_B,
+      [formatVersion === 1 ? 'state' : 'run']: run(3200 + formatVersion, 'story', { version: formatVersion })
+    };
+    const applied = records.applyTransfer(current, payload, { targetSlotId: 'slot-3' });
+    expect(applied.workspace.slots[0].run.seed).toBe(3200 + formatVersion);
+    expect(applied.workspace.slots[1].run.seed).toBe(3299);
+    expect(applied.workspace.codex).toEqual(expected.codex);
+    expect(applied.workspace.history).toEqual(expected.history);
+    expect(applied.workspace.dailyRecords).toEqual(expected.dailyRecords);
+  }
+});
+
 test('単一slot transferを指定slotへ適用して他slotを維持する', () => {
   const sourceRun = run(4001, 'story', {
     recording: { runId: 'recorded-4001', slotId: 'slot-1', choices: [0] }
@@ -313,6 +345,32 @@ test('run IDと詳細リザルトは決定論的で、重複なし・新しい�
   expect(history[0].seed).toBe(6034);
   expect(history.at(-1).seed).toBe(6005);
   expect(new Set(history.map(item => item.runId)).size).toBe(30);
+});
+
+test('詳細リザルトは同じrareの複数発生を重複除去せず判定ログと集計を保持する', () => {
+  const completed = run(5511, 'survival', {
+    ended: true, day: 50, ending: { code: 'survival_empty', title: '空箱の余白' }
+  });
+  const rareEncounterLog = [
+    { eventId: 'ordinary-meal', day: 12, naturalHit: true, pityForced: false, rareChance: 0.04, rareRoll: 0.0123, pityCounter: 4 },
+    { eventId: 'ordinary-meal', day: 37, naturalHit: false, pityForced: true, rareChance: 0.06, rareRoll: 0.82, pityCounter: 14 },
+    { eventId: 'second-player', day: 44, naturalHit: true, pityForced: false, rareChance: 0.07, rareRoll: 0.03, pityCounter: 6 }
+  ];
+  const result = records.makeRunResult(completed, {
+    completedAt: ISO_B, choices: [0, 1, 0], rareEncounterLog,
+    rareTotal: 3, naturalTotal: 2, pityTotal: 1, longestRareDrought: 14
+  });
+  expect(result.rareEncounterLog).toHaveLength(3);
+  expect(result.rareEncounterLog.filter(item => item.eventId === 'ordinary-meal')).toHaveLength(2);
+  expect(result.rareEncounterLog).toEqual(rareEncounterLog);
+  expect(result).toMatchObject({
+    rareEncounters: ['ordinary-meal', 'second-player'],
+    rareTotal: 3,
+    naturalTotal: 2,
+    pityTotal: 1,
+    longestRareDrought: 14
+  });
+  expect(records.normalizeHistory(JSON.parse(JSON.stringify([result])))[0].rareEncounterLog).toEqual(rareEncounterLog);
 });
 
 test('運命コードはgame version・mode・seed・明示選択列を決定論的に往復する', () => {

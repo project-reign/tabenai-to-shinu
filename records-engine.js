@@ -178,6 +178,27 @@
     return base;
   }
 
+  function normalizeRareEncounterLog(raw) {
+    return (Array.isArray(raw) ? raw : []).slice(0, 10000)
+      .filter(isObject)
+      .map(item => {
+        const eventId = safeText(item.eventId, 160);
+        if (!eventId) return null;
+        const rareChance = Number(item.rareChance);
+        const rareRoll = Number(item.rareRoll);
+        return {
+          eventId,
+          day: clamp(nonNegativeInteger(item.day), 0, 9999),
+          naturalHit: item.naturalHit === true,
+          pityForced: item.pityForced === true,
+          rareChance: Number.isFinite(rareChance) ? clamp(rareChance, 0, 1) : null,
+          rareRoll: Number.isFinite(rareRoll) ? clamp(rareRoll, 0, 1) : null,
+          pityCounter: nonNegativeInteger(item.pityCounter)
+        };
+      })
+      .filter(Boolean);
+  }
+
   function normalizeHistoryEntry(raw) {
     if (!isObject(raw)) return null;
     const input = clone(raw);
@@ -207,7 +228,17 @@
     input.consumed = nonNegativeInteger(input.consumed);
     input.refused = nonNegativeInteger(input.refused);
     input.beanRoute = safeText(input.beanRoute, 40) || null;
-    input.rareEncounters = uniqueStrings(input.rareEncounters);
+    input.rareEncounterLog = normalizeRareEncounterLog(input.rareEncounterLog);
+    input.rareEncounters = uniqueStrings([
+      ...(Array.isArray(input.rareEncounters) ? input.rareEncounters : []),
+      ...input.rareEncounterLog.map(item => item.eventId)
+    ]);
+    const loggedNatural = input.rareEncounterLog.filter(item => item.naturalHit && !item.pityForced).length;
+    const loggedPity = input.rareEncounterLog.filter(item => item.pityForced).length;
+    input.rareTotal = input.rareEncounterLog.length || nonNegativeInteger(input.rareTotal);
+    input.naturalTotal = input.rareEncounterLog.length ? loggedNatural : nonNegativeInteger(input.naturalTotal);
+    input.pityTotal = input.rareEncounterLog.length ? loggedPity : nonNegativeInteger(input.pityTotal);
+    input.longestRareDrought = nonNegativeInteger(input.longestRareDrought);
     input.finalDish = safeText(input.finalDish, 80) || null;
     input.finalBox = safeText(input.finalBox, 80) || null;
     input.broughtHome = safeText(input.broughtHome, 160) || null;
@@ -526,6 +557,11 @@
       memories: clone(isObject(run.memories) ? run.memories : {}),
       beanRoute: run.flags && run.flags.beanPossessed ? 'body' : (safeText(run.flags && run.flags.beanSoil, 20) || null),
       rareEncounters: clone(Array.isArray(details.rareEncounters) ? details.rareEncounters : []),
+      rareEncounterLog: clone(Array.isArray(details.rareEncounterLog) ? details.rareEncounterLog : []),
+      rareTotal: nonNegativeInteger(details.rareTotal),
+      naturalTotal: nonNegativeInteger(details.naturalTotal),
+      pityTotal: nonNegativeInteger(details.pityTotal),
+      longestRareDrought: nonNegativeInteger(details.longestRareDrought),
       milestones: clone(details.milestones || (run.survival && run.survival.milestoneSuccess) || {}),
       finalDish: safeText(details.finalDish || (run.flags && run.flags.selectedTrueDish), 80) || null,
       finalBox: safeText(details.finalBox || (run.survival && run.survival.finalBox), 80) || null,
@@ -978,9 +1014,15 @@
         name: options.keepTargetName ? undefined : source.name,
         activate: true
       });
-      workspace.codex = imported.workspace.codex;
-      workspace.history = imported.workspace.history;
-      workspace.dailyRecords = imported.workspace.dailyRecords;
+      if (imported.formatVersion < 3) {
+        workspace.codex = clone(current.codex);
+        workspace.history = clone(current.history);
+        workspace.dailyRecords = clone(current.dailyRecords);
+      } else {
+        workspace.codex = imported.workspace.codex;
+        workspace.history = imported.workspace.history;
+        workspace.dailyRecords = imported.workspace.dailyRecords;
+      }
       return { workspace, meta: imported.meta, endings: imported.endings, formatVersion: imported.formatVersion };
     }
     return { workspace: imported.workspace, meta: imported.meta, endings: imported.endings, formatVersion: imported.formatVersion };
@@ -1161,6 +1203,7 @@
     codexCounts,
     describeCodexEntry,
     normalizeHistory,
+    normalizeRareEncounterLog,
     makeRunId,
     makeRunResult,
     addRunHistory,

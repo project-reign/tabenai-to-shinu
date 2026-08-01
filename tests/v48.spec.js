@@ -460,7 +460,7 @@ test('同じ運命コードは同じseed・明示選択列から同じイベン�
     await page.locator('#fateOpenBtn').click();
     await page.locator('#fateCodeText').fill(code);
     await page.locator('#fatePreviewBtn').click();
-    await expect(page.locator('#fatePreview')).toContainText('SEED 487001');
+    await expect(page.locator('#fatePreview')).not.toContainText('SEED 487001');
     await expect(page.locator('#fatePreview')).toContainText('明示選択 5回');
     await page.locator('#fateStartBtn').click();
     await expect(page.locator('#slotScreen')).toBeVisible();

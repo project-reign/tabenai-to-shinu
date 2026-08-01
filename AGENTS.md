@@ -23,6 +23,7 @@
 - Once the slot workspace exists, legacy v2/v3 localStorage keys are historical input only. Never resurrect them after the last slot is deleted or an empty workspace is restored.
 - Save-transfer exports use `formatVersion: 3` and include slots, active slot, meta, endings, codex, run history, and daily records. Whole-workspace and single-slot exports are both required.
 - Continue accepting `formatVersion: 1` and `formatVersion: 2`; import their single run into `slot-1` exactly once. Accept `formatVersion: 3` without dropping its record collections.
+- `records-engine.applyTransfer()` itself must preserve the current codex, run history, and daily records for `formatVersion: 1` and `formatVersion: 2`; do not depend on a UI-layer restore after import.
 - Preview every import before writing it and identify every slot that will be overwritten. Do not mutate storage during preview.
 - Keep `tabenai-to-shinu-active-slot-v1`, `tabenai-to-shinu-run-history-v1`, `tabenai-to-shinu-codex-v1`, and `tabenai-to-shinu-daily-v1` synchronized with the slot workspace.
 - Normalize `recording.slotId` to the containing slot after imports and copies; stale embedded slot claims must not overwrite another slot during mirror recovery.
@@ -36,6 +37,7 @@
 - Persist first and last encounter time, encounter count, encountered modes, A/B counts, player-consumption count, refusal count, result IDs, and related asset IDs. Hidden undiscovered entries must not reveal their name, condition, or image.
 - Use stable receipts to make encounter, choice, daily-attempt, and daily-completion writes idempotent.
 - Keep at most 30 completed-run results and reject a duplicate `runId`. A run result must retain mode, seed, days, ending, title, HP, hunger, intake/refusal totals, companions, memories, bean route, rare encounters, milestones, final dish or box, brought-home item, newly unlocked achievements, explicit choices, and the choice timeline.
+- Preserve every rare occurrence in `rareEncounterLog`, including duplicate event IDs, day, natural/pity origin, rare chance/roll diagnostics, and pity counter. Also retain per-run rare/natural/pity totals and longest drought.
 - Generate `runId`, record receipts, fate codes, and daily seeds without `Math.random()` and without reading or consuming the saved game PRNG.
 - Fate codes must contain game version, mode, seed, and the explicit ordered 0/1 choices. Preview before starting, start in a newly selected slot, and preserve equal-code event, check, and ending reproducibility.
 - “今日の献立” uses SURVIVAL 50 and `fnv1a32-jst-v1` over the JST `YYYY-MM-DD`. It must work without a server, external API, current network access, or the game PRNG. The same JST date must yield the same seed on every device.
@@ -84,6 +86,8 @@
 ## Modes and title flow
 
 - Normal PWA startup opens the title screen; `?new=1`, `?data=1`, and `?resume=1` must remain subpath-safe shortcuts.
+- Release UI must not show raw seeds, exact roll values or percentages, internal scene/event/result/asset/achievement/bean codes, the daily hash algorithm, online status, cache revisions, or save-format versions. Use Japanese display names, narrative roll text, and visible risk labels instead. Diagnostic values may appear only when the default-off detailed-judgement setting or `?debug=1` is active.
+- Keep ONLINE hidden in normal operation; surface OFFLINE, update failure, and save failure. Player-facing labels are “メニュー”, “データ管理”, and “アプリ情報・更新”. Credits live under “設定 → このゲームについて”; the asset gallery has no normal-player navigation.
 - STORY 50 is the v4.3.0 game. HARD 50 may change difficulty modifiers, but not scene availability, refusal rights, binary choices, soil routes, dishes, or seeded determinism.
 - SURVIVAL 50 “怪食サバイバル” is playable. 100 DAYS and ENDLESS remain locked roadmap entries until their planned releases.
 - The in-game management menu must provide a non-destructive return to the title screen.

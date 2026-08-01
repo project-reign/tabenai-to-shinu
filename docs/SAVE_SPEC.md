@@ -98,8 +98,8 @@ slot workspaceが一度作成された後は、旧v2/v3 localStorage keyを再�
 
 | 入力 | 読み込むrun | slot配置 | 永続データ |
 | --- | --- | --- | --- |
-| `formatVersion`省略／`1` | `run`、なければ`state` | slot 1固定 | 入力に存在するmeta／endingsを移行し、欠落するcodex／history／dailyは現在の記録を保持 |
-| `formatVersion: 2` | `run`、なければ`state` | slot 1固定 | 入力に存在するmeta／endingsを移行し、欠落するcodex／history／dailyは現在の記録を保持 |
+| `formatVersion`省略／`1` | `run`、なければ`state` | slot 1固定 | 入力に存在するmeta／endingsを移行し、current codex／history／dailyは常に保持 |
+| `formatVersion: 2` | `run`、なければ`state` | slot 1固定 | 入力に存在するmeta／endingsを移行し、current codex／history／dailyは常に保持 |
 | `formatVersion: 3`, `scope: "slot"` | 収録された単一slot | previewで選んだ一つ、未指定なら元slot | meta／endings／codex／history／dailyを移行 |
 | `formatVersion: 3`, `scope: "all"` | 収録された全slot | 同じslot IDへ全体復元 | active slotと全collectionを復元 |
 
@@ -112,6 +112,8 @@ slot workspaceが一度作成された後は、旧v2/v3 localStorage keyを再�
 - 図鑑、履歴、日替わり記録の件数
 
 previewはlocalStorageを変更しません。上書き対象がある場合は確認後だけ適用します。不正なformat、未知のformatVersion、不正slot ID、runなしの旧形式、0／1以外の運命選択列は拒否します。
+
+v1／v2の記録保護はUIの読込処理ではなく `records-engine.applyTransfer()` の契約です。UI以外から同APIを呼んでも、既存のcodex、history、dailyRecordsを空の旧payloadで置き換えません。
 
 ## 永続図鑑
 
@@ -139,6 +141,22 @@ previewはlocalStorageを変更しません。上書き対象がある場合は�
 `Math.random()`、ゲームPRNG、画像、音声、現在の描画状態は使いません。同じ `runId` は二度登録せず、履歴は新しい順に最大30件です。
 
 結果はmode、seed、日数、ending、title、HP、hunger、選択数、摂取、拒否、companions、memories、白／赤／灰／身体豆route、rare encounters、milestones、final dish、final box、brought-home item、解除実績、明示選択列、timelineを保持します。結果カードの共有文と運命コードはこの保存済み結果から作ります。
+
+SURVIVALの各レア発生は `rareEncounterLog` に発生順のまま保存します。同一 `eventId` の再発も重複除去しません。
+
+```json
+{
+  "eventId": "ordinary-meal",
+  "day": 12,
+  "naturalHit": true,
+  "pityForced": false,
+  "rareChance": 0.04,
+  "rareRoll": 0.0123,
+  "pityCounter": 4
+}
+```
+
+履歴entryはこれに加えて `rareTotal`、`naturalTotal`、`pityTotal`、`longestRareDrought` を保持します。通常画面には日本語イベント名、総数、必要な発生日だけを表示し、`eventId`、natural/pity、chance、roll、counterは詳細な判定情報またはdebug表示だけに限定します。
 
 ## 運命コード
 
