@@ -48,6 +48,7 @@ const SOURCE_PATTERN = /^\.\/assets\/[A-Za-z0-9][A-Za-z0-9._/-]*$/;
 const CORE_SHELL_FILES = [
   'index.html',
   'survival-engine.js',
+  'records-engine.js',
   'music-engine.js',
   'presentation-engine.js',
   'manifest.webmanifest',
@@ -190,11 +191,11 @@ async function main() {
   }
   if (typeof manifest.manifestVersion !== 'string' || !VERSION_PATTERN.test(manifest.manifestVersion)) {
     fail(`manifestVersion must be a semantic version; received ${JSON.stringify(manifest.manifestVersion)}.`);
-  } else if (typeof packageJson.version === 'string') {
-    const manifestRelease = manifest.manifestVersion.split(/[+-]/, 1)[0];
-    if (manifestRelease !== packageJson.version) {
-      fail(`manifestVersion release ${manifestRelease} does not match package version ${packageJson.version}.`);
-    }
+  } else if (typeof packageJson.assetManifestVersion !== 'string'
+    || !VERSION_PATTERN.test(packageJson.assetManifestVersion)) {
+    fail(`package assetManifestVersion must be a semantic version; received ${JSON.stringify(packageJson.assetManifestVersion)}.`);
+  } else if (manifest.manifestVersion !== packageJson.assetManifestVersion) {
+    fail(`manifestVersion ${manifest.manifestVersion} does not match package assetManifestVersion ${packageJson.assetManifestVersion}.`);
   }
 
   const budgets = isObject(manifest.budgets) ? manifest.budgets : {};
@@ -537,6 +538,7 @@ async function main() {
     schemaVersion: manifest.schemaVersion ?? null,
     manifestVersion: manifest.manifestVersion ?? null,
     packageVersion: packageJson.version ?? null,
+    packageAssetManifestVersion: packageJson.assetManifestVersion ?? null,
     counts: {
       assets: assetRows.length,
       referencedAssets: referenced.size,

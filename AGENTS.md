@@ -7,21 +7,42 @@
 - Preserve the white-soil, red-soil, gray-soil, and body-germination bean routes.
 - Keep all four final dishes reachable through two successive binary choices.
 - Keep all four SURVIVAL final boxes reachable through two binary stages followed by open or refuse.
-- Preserve all 23 existing achievements, ending records, aggregate statistics, and settings.
+- Preserve all 23 pre-v4.8 achievements, ending records, aggregate statistics, settings, and every v4.8 record-system addition.
 - All random decisions must use the saved seeded PRNG. Do not use `Math.random()` for game outcomes.
 - Presentation assets, audio, animation, haptics, and their load timing must never read, consume, or change the game PRNG or game state.
 
 ## Save compatibility
 
-- `tabenai-to-shinu-50days-v4` is the canonical save key.
+- `tabenai-to-shinu-run-slots-v1` is the three-slot workspace store. Keep exactly `slot-1`, `slot-2`, and `slot-3`; all modes may occupy any slot.
+- `tabenai-to-shinu-50days-v4` remains the canonical legacy compatibility key and must mirror the active slot. Existing consumers must never see a record-only wrapper in place of the run object.
 - State schema `version: 4` is shared with v4.2.1 and must remain readable.
 - Saves without a mode must normalize to `mode: "story"`; STORY 50 must retain v4.3.0 behavior.
 - `tabenai-to-shinu-meta-v1` stores persistent achievements, endings, aggregate statistics, and settings independently of the active run.
 - Resetting or replacing a run must never erase the meta save.
-- Save-transfer JSON must include both the active run and meta save, while continuing to accept `formatVersion: 1` and `formatVersion: 2`.
+- Migrate a pre-v4.8 single run to `slot-1` once only. Persist `tabenai-to-shinu-run-slots-migrated-v1`; never duplicate the run on a later startup.
+- Once the slot workspace exists, legacy v2/v3 localStorage keys are historical input only. Never resurrect them after the last slot is deleted or an empty workspace is restored.
+- Save-transfer exports use `formatVersion: 3` and include slots, active slot, meta, endings, codex, run history, and daily records. Whole-workspace and single-slot exports are both required.
+- Continue accepting `formatVersion: 1` and `formatVersion: 2`; import their single run into `slot-1` exactly once. Accept `formatVersion: 3` without dropping its record collections.
+- Preview every import before writing it and identify every slot that will be overwritten. Do not mutate storage during preview.
+- Keep `tabenai-to-shinu-active-slot-v1`, `tabenai-to-shinu-run-history-v1`, `tabenai-to-shinu-codex-v1`, and `tabenai-to-shinu-daily-v1` synchronized with the slot workspace.
+- Normalize `recording.slotId` to the containing slot after imports and copies; stale embedded slot claims must not overwrite another slot during mirror recovery.
 - App SemVer and save schema version are separate concepts.
 - Add migrations before removing or renaming scenes, flags, memories, companions, or statistics.
 - Never clear localStorage during an app update.
+
+## Records and replay invariants
+
+- Codex categories are `foods`, `events`, `characters`, and `endings`. Unlock only from a committed real-run encounter or choice; debug rendering, previews, reloads, and repeated rendering must not discover or increment an entry.
+- Persist first and last encounter time, encounter count, encountered modes, A/B counts, player-consumption count, refusal count, result IDs, and related asset IDs. Hidden undiscovered entries must not reveal their name, condition, or image.
+- Use stable receipts to make encounter, choice, daily-attempt, and daily-completion writes idempotent.
+- Keep at most 30 completed-run results and reject a duplicate `runId`. A run result must retain mode, seed, days, ending, title, HP, hunger, intake/refusal totals, companions, memories, bean route, rare encounters, milestones, final dish or box, brought-home item, newly unlocked achievements, explicit choices, and the choice timeline.
+- Generate `runId`, record receipts, fate codes, and daily seeds without `Math.random()` and without reading or consuming the saved game PRNG.
+- Fate codes must contain game version, mode, seed, and the explicit ordered 0/1 choices. Preview before starting, start in a newly selected slot, and preserve equal-code event, check, and ending reproducibility.
+- “今日の献立” uses SURVIVAL 50 and `fnv1a32-jst-v1` over the JST `YYYY-MM-DD`. It must work without a server, external API, current network access, or the game PRNG. The same JST date must yield the same seed on every device.
+- Keep daily first-start time, attempts, best day, clear state, latest death reason, choice count, and stable attempt/completion receipts.
+- Treat storage corruption per key: keep readable records, normalize invalid data to safe defaults, and surface a warning without clearing unrelated data.
+- On quota pressure, compact oldest completed-run timelines first and then remove oldest completed-run records. Never sacrifice active slot runs, meta, codex, daily records, settings, or the legacy active-slot mirror to preserve optional history detail.
+- Keep the complete storage contract in `docs/SAVE_SPEC.md` synchronized with code and tests.
 
 ## PWA and GitHub Pages
 

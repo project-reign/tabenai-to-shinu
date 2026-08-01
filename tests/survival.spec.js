@@ -42,15 +42,22 @@ async function waitForDebug(page) {
   await expect.poll(() => page.evaluate(() => Boolean(globalThis.__TABENAI_DEBUG__))).toBe(true);
 }
 
-async function importTransfer(page, payload) {
+async function importTransfer(page, payload, targetSlot = 'slot-1') {
   await page.evaluate(() => globalThis.__TABENAI_DEBUG__.screen('title'));
   await page.locator('.title-manage > summary').click();
   await page.locator('#titleDataBtn').click();
+  await page.locator('#importTargetSlot').selectOption(targetSlot);
   await page.locator('#saveTransferText').fill(JSON.stringify(payload));
-  await Promise.all([
-    page.waitForEvent('load'),
-    page.locator('#importSaveBtn').click()
-  ]);
+  const acceptOverwrite = dialog => dialog.accept();
+  page.on('dialog', acceptOverwrite);
+  try {
+    await Promise.all([
+      page.waitForEvent('load'),
+      page.locator('#importSaveBtn').click()
+    ]);
+  } finally {
+    page.off('dialog', acceptOverwrite);
+  }
   await waitForDebug(page);
 }
 
@@ -223,7 +230,7 @@ test('抽選済みイベントIDをセーブし、再読込で再抽選もPRNG�
   expect(after.state.survival).toEqual(before.state.survival);
 });
 
-test('SURVIVAL run・実績・記録をformatVersion 2で往復し、formatVersion 1と旧metaも維持する', async ({ page }) => {
+test('SURVIVAL run・実績・記録をformatVersion 3で往復し、formatVersion 1／2と旧metaも維持する', async ({ page }) => {
   await page.evaluate(({ metaKey }) => {
     localStorage.setItem(metaKey, JSON.stringify({
       version: 1,
@@ -264,7 +271,10 @@ test('SURVIVAL run・実績・記録をformatVersion 2で往復し、formatVersi
   }, { achievementIds: SURVIVAL_ACHIEVEMENTS.map(([id]) => id) });
 
   const currentId = prepared.current.eventId || prepared.current.id;
-  expect(prepared.payload.formatVersion).toBe(2);
+  expect(prepared.payload.formatVersion).toBe(3);
+  expect(prepared.payload.scope).toBe('all');
+  expect(prepared.payload.slots).toHaveLength(3);
+  expect(prepared.payload.slots.find(slot => slot.id === prepared.payload.activeSlotId).run.mode).toBe('survival');
   expect(prepared.payload.run.mode).toBe('survival');
   expect(JSON.stringify(prepared.payload.run)).toContain(currentId);
   expect(prepared.payload.meta.stats.survival.rareEvents).toBe(7);
@@ -310,6 +320,37 @@ test('SURVIVAL run・実績・記録をformatVersion 2で往復し、formatVersi
   for (const [id] of SURVIVAL_ACHIEVEMENTS) {
     expect(legacy.meta.achievements[id]).toBeTruthy();
   }
+
+  const legacyV2 = {
+    format: 'tabenai-save',
+    formatVersion: 2,
+    appVersion: '4.7.0',
+    exportedAt: '2026-07-31T23:59:59.000Z',
+    run: {
+      version: 4,
+      mode: 'survival',
+      seed: 4_700_002,
+      rngState: 777_777,
+      scene: 'survival',
+      day: 17,
+      hp: 64,
+      hunger: 58,
+      choiceCount: 16,
+      survival: restored.state.survival
+    },
+    meta: restored.meta,
+    endings: prepared.payload.endings
+  };
+  await importTransfer(page, legacyV2);
+  const restoredV2 = await page.evaluate(() => ({
+    state: globalThis.__TABENAI_DEBUG__.snapshot(),
+    records: globalThis.__TABENAI_DEBUG__.records()
+  }));
+  expect(restoredV2.state.mode).toBe('survival');
+  expect(restoredV2.state.seed).toBe(4_700_002);
+  expect(restoredV2.records.activeSlotId).toBe('slot-1');
+  expect(restoredV2.records.slots.find(slot => slot.id === 'slot-1').run.seed).toBe(4_700_002);
+  expect(restoredV2.records.slots.find(slot => slot.id === 'slot-2').run).toBeNull();
 });
 
 test('追加実績を記録画面へ表示し、再起動後も保持する', async ({ page }) => {
@@ -329,7 +370,8 @@ test('追加実績を記録画面へ表示し、再起動後も保持する', as
   for (const [id, name] of SURVIVAL_ACHIEVEMENTS) {
     await expect(page.locator(`[data-achievement="${id}"]`)).toContainText(name);
   }
-  await expect(page.locator('[data-achievement]')).toHaveCount(23);
+  const achievementCount = await page.locator('[data-achievement]').count();
+  expect(achievementCount).toBeGreaterThanOrEqual(33);
 });
 
 test('iPhone 390×844で怪食サバイバルを開始し、二択へ短く到達できる', async ({ page }) => {
@@ -338,6 +380,11 @@ test('iPhone 390×844で怪食サバイバルを開始し、二択へ短く到�
   await page.locator('#newGameBtn').click();
   await expect(page.locator('#modeSurvivalBtn')).toContainText('怪食サバイバル');
   await page.locator('#modeSurvivalBtn').click();
+  await expect(page.locator('#slotScreen')).toBeVisible();
+  await Promise.all([
+    page.waitForEvent('load'),
+    page.locator('[data-slot-start="slot-1"]').click()
+  ]);
 
   await expect(page.locator('#gameScreen')).toBeVisible();
   await expect(page.locator('#modeBadge')).toHaveText('SURVIVAL 50');

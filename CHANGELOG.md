@@ -1,5 +1,39 @@
 # Changelog
 
+## [4.8.0] - 2026-08-01
+
+### Added
+
+- “食卓の記憶庫” three-slot save workspace for STORY 50, HARD 50, and SURVIVAL 50, with mode/day/HP/hunger/seed/scene/companions/last-played summaries plus overwrite confirmation, deletion, duplication, and rename operations.
+- A persistent four-tab codex for foods, events, companions/entities, and endings. Committed real-run receipts track first/last encounter, encounter count, modes, A/B choices, player intake, refusals, result IDs, and related asset IDs without render/reload duplication or debug unlocks.
+- Detailed completed-run results and a newest-first history capped at 30 unique run IDs, including mode, seed, days, ending/title, HP, hunger, intake/refusals, companions, memories, bean route, rare encounters, milestones, final dish/box, brought-home item, unlocked achievements, explicit choices, and timeline.
+- Previewable fate codes containing game version, mode, seed, and ordered explicit choices, with deterministic replay into a selected new slot and no game-PRNG consumption by code or run-ID generation.
+- Offline “今日の献立” SURVIVAL 50 attempts using the stable `fnv1a32-jst-v1` hash of the JST date, with persistent attempts, best day, clear state, death reason, and choice count. `2026-08-01` maps to seed `1264873921`.
+- At least ten persistent record-system achievements for codex progress, three-slot use, fate replay, daily play/clear, cumulative refusals, and detailed-result storage, while retaining all 23 prior achievements.
+- `records-engine.js` as a pure record/storage layer and `docs/SAVE_SPEC.md` as the versioned localStorage, migration, quota, replay, and offline contract.
+
+### Changed
+
+- Updated the displayed application and build metadata to v4.8.0 without changing run schema `version: 4`.
+- New save-transfer exports use `formatVersion: 3` and support whole-workspace or single-slot scope. They include slots, active slot, meta, endings, codex, run history, and daily records, and show a content/overwrite preview before import.
+- Reorganized the records screen into achievements, codex, endings, run history, and aggregate-statistics tabs, with deferred rendering for large lists and iPhone 390×844-safe wrapping.
+- Kept the active slot mirrored as a raw run at `tabenai-to-shinu-50days-v4` while storing the three-slot workspace and record collections under dedicated v4.8 keys.
+- Added quota-aware degradation that compacts oldest result timelines and then removes oldest completed results before permitting optional history to endanger active runs or persistent collections.
+
+### Compatibility
+
+- Migrates an existing single `tabenai-to-shinu-50days-v4` run to `slot-1` once and records a migration marker so later startups cannot duplicate it.
+- Continues to import `formatVersion: 1` and `formatVersion: 2` single-run backups into `slot-1`, and accepts `formatVersion: 3` whole-workspace and single-slot backups.
+- Preserves `tabenai-to-shinu-meta-v1`, old meta normalization, all prior endings/statistics/settings, and run schema `version: 4`; application SemVer, workspace version, run schema, fate-code version, and transfer format remain independent.
+- Does not change `survival-engine.js`, STORY/HARD canonical behavior, or any SURVIVAL seeded event, check, ending, or 50,005-run simulation result. Record IDs, receipts, fate codes, and daily seeds neither use `Math.random()` nor consume the saved game PRNG.
+- Preserves exactly two choices, every refusal, white/red/gray/body bean routes, four STORY dishes, four SURVIVAL boxes and final refusal, 41 formal art assets, six BGM themes, thirteen SE cues, fallback play, explicit updates, and fully offline relaunch.
+
+### Validation
+
+- Retained all 61 pre-v4.8 Playwright tests without deleting or weakening game, save, simulation, presentation, PWA, offline, failure-injection, and responsive-layout coverage.
+- Added deterministic record-engine and browser coverage for one-time legacy migration, three isolated slots and operations, active mirror, transfer formats 1/2/3 and preview, committed-only codex receipts, undiscovered/hidden display, A/B/intake/refusal counts, 30-result cap, fate replay, JST boundaries, offline daily play, and storage corruption/quota degradation, for 102 Playwright tests total.
+- Re-runs formal asset validation, the full Playwright suite with one worker, the production build, STORY/HARD canonical digest checks, and all 50,005 SURVIVAL policy simulations.
+
 ## [4.7.0] - 2026-08-01
 
 ### Added

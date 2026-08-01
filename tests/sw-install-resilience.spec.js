@@ -136,7 +136,7 @@ test('初回installでasset manifestが503でもcore shellがactivateしoffline�
   expect(failureHits.manifest).toBeGreaterThan(0);
   const cacheState = await page.evaluate(async () => {
     const names = await caches.keys();
-    const coreName = names.find(name => name === 'tabenai-to-shinu-core-4.7.0-r1');
+    const coreName = names.find(name => name === 'tabenai-to-shinu-core-4.8.0');
     const indexUrl = new URL('./index.html', location.href).href;
     const manifestUrl = new URL('./assets/manifest.json', location.href).href;
     return {
@@ -145,7 +145,7 @@ test('初回installでasset manifestが503でもcore shellがactivateしoffline�
       manifestCached: Boolean(await caches.match(manifestUrl))
     };
   });
-  expect(cacheState.names).toContain('tabenai-to-shinu-core-4.7.0-r1');
+  expect(cacheState.names).toContain('tabenai-to-shinu-core-4.8.0');
   expect(cacheState.coreHasIndex).toBe(true);
   expect(cacheState.manifestCached).toBe(false);
 
@@ -174,8 +174,8 @@ test('presentation precacheのSVG 1枚が404でもcoreをactivateし404を保存
       healthyCached: Boolean(await caches.match(healthyUrl))
     };
   });
-  expect(cacheState.names).toContain('tabenai-to-shinu-core-4.7.0-r1');
-  expect(cacheState.names).toContain('tabenai-to-shinu-presentation-4.7.0-r1');
+  expect(cacheState.names).toContain('tabenai-to-shinu-core-4.8.0');
+  expect(cacheState.names).toContain('tabenai-to-shinu-presentation-4.8.0');
   expect(cacheState.failedCached).toBe(false);
   expect(cacheState.healthyCached).toBe(true);
 
