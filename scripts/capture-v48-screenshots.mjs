@@ -141,17 +141,12 @@ async function seedShowcase(page) {
       choiceCount: 50,
       startedAt: '2026-07-30T15:00:00.000Z',
       lastPlayedAt: '2026-08-01T02:55:00.000Z',
-      ending: { code: 'survival-preserved', title: '保存食を抱く生還者' }
+      ending: { code: 'survival_preserved', title: '保存食を抱く生還者' }
     });
     completed.stats.ate = 22;
     completed.stats.skipped = 13;
     Object.assign(completed.companions, { tako: true, jr: true, beanChild: true });
-    completed.memories = {
-      firstStockpile: true,
-      companionSeat: true,
-      futurePlan: true,
-      managerApproved: true
-    };
+    completed.memories = { tako: true, birthday: true, entryReason: true, fakeChef: false, lastLost: null };
     Object.assign(completed.flags, { beanSoil: 'red', selectedTrueDish: 'soup' });
     if (completed.survival) {
       completed.survival.finalBox = 'preserved';
@@ -182,12 +177,20 @@ async function seedShowcase(page) {
       completedAt: '2026-08-01T03:00:00.000Z',
       choices,
       timeline,
-      rareEncounters: ['完全に普通の定食', '森の管理者'],
+      rareEncounters: ['ordinary-meal', 'forest-manager'],
+      rareEncounterLog: [
+        { eventId: 'ordinary-meal', day: 25, naturalHit: true, pityForced: false, rareChance: 0.05, rareRoll: 0.0123, pityCounter: 5 },
+        { eventId: 'forest-manager', day: 37, naturalHit: false, pityForced: true, rareChance: 0.06, rareRoll: 0.7345, pityCounter: 14 }
+      ],
+      rareTotal: 2,
+      naturalTotal: 1,
+      pityTotal: 1,
+      longestRareDrought: 14,
       milestones: { day10: true, day20: true, day30: true, day40: true },
-      finalDish: '空のスープ',
-      finalBox: '保存食の箱',
+      finalDish: 'soup',
+      finalBox: 'preserved',
       broughtHome: '森の保存食と未来の献立表',
-      unlockedAchievements: ['野生の50日', '詳細リザルト保存']
+      unlockedAchievements: ['wild_fifty', 'result_saved']
     });
     workspace.history = records.addRunHistory(workspace.history, result).history;
     workspace.dailyRecords = records.updateDailyRecord(workspace.dailyRecords, {
@@ -210,6 +213,11 @@ async function capture(page, name) {
   await page.screenshot({ path: resolve(outputDir, name), fullPage: false });
 }
 
+async function openRelease(page) {
+  await page.goto(appUrl, { waitUntil: 'networkidle' });
+  await page.addStyleTag({ content: '*,*::before,*::after{animation:none!important;transition:none!important}' });
+}
+
 const server = await ensureServer();
 const browser = await chromium.launch({ headless: true });
 
@@ -229,37 +237,50 @@ try {
   await page.waitForFunction(() => Boolean(globalThis.__TABENAI_DEBUG__ && globalThis.TabenaiRecords));
   await page.addStyleTag({ content: '*,*::before,*::after{animation:none!important;transition:none!important}' });
   await seedShowcase(page);
+  const showcase = await page.evaluate(() => {
+    const api = globalThis.__TABENAI_DEBUG__;
+    const records = globalThis.TabenaiRecords;
+    const workspace = api.records();
+    return {
+      catalog: Object.fromEntries(['foods', 'events', 'characters', 'endings']
+        .map(category => [category, api.catalog(category).length])),
+      discovered: records.codexCounts(workspace.codex),
+      history: workspace.history.length,
+      storageBytes: records.estimateStorageBytes(records.encodeStorage(workspace))
+    };
+  });
+  await openRelease(page);
 
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.evaluate(() => globalThis.__TABENAI_DEBUG__.screen('title'));
   await capture(page, 'title.png');
 
   await page.setViewportSize({ width: 1440, height: 960 });
-  await page.evaluate(() => globalThis.__TABENAI_DEBUG__.screen('title'));
   await page.locator('#continueBtn').click();
   await page.locator('.slot-card').first().waitFor({ state: 'visible' });
   await capture(page, 'slots.png');
 
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.evaluate(() => globalThis.__TABENAI_DEBUG__.screen('records'));
+  await openRelease(page);
+  await page.locator('#recordsBtn').click();
   await page.locator('[data-record-tab="codex"]').click();
   await page.waitForFunction(() => Number(document.querySelector('#codexGrid')?.dataset.renderedCount || 0) >= 20);
   await capture(page, 'codex.png');
 
   await page.setViewportSize({ width: 1440, height: 960 });
-  await page.evaluate(() => globalThis.__TABENAI_DEBUG__.screen('records'));
+  await openRelease(page);
+  await page.locator('#recordsBtn').click();
   await page.locator('[data-record-tab="history"]').click();
   await page.locator('.history-card').waitFor({ state: 'visible' });
   await page.locator('.history-card details').evaluate(element => { element.open = true; });
   await capture(page, 'detailed-result.png');
 
-  await page.evaluate(() => globalThis.__TABENAI_DEBUG__.screen('title'));
+  await openRelease(page);
   await page.locator('#dailyStartBtn').click();
   await page.locator('.slot-card').first().waitFor({ state: 'visible' });
   await capture(page, 'daily-menu.png');
 
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.evaluate(() => globalThis.__TABENAI_DEBUG__.screen('title'));
+  await openRelease(page);
   await page.locator('#newGameBtn').click();
   await page.locator('#fateOpenBtn').click();
   const fateCode = await page.evaluate(() => globalThis.TabenaiRecords.encodeFateCode({
@@ -273,18 +294,6 @@ try {
   await page.locator('#fatePreview').waitFor({ state: 'visible' });
   await capture(page, 'fate-code.png');
 
-  const showcase = await page.evaluate(() => {
-    const api = globalThis.__TABENAI_DEBUG__;
-    const records = globalThis.TabenaiRecords;
-    const workspace = api.records();
-    return {
-      catalog: Object.fromEntries(['foods', 'events', 'characters', 'endings']
-        .map(category => [category, api.catalog(category).length])),
-      discovered: records.codexCounts(workspace.codex),
-      history: workspace.history.length,
-      storageBytes: records.estimateStorageBytes(records.encodeStorage(workspace))
-    };
-  });
   process.stdout.write(`Showcase records: ${JSON.stringify(showcase)}\n`);
 
   await context.close();

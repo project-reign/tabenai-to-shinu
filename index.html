@@ -1917,7 +1917,10 @@
   }
 
   function displayMemoryName(id) {
-    return ({ tako: '寄生タコの記憶', lastLost: '失われた最後の記憶', fakeChef: '偽りの料理人', join: '結び直した記憶' }[id]) || '名もない記憶';
+    return ({
+      tako: '寄生タコの記憶', birthday: '失った誕生日の記憶', entryReason: '森へ来た理由',
+      lastLost: '失われた最後の記憶', fakeChef: '偽りの料理人', join: '結び直した記憶'
+    }[id]) || '名もない記憶';
   }
 
   function displayEventName(id) {
@@ -1934,7 +1937,9 @@
   }
 
   function historyCardMarkup(result) {
-    const companions = Object.entries(result.companions || {}).filter(([, value]) => !!value).map(([key]) => displayCompanionName(key));
+    const companions = Object.entries(result.companions || {})
+      .filter(([key, value]) => ['tako', 'jr', 'beanChild', 'clone'].includes(key) && !!value)
+      .map(([key]) => displayCompanionName(key));
     const memories = Object.entries(result.memories || {}).filter(([, value]) => !!value).map(([key]) => displayMemoryName(key));
     const milestoneCount = Object.values(result.milestones || {}).filter(Boolean).length;
     const rareLog = RECORDS.normalizeRareEncounterLog(result.rareEncounterLog);
