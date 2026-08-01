@@ -2552,6 +2552,16 @@
   }
   $('bgmVolumeSetting').addEventListener('input', saveSettingsFromControls);
   $('seVolumeSetting').addEventListener('input', saveSettingsFromControls);
+  const bindMenuCue = details => {
+    const summary = details && details.querySelector(':scope > summary');
+    if (!summary) return;
+    summary.addEventListener('click', async event => {
+      if (!event.isTrusted || details.open || silentMode || !presentation) return;
+      if (await presentation.unlockAudio()) presentation.action('menu');
+    });
+  };
+  bindMenuCue(document.querySelector('.title-manage'));
+  bindMenuCue($('appMenu'));
   $('titleInstallBtn').addEventListener('click', () => $('installBtn').click());
   $('titleDataBtn').addEventListener('click', () => $('dataBtn').click());
   $('titleShareBtn').addEventListener('click', shareGame);

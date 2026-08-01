@@ -417,7 +417,9 @@
     action(kind, options = {}) {
       const action = options.warning
         ? 'warning'
-        : (kind === 'skip' ? 'refuse' : (['eat', 'drink', 'medicine'].includes(kind) ? 'consume' : 'choice'));
+        : (kind === 'menu'
+            ? 'menu'
+            : (kind === 'skip' ? 'refuse' : (['eat', 'drink', 'medicine'].includes(kind) ? 'consume' : 'choice')));
       const key = this.registry.action(action) || this.registry.action('choice');
       this.cue(key);
       this.haptic(options.warning ? 'warning' : 'choice');

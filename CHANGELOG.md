@@ -20,6 +20,7 @@
 - Connected the white-, red-, gray-, and body-germinated bean portraits to the live STORY/HARD route state through presentation-only manifest variants, while preserving explicit scene characters such as Tako and Jr.
 - Corrected Tako to eight tentacles and a can hat, aligned Jr.'s alt with its amber medicine bag, and redrew the full-heal drop as a wrapped golden drop candy.
 - Kept audio locked until the first trusted user gesture, pause/resume on visibility changes, independent BGM/SE volume and mute, reduced motion, capability-gated haptics, and an explicitly labelled light mode that omits images and reduces BGM note density without changing the track, duration, or loop.
+- Connected the title and in-game management menus to the dedicated `se.menu` cue on trusted open actions, and advanced the internal Service Worker cache revision so the correction remains behind the explicit update operation.
 
 ### Compatibility
 
@@ -31,7 +32,7 @@
 
 ### Validation
 
-- Retained all 46 pre-v4.7 Playwright tests without deleting or weakening game, save, simulation, PWA, offline, update, failure-injection, and iPhone coverage, and added 14 v4.7 tests for 60 total.
+- Retained all 46 pre-v4.7 Playwright tests without deleting or weakening game, save, simulation, PWA, offline, update, failure-injection, and iPhone coverage, and added 15 v4.7 tests for 61 total.
 - Added exhaustive formal-asset reference, MIME, dimensions, Japanese accessibility metadata, semantic alt/subject, license, orphan-file, external-resource, and encoded-byte-budget validation.
 - Added six-theme playback, loop/non-loop, volume, mute, first-gesture, visibility, offline, and synthesis/decode failure coverage, plus all thirteen SE trigger checks.
 - Added credits, gallery, reduced-motion, bean-route portrait, light-mode image/BGM, iPhone 390×844, desktop, manifest 503, visual/audio 404, decode-failure, complete-offline, and zero normal-launch browser warning/error coverage.
