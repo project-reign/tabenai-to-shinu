@@ -203,6 +203,10 @@
       this.scheduledVoices = 0;
       this.skippedVoices = 0;
       this.sessionSerial = 0;
+      this.schedulerStarts = 0;
+      this.schedulerRestarts = 0;
+      this.flushCount = 0;
+      this.lastResumeFadeSeconds = 0;
       this.destroyed = false;
       if (options.audioContext) this.attach(options.audioContext, options.destination);
     }
@@ -284,11 +288,13 @@
       }
     }
 
-    _startScheduler(session = this.session) {
+    _startScheduler(session = this.session, restarted = false) {
       if (!session || session.retired || session.finished || this.muted || !this.visible) return;
       if (session.timer !== null) return;
       this._schedule(session);
       session.timer = this._unref(setInterval(() => this._schedule(session), this.scheduleIntervalMs));
+      this.schedulerStarts += 1;
+      if (restarted) this.schedulerRestarts += 1;
     }
 
     _makeSession(key, startStep = 0) {
@@ -423,6 +429,32 @@
       }
     }
 
+    _flushScheduledVoices() {
+      const session = this.session;
+      const hadScheduler = Boolean(session && session.timer !== null);
+      const hadVoices = this.voices.size > 0;
+      this._clearScheduler(session);
+      const now = this._now();
+      for (const voice of [...this.voices]) {
+        try {
+          if (voice.gain && voice.gain.gain) {
+            if (typeof voice.gain.gain.cancelScheduledValues === 'function') {
+              voice.gain.gain.cancelScheduledValues(now);
+            }
+            voice.gain.gain.setValueAtTime(SILENCE, now);
+          }
+        } catch (_) {}
+        try { voice.oscillator.stop(now); } catch (_) {}
+        this._releaseVoice(voice);
+      }
+      if (session && !session.retired && !session.finished) {
+        session.nextTime = now + 0.09;
+        session.state = 'paused';
+      }
+      if (hadScheduler || hadVoices) this.flushCount += 1;
+      return hadScheduler || hadVoices;
+    }
+
     _retireSession(session, fade = CROSSFADE_SECONDS) {
       if (!session || session.retired) return;
       session.retired = true;
@@ -499,31 +531,45 @@
       return { volume: this.volume, muted: this.muted, lightVisuals: this.lightVisuals };
     }
 
-    setVisible(value) {
+    setVisible(value, options = {}) {
       const next = value !== false;
-      if (next === this.visible) return this.visible;
+      if (next === this.visible) {
+        if (!next && options.flush === true) this._flushScheduledVoices();
+        return this.visible;
+      }
       this.visible = next;
-      this._rampMaster(this._now(), next ? 0.18 : 0.06);
-      if (!next) this._clearScheduler();
-      else this._resumeScheduling();
+      const fadeSeconds = clamp(options.fadeSeconds ?? (next ? 0.18 : 0.06), 0.005, 2);
+      this._rampMaster(this._now(), fadeSeconds);
+      if (!next) {
+        if (options.flush === true) this._flushScheduledVoices();
+        else this._clearScheduler();
+      } else {
+        this.lastResumeFadeSeconds = fadeSeconds;
+        this._resumeScheduling({ leadSeconds: options.leadSeconds, restarted: true });
+      }
       return this.visible;
     }
 
-    pause() {
-      this.setVisible(false);
+    pause(options = {}) {
+      this.setVisible(false, { ...options, flush: options.flush !== false });
       return true;
     }
 
-    resume() {
-      this.setVisible(true);
+    resume(options = {}) {
+      this.setVisible(true, {
+        ...options,
+        fadeSeconds: options.fadeSeconds ?? 0.28,
+        leadSeconds: options.leadSeconds ?? 0.09
+      });
       return this.supported && !this.muted;
     }
 
-    _resumeScheduling() {
+    _resumeScheduling(options = {}) {
       const session = this.session;
       if (!session || session.retired || session.finished || this.muted || !this.visible) return;
-      session.nextTime = Math.max(session.nextTime, this._now() + 0.035);
-      this._startScheduler(session);
+      session.nextTime = this._now() + clamp(options.leadSeconds ?? 0.035, 0.02, 0.5);
+      session.state = 'playing';
+      this._startScheduler(session, options.restarted === true);
     }
 
     _disposeNodes(fade = 0.02) {
@@ -562,6 +608,11 @@
         peakVoices: this.peakVoices,
         scheduledVoices: this.scheduledVoices,
         skippedVoices: this.skippedVoices,
+        schedulerActive: Boolean(this.session && this.session.timer !== null),
+        schedulerStarts: this.schedulerStarts,
+        schedulerRestarts: this.schedulerRestarts,
+        flushCount: this.flushCount,
+        lastResumeFadeSeconds: this.lastResumeFadeSeconds,
         loopCount: this.session ? this.session.loopCount : 0,
         failureCount: this.failureCount,
         lastError: this.lastError,
