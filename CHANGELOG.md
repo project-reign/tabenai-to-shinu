@@ -22,6 +22,7 @@
 - Separated the release UI from diagnostics: raw seeds, roll values, exact percentages, internal IDs, online status, cache/save-format details, and daily-hash internals are hidden by default. Release choices use narrative outcomes and Japanese risk labels; explicit diagnostics remain available through the default-off detailed-judgement setting or `?debug=1`.
 - Renamed player-facing navigation to “メニュー”, “データ管理”, and “アプリ情報・更新”; moved credits below “設定 → このゲームについて” and removed the development asset gallery from normal navigation.
 - Detailed SURVIVAL results now preserve every rare occurrence, including repeated event IDs, day, natural/pity origin, diagnostic chance/roll/counter, totals, and longest drought. Player cards show Japanese event names and counts while raw diagnostics remain opt-in.
+- Completed the release-language pass: STORY outcomes describe deterministic memory loss as “同じ運命”, data management names the persistent player records instead of internal meta terminology, aggregate statistics show a plain-language capacity state, and the daily title uses “日本時間”. Exact storage and replay diagnostics remain opt-in.
 
 ### Compatibility
 
@@ -34,7 +35,7 @@
 ### Validation
 
 - Retained all 61 pre-v4.8 Playwright tests without deleting or weakening game, save, simulation, presentation, PWA, offline, failure-injection, and responsive-layout coverage.
-- Added deterministic record-engine and browser coverage for one-time legacy migration, three isolated slots and operations, active mirror, transfer formats 1/2/3 and preview, committed-only codex receipts, undiscovered/hidden display, A/B/intake/refusal counts, 30-result cap, fate replay, JST boundaries, offline daily play, storage corruption/quota degradation, release/debug separation, v1/v2 record preservation, repeated rare logs, and iPhone layout, for 108 Playwright tests total.
+- Added deterministic record-engine and browser coverage for one-time legacy migration, three isolated slots and operations, active mirror, transfer formats 1/2/3 and preview, committed-only codex receipts, undiscovered/hidden display, A/B/intake/refusal counts, 30-result cap, fate replay, JST boundaries, offline daily play, storage corruption/quota degradation, release/debug separation across title/settings/game/records/data-management/ending screens, v1/v2 record preservation, repeated rare logs, and iPhone layout, for 109 Playwright tests total.
 - Re-runs formal asset validation, the full Playwright suite with one worker, the production build, STORY/HARD canonical digest checks, and all 50,005 SURVIVAL policy simulations.
 
 ## [4.7.0] - 2026-08-01

@@ -342,7 +342,7 @@
         <button class="secondary wide" id="settingsBtn">設定</button>
       </div>
       <article class="daily-card" id="dailyCard">
-        <div><small>TODAY'S MENU ／ JST</small><strong id="dailyTitle">今日の献立</strong><small id="dailySummary">日替わりSURVIVALを準備中</small></div>
+        <div><small>今日の献立 ／ 日本時間</small><strong id="dailyTitle">今日の献立</strong><small id="dailySummary">日替わりSURVIVALを準備中</small></div>
         <button class="primary" id="dailyStartBtn">挑戦</button>
       </article>
       <details class="title-manage">
@@ -601,7 +601,7 @@
     <div class="modal-box">
       <h2 id="dataTitle">セーブの書き出し・読み込み</h2>
       <div class="rules">
-        <p>全3スロット、永続meta、図鑑、ラン履歴、今日の献立をまとめて移行できます。単一スロットだけの書き出しにも対応します。</p>
+        <p>全3スロット、実績・設定・図鑑・ラン履歴・今日の献立をまとめて移行できます。単一スロットだけの書き出しにも対応します。</p>
         <p class="subtitle">文字列を他人へ渡すと、プレイ状況と再現に必要な情報も共有されます。パスワード等は含まれません。</p>
       </div>
       <div class="data-options">
@@ -2025,7 +2025,7 @@
       <article class="record-item"><strong>${counts.total} 件</strong><small>図鑑の発見</small></article>
       <article class="record-item"><strong>${workspace.history.length} / ${RECORDS.historyLimit}</strong><small>詳細リザルト</small></article>
       <article class="record-item"><strong>${Object.keys(workspace.dailyRecords).length} 日</strong><small>今日の献立記録</small></article>
-      <article class="record-item"><strong>${Math.ceil(storageBytes / 1024)} KiB</strong><small>記録基盤の概算localStorage容量</small></article>
+      <article class="record-item"><strong>記録容量　${(s.records.storageDegraded || 0) > 0 ? '履歴を整理済み' : '余裕あり'}</strong>${technicalDetailsEnabled() ? `<small>localStorage ${Math.ceil(storageBytes / 1024)} KiB</small>` : ''}</article>
     </div>`;
   }
 
@@ -2641,7 +2641,7 @@
         E('食べる', '未来の空腹より、過去の記憶を差し出す。', () => {
           state.hunger = 0;
           const lost = forgetMemory();
-          setResult(`三日後、「${lost}」が消えた。失う記憶は運命シードで固定されている。`);
+          setResult(`三日後、「${lost}」が消えた。同じ運命では、同じ記憶を失う。`);
           addLog(`黒チョコで「${lost}」を失った。`);
           return 'memoryJuice';
         }),
@@ -3053,7 +3053,7 @@
           if (known.length) {
             const [flag, label] = pick(known);
             removeClueByFlag(flag, label);
-            setResult(`全快した代わりに、「${label}」の情報を忘れた。忘却対象はシードで固定。`);
+            setResult(`全快した代わりに、「${label}」の情報を忘れた。忘れる情報は、同じ運命で決まる。`);
           } else setResult('全快した。忘れるほどの情報を持っていなかった。');
           addLog('全快ドロップを食べた。');
           return 'eveRice';
@@ -3610,7 +3610,7 @@
       pendingImport = { text: box.value, payload, targetSlotId, preview };
       const slotLines = preview.slots.map(slot => `${slot.name}：${MODE_CONFIG[slot.mode].label} 第${slot.day}日${technicalDetailsEnabled() ? ` ／ SEED ${slot.seed}` : ''}`).join('\n');
       const replacementNotice = preview.formatVersion === 3
-        ? '\n永続meta・設定・実績・図鑑・履歴・日替わり記録もバックアップ内容で置き換えます。'
+        ? '\n実績・設定・図鑑・ラン履歴・今日の献立もバックアップ内容で置き換えます。'
         : '';
       const transferKind = preview.formatVersion < 3 ? '旧形式のセーブ' : (preview.scope === 'all' ? '全体バックアップ' : '単一スロットのバックアップ');
       const technicalTransfer = technicalDetailsEnabled() ? ` ／ formatVersion ${preview.formatVersion} ／ scope ${preview.scope}` : '';
@@ -3652,7 +3652,7 @@
         confirmation.push(`${pendingImport.preview.overwriteSlotIds.join('、')}の進行を上書きまたは消去します。`);
       }
       if (pendingImport.preview.formatVersion === 3) {
-        confirmation.push('永続meta・設定・実績・図鑑・履歴・日替わり記録をバックアップ内容で置き換えます。');
+        confirmation.push('実績・設定・図鑑・ラン履歴・今日の献立をバックアップ内容で置き換えます。');
       }
       if (confirmation.length && !confirm(`${confirmation.join('\n')}\n読み込みますか？`)) return;
       const before = workspace;

@@ -1,10 +1,19 @@
 import { expect, test } from '@playwright/test';
 
 const DEBUG_URL = './?debug=1';
+const RELEASE_FORBIDDEN = [
+  '運命シード', '永続meta', 'localStorage', 'fnv1a32-jst-v1', 'SEED',
+  'rareChance', 'rareRoll', 'pity counter', 'scene ID', 'event ID'
+];
 
 async function openDebug(page) {
   await page.goto(DEBUG_URL);
   await page.waitForFunction(() => Boolean(globalThis.__TABENAI_DEBUG__ && globalThis.TabenaiRecords));
+}
+
+async function expectReleaseCopy(locator) {
+  const text = await locator.innerText();
+  for (const internal of RELEASE_FORBIDDEN) expect(text).not.toContain(internal);
 }
 
 test('release表示は開発情報を隠し、debug=1だけが判定・通信・日替わり内部値を表示する', async ({ page }) => {
@@ -20,6 +29,7 @@ test('release表示は開発情報を隠し、debug=1だけが判定・通信・
   expect(releaseText).not.toContain('fnv1a32-jst-v1');
   expect(releaseText).not.toContain('formatVersion');
   expect(releaseText).not.toContain('SEED');
+  await expect(page.locator('.daily-card > div > small').first()).toHaveText('今日の献立 ／ 日本時間');
 
   await page.locator('#settingsBtn').click();
   await expect(page.locator('#settingsCreditsBtn')).toHaveText('このゲームについて');
@@ -39,6 +49,93 @@ test('release表示は開発情報を隠し、debug=1だけが判定・通信・
   await expect(page.locator('#dailySummary')).toContainText('fnv1a32-jst-v1');
   await page.locator('.title-manage > summary').click();
   await expect(page.locator('#titleCreditsBtn')).toBeVisible();
+});
+
+test('releaseの全主要画面はプレイヤー向け文言だけを表示し、診断用語は詳細表示へ分離する', async ({ page }) => {
+  await page.goto('./');
+  await expectReleaseCopy(page.locator('#titleScreen'));
+
+  await page.locator('#settingsBtn').click();
+  await expectReleaseCopy(page.locator('#settingsScreen'));
+  await page.locator('#settingsBackBtn').click();
+  await page.locator('#recordsBtn').click();
+  await page.locator('[data-record-tab="stats"]').click();
+  await expect(page.locator('#recordsContent')).toContainText('記録容量　余裕あり');
+  await expectReleaseCopy(page.locator('#recordsScreen'));
+  await page.locator('#recordsBackBtn').click();
+  await page.locator('.title-manage > summary').click();
+  await page.locator('#titleDataBtn').click();
+  await expect(page.locator('#dataModal')).toContainText('実績・設定・図鑑・ラン履歴・今日の献立');
+  await expectReleaseCopy(page.locator('#dataModal'));
+  await page.locator('#closeDataBtn').click();
+
+  await openDebug(page);
+  await page.evaluate(() => {
+    const api = globalThis.__TABENAI_DEBUG__;
+    const run = api.fresh(4_819_001, 'story');
+    run.scene = 'chocolate';
+    run.day = 14;
+    run.startedAt = '2026-08-02T02:00:00.000Z';
+    run.lastPlayedAt = run.startedAt;
+    let workspace = globalThis.TabenaiRecords.freshWorkspace();
+    workspace = globalThis.TabenaiRecords.setSlot(workspace, 'slot-1', run, {
+      timestamp: run.lastPlayedAt, activate: true
+    });
+    api.setRecords(workspace);
+  });
+  await page.goto('./?resume=1');
+  await expect(page.locator('#gameScreen')).toBeVisible();
+  await expectReleaseCopy(page.locator('#gameScreen'));
+  await page.locator('#choiceA').click();
+  await expect(page.locator('#resultBox')).toContainText('同じ運命では、同じ記憶を失う');
+  await expect(page.locator('#resultBox')).not.toContainText('シード');
+
+  await openDebug(page);
+  await page.evaluate(() => {
+    const api = globalThis.__TABENAI_DEBUG__;
+    const run = api.fresh(4_819_002, 'story');
+    run.scene = 'restoreDrop';
+    run.day = 48;
+    run.flags.cakeClue = true;
+    run.startedAt = '2026-08-02T02:10:00.000Z';
+    run.lastPlayedAt = run.startedAt;
+    let workspace = globalThis.TabenaiRecords.freshWorkspace();
+    workspace = globalThis.TabenaiRecords.setSlot(workspace, 'slot-1', run, {
+      timestamp: run.lastPlayedAt, activate: true
+    });
+    api.setRecords(workspace);
+  });
+  await page.goto('./?resume=1');
+  await page.locator('#choiceA').click();
+  await expect(page.locator('#resultBox')).toContainText('忘れる情報は、同じ運命で決まる');
+  await expect(page.locator('#resultBox')).not.toContainText('シード');
+
+  await openDebug(page);
+  await page.evaluate(() => {
+    const api = globalThis.__TABENAI_DEBUG__;
+    const run = api.fresh(4_819_003, 'story');
+    run.ended = true;
+    run.day = 50;
+    run.ending = { code: 'true', title: '森の外へ', text: '朝の光へ帰った。', icon: '🌅' };
+    run.startedAt = '2026-08-02T02:20:00.000Z';
+    run.lastPlayedAt = run.startedAt;
+    let workspace = globalThis.TabenaiRecords.freshWorkspace();
+    workspace = globalThis.TabenaiRecords.setSlot(workspace, 'slot-1', run, {
+      timestamp: run.lastPlayedAt, activate: true
+    });
+    api.setRecords(workspace);
+  });
+  await page.goto('./?resume=1');
+  await expect(page.locator('.ending')).toBeVisible();
+  await expectReleaseCopy(page.locator('#gameScreen'));
+
+  await openDebug(page);
+  await page.evaluate(() => globalThis.__TABENAI_DEBUG__.screen('records'));
+  await page.locator('[data-record-tab="stats"]').click();
+  await expect(page.locator('#recordsContent')).toContainText('localStorage');
+  await expect(page.locator('#recordsContent')).toContainText('KiB');
+  await page.evaluate(() => globalThis.__TABENAI_DEBUG__.screen('title'));
+  await expect(page.locator('#dailySummary')).toContainText('fnv1a32-jst-v1');
 });
 
 test('releaseの運命判定は百分率と生ロールを出さず物語表現だけを返す', async ({ page }) => {

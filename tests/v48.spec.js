@@ -267,8 +267,12 @@ test('formatVersion 3全体復元は空slotと永続metaを含む置換対象を
   await page.locator('#saveTransferText').fill(JSON.stringify(payload));
   await expect(page.locator('#importPreview')).toContainText('保存スロット：すべて空');
   await expect(page.locator('#importPreview')).toContainText('上書き／消去対象：slot-1、slot-2、slot-3');
-  await expect(page.locator('#importPreview')).toContainText('永続meta・設定・実績・図鑑・履歴・日替わり記録');
-  page.once('dialog', dialog => dialog.accept());
+  await expect(page.locator('#importPreview')).toContainText('実績・設定・図鑑・ラン履歴・今日の献立');
+  page.once('dialog', async dialog => {
+    expect(dialog.message()).toContain('実績・設定・図鑑・ラン履歴・今日の献立');
+    expect(dialog.message()).not.toContain('永続meta');
+    await dialog.accept();
+  });
   await page.locator('#importSaveBtn').click();
   await page.waitForLoadState('domcontentloaded');
   await page.waitForFunction(() => Boolean(globalThis.TabenaiRecords));
@@ -644,7 +648,7 @@ test('単一slot取込も永続記録の置換を明示し、後段storage失敗
 
   await page.evaluate(() => document.querySelector('#dataModal').classList.add('open'));
   await page.locator('#saveTransferText').fill(JSON.stringify(setup.payload));
-  await expect(page.locator('#importPreview')).toContainText('永続meta・設定・実績・図鑑・履歴・日替わり記録');
+  await expect(page.locator('#importPreview')).toContainText('実績・設定・図鑑・ラン履歴・今日の献立');
   await page.evaluate(endingKey => {
     const original = Storage.prototype.setItem;
     globalThis.__restoreStorageSetItem = () => { Storage.prototype.setItem = original; };
