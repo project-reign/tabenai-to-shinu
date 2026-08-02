@@ -172,6 +172,15 @@
       this.audioUnlocked = false;
       this.audioContext = null;
       this.musicEngine = null;
+      this.lifecyclePaused = false;
+      this.resumeGestureArmed = false;
+      this.gestureOperation = null;
+      this.debugAudioLifecycle = options.debug === true;
+      this.audioLifecycleLog = [];
+      this.audioLifecycleSequence = 0;
+      this.audioLifecycleListenerCount = 0;
+      this.cueCount = 0;
+      this.lastCueKey = null;
       this.currentBgm = null;
       this.currentBgmKey = null;
       this.pendingBgmKey = null;
@@ -188,6 +197,10 @@
       this._boundMotionChange = () => this._applyPreferenceClasses();
       this._boundVisibility = () => this._handleVisibility();
       this._boundGesture = event => this._unlockFromGesture(event);
+      this._boundPageHide = event => this._pauseForLifecycle('pagehide', { persisted: event.persisted === true });
+      this._boundPageShow = event => this._armGestureResume('pageshow', { persisted: event.persisted === true });
+      this._boundFreeze = () => this._pauseForLifecycle('freeze');
+      this._boundResume = () => this._armGestureResume('resume');
       this._attachEnvironmentListeners();
       this.setSettings(this.settings);
       this.ready = this._loadManifest();
@@ -198,6 +211,11 @@
       document.addEventListener('touchend', this._boundGesture, true);
       document.addEventListener('keydown', this._boundGesture, true);
       document.addEventListener('visibilitychange', this._boundVisibility);
+      window.addEventListener('pagehide', this._boundPageHide);
+      window.addEventListener('pageshow', this._boundPageShow);
+      document.addEventListener('freeze', this._boundFreeze);
+      document.addEventListener('resume', this._boundResume);
+      this.audioLifecycleListenerCount = 8;
       if (this.prefersMotionQuery) {
         if (typeof this.prefersMotionQuery.addEventListener === 'function') {
           this.prefersMotionQuery.addEventListener('change', this._boundMotionChange);
@@ -237,7 +255,9 @@
       if (this.currentBgm) {
         this.currentBgm.volume = this.settings.bgmMuted ? 0 : this.settings.bgmVolume;
         if (this.settings.bgmMuted) this.currentBgm.pause();
-        else if (this.audioUnlocked && !document.hidden) this.currentBgm.play().catch(() => { this.audioFailures += 1; });
+        else if (this.audioUnlocked && !document.hidden && !this.lifecyclePaused && !this.resumeGestureArmed) {
+          this.currentBgm.play().catch(() => { this.audioFailures += 1; });
+        }
       }
       if (this.musicEngine) this.musicEngine.setSettings(this.settings);
       return { ...this.settings };
@@ -256,15 +276,37 @@
       return document.documentElement.classList.contains('presentation-reduced-motion');
     }
 
+    _logAudioLifecycle(event, detail = {}) {
+      if (!this.debugAudioLifecycle) return;
+      this.audioLifecycleLog.push({
+        sequence: ++this.audioLifecycleSequence,
+        event,
+        contextState: this.audioContext ? this.audioContext.state : 'not-created',
+        bgmKey: this.currentBgmKey,
+        ...detail
+      });
+      if (this.audioLifecycleLog.length > 64) this.audioLifecycleLog.splice(0, this.audioLifecycleLog.length - 64);
+    }
+
     async _unlockFromGesture(event) {
-      if (!event || event.isTrusted !== true || this.audioUnlocked) return false;
-      const unlocked = await this.unlockAudio();
-      if (unlocked) {
-        document.removeEventListener('pointerdown', this._boundGesture, true);
-        document.removeEventListener('touchend', this._boundGesture, true);
-        document.removeEventListener('keydown', this._boundGesture, true);
+      if (!event || event.isTrusted !== true || this.gestureOperation) return false;
+      let operation;
+      if (this.resumeGestureArmed) {
+        this.resumeGestureArmed = false;
+        this._logAudioLifecycle('gesture-resume-consumed', { type: event.type });
+        operation = this._resumeAfterGesture();
+      } else if (!this.audioUnlocked) {
+        if (!document.hidden) this.lifecyclePaused = false;
+        operation = this.unlockAudio();
+      } else {
+        return false;
       }
-      return unlocked;
+      this.gestureOperation = operation;
+      try {
+        return await operation;
+      } finally {
+        if (this.gestureOperation === operation) this.gestureOperation = null;
+      }
     }
 
     async unlockAudio() {
@@ -273,19 +315,25 @@
       if (!AudioContextClass) return false;
       try {
         this.audioContext = this.audioContext || new AudioContextClass();
-        if (this.audioContext.state === 'suspended') await this.audioContext.resume();
+        if (this.audioContext.state === 'suspended') {
+          await this.audioContext.resume();
+          this._logAudioLifecycle('context-resume', { reason: 'initial-gesture' });
+        }
         if (!this.musicEngine && globalThis.TabenaiMusic) {
           this.musicEngine = globalThis.TabenaiMusic.create({
             audioContext: this.audioContext,
             bgmVolume: this.settings.bgmVolume,
             bgmMuted: this.settings.bgmMuted,
             lightVisuals: this.settings.lightVisuals,
-            visible: !document.hidden,
+            visible: !document.hidden && !this.lifecyclePaused,
             onError: () => { this.audioFailures += 1; }
           });
         }
         this.audioUnlocked = true;
+        this.lifecyclePaused = false;
+        this.resumeGestureArmed = false;
         document.documentElement.dataset.audioUnlocked = 'true';
+        this._logAudioLifecycle('audio-unlocked');
         if (this.pendingBgmKey) this.playBgm(this.pendingBgmKey);
         return true;
       } catch (_) {
@@ -294,23 +342,80 @@
       }
     }
 
-    _handleVisibility() {
-      if (document.hidden) {
-        if (this.currentBgm) this.currentBgm.pause();
-        if (this.musicEngine) this.musicEngine.setVisible(false);
-        if (this.audioContext && this.audioContext.state === 'running') {
-          this.audioContext.suspend().catch(() => { this.audioFailures += 1; });
+    _flushSeVoices() {
+      const now = this.audioContext ? this.audioContext.currentTime : 0;
+      const count = this.activeSeVoices.size;
+      for (const voice of [...this.activeSeVoices]) {
+        try {
+          if (voice.gain && voice.gain.gain) {
+            if (typeof voice.gain.gain.cancelScheduledValues === 'function') voice.gain.gain.cancelScheduledValues(now);
+            voice.gain.gain.setValueAtTime(0.0001, now);
+          }
+        } catch (_) {}
+        try { voice.oscillator.stop(now); } catch (_) {}
+        this.activeSeVoices.delete(voice);
+        try { voice.oscillator.disconnect(); } catch (_) {}
+        try { voice.gain.disconnect(); } catch (_) {}
+      }
+      this.lastCueAt.clear();
+      return count;
+    }
+
+    _pauseForLifecycle(reason, detail = {}) {
+      this._logAudioLifecycle(reason, detail);
+      if (this.lifecyclePaused) return false;
+      this.lifecyclePaused = true;
+      this.resumeGestureArmed = this.audioUnlocked;
+      if (this.resumeGestureArmed) this._logAudioLifecycle('gesture-resume-armed', { reason });
+      if (this.currentBgm) this.currentBgm.pause();
+      const flushedSe = this._flushSeVoices();
+      const flushedBgm = this.musicEngine
+        ? this.musicEngine.pause({ flush: true, fadeSeconds: 0.02 })
+        : false;
+      this._logAudioLifecycle('scheduler-stop-flush', { reason, flushedSe, flushedBgm });
+      if (this.audioContext && this.audioContext.state === 'running') {
+        this.audioContext.suspend()
+          .then(() => this._logAudioLifecycle('context-suspend', { reason }))
+          .catch(() => { this.audioFailures += 1; });
+      }
+      return true;
+    }
+
+    _armGestureResume(reason, detail = {}) {
+      this._logAudioLifecycle(reason, detail);
+      if (!this.audioUnlocked || !this.lifecyclePaused) return false;
+      this.resumeGestureArmed = true;
+      this._logAudioLifecycle('gesture-resume-armed', { reason });
+      return true;
+    }
+
+    async _resumeAfterGesture() {
+      if (!this.audioUnlocked || !this.lifecyclePaused || document.hidden) return false;
+      this.lifecyclePaused = false;
+      try {
+        if (this.audioContext && this.audioContext.state === 'suspended') {
+          await this.audioContext.resume();
+          this._logAudioLifecycle('context-resume', { reason: 'trusted-gesture' });
         }
-        return;
+        if (this.musicEngine) {
+          this.musicEngine.resume({ fadeSeconds: 0.28, leadSeconds: 0.09 });
+          this._logAudioLifecycle('scheduler-restart', { fadeSeconds: 0.28 });
+        }
+        if (this.currentBgm && !this.settings.bgmMuted) {
+          await this.currentBgm.play().catch(() => { this.audioFailures += 1; });
+        }
+        return true;
+      } catch (_) {
+        this.audioFailures += 1;
+        this.lifecyclePaused = true;
+        this.resumeGestureArmed = true;
+        return false;
       }
-      if (!this.audioUnlocked) return;
-      if (this.musicEngine) this.musicEngine.setVisible(true);
-      if (this.audioContext && this.audioContext.state === 'suspended') {
-        this.audioContext.resume().catch(() => { this.audioFailures += 1; });
-      }
-      if (this.currentBgm && !this.settings.bgmMuted) {
-        this.currentBgm.play().catch(() => { this.audioFailures += 1; });
-      }
+    }
+
+    _handleVisibility() {
+      if (document.hidden) this._pauseForLifecycle('hidden');
+      else this._armGestureResume('visible');
     }
 
     playBgm(key) {
@@ -348,13 +453,14 @@
         this.currentBgm = audio;
       }
       this.currentBgm.volume = this.settings.bgmMuted ? 0 : this.settings.bgmVolume;
-      if (this.settings.bgmMuted || document.hidden) return false;
+      if (this.settings.bgmMuted || document.hidden || this.lifecyclePaused || this.resumeGestureArmed) return false;
       this.currentBgm.play().catch(() => { this.audioFailures += 1; });
       return true;
     }
 
     cue(key) {
-      if (!key || !this.audioUnlocked || this.settings.seMuted || this.settings.seVolume <= 0) return false;
+      if (!key || !this.audioUnlocked || this.lifecyclePaused || this.resumeGestureArmed || document.hidden
+        || this.settings.seMuted || this.settings.seVolume <= 0) return false;
       const entry = this.registry.get('se', key);
       if (!entry || !entry.synth || !this.audioContext) return false;
       try {
@@ -386,6 +492,9 @@
         };
         oscillator.start(now);
         oscillator.stop(now + duration + 0.01);
+        this.cueCount += 1;
+        this.lastCueKey = key;
+        this._logAudioLifecycle('cue', { cueKey: key });
         return true;
       } catch (_) {
         this.audioFailures += 1;
@@ -613,6 +722,11 @@
         manifestVersion: this.registry.manifest.manifestVersion,
         audioUnlocked: this.audioUnlocked,
         audioContextState: this.audioContext ? this.audioContext.state : 'not-created',
+        lifecyclePaused: this.lifecyclePaused,
+        resumeGestureArmed: this.resumeGestureArmed,
+        audioLifecycleListenerCount: this.audioLifecycleListenerCount,
+        cueCount: this.cueCount,
+        lastCueKey: this.lastCueKey,
         currentBgmKey: this.currentBgmKey,
         pendingBgmKey: this.pendingBgmKey,
         reducedMotion: this.isReducedMotion(),
@@ -622,7 +736,8 @@
         music: this.musicEngine ? this.musicEngine.snapshot() : null,
         lastHook: this.lastHook,
         lastHookToken: this.lastHookToken,
-        settings: { ...this.settings }
+        settings: { ...this.settings },
+        ...(this.debugAudioLifecycle ? { audioLifecycle: this.audioLifecycleLog.map(entry => ({ ...entry })) } : {})
       };
     }
 

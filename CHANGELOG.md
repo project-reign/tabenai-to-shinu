@@ -1,5 +1,30 @@
 # Changelog
 
+## [1.0.0-rc.2] - 2026-08-02
+
+### Fixed
+
+- Stops the BGM scheduler and flushes all look-ahead voices when the page becomes hidden, enters `pagehide`, or freezes. A plain `visible`／`pageshow` transition no longer resumes the AudioContext or emits audio.
+- Arms one resume gate after wake and consumes it only from the next trusted pointer, touch, or keyboard action. BGM returns with a 280 ms fade-in; blank taps emit no SE, while the action attached to a choice emits its own SE exactly once.
+- Keeps BGM mute, SE mute, and combined mute state through visibility, BFCache-style, and repeated sleep／wake transitions without multiplying listeners, scheduler timers, or active voices.
+- Applies `touch-action: manipulation` to the page and primary interaction surfaces to suppress Safari double-tap enlargement without disabling vertical scrolling, pinch zoom, sliders, inputs, or text selection.
+
+### Added
+
+- Seven RC2 Playwright regressions covering a one-second silent wake, trusted-gesture resume, blank and choice taps, ten persisted pagehide／pageshow cycles, every mute combination, debug-only lifecycle diagnostics, three iPhone viewport sizes, scrolling, and zoom-safe metadata.
+- A debug-only 64-entry audio lifecycle ring log for visibility, page lifecycle, context suspend／resume, gesture arming／consumption, scheduler flush／restart, and cue keys.
+- An RC2 QA report and iPhone home-screen PWA recheck procedure.
+
+### Changed
+
+- Updated application, package, record metadata, version-qualified engine／manifest URLs, and Service Worker cache revision to `1.0.0-rc.2`. Run schema `version: 4`, transfer `formatVersion: 3`, workspace version, and storage keys are unchanged.
+
+### Compatibility and validation
+
+- Does not change `survival-engine.js`, STORY／HARD content or digests, SURVIVAL balance or seeded results, choices, refusals, routes, slots, records, achievements, formal assets, music themes, or SE definitions.
+- Passes 130 Playwright tests, asset validation, production build, all 44 STORY／HARD scenes and 102 transitions, and 500,000 SURVIVAL runs with zero exceptions, loops, invalid values, deck violations, or three-rare runs.
+- Keeps complete offline relaunch, explicit update, manifest／asset／audio failure fallback, 3 slots, codex 174, achievements 33, history 30, art 41, BGM 6, and SE 13.
+
 ## [1.0.0-rc.1] - 2026-08-02
 
 ### Added

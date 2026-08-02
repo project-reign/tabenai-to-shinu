@@ -1,7 +1,7 @@
 'use strict';
 
-const APP_VERSION = '1.0.0-rc.1';
-const CACHE_REVISION = '1.0.0-rc.1';
+const APP_VERSION = '1.0.0-rc.2';
+const CACHE_REVISION = '1.0.0-rc.2';
 const CACHE_PREFIX = 'tabenai-to-shinu-';
 const CORE_CACHE_NAME = `${CACHE_PREFIX}core-${CACHE_REVISION}`;
 const PRESENTATION_CACHE_NAME = `${CACHE_PREFIX}presentation-${CACHE_REVISION}`;

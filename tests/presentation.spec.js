@@ -488,7 +488,7 @@ test('BGM/SE音量・mute・haptics・lightVisualsを実際の出力へ反映す
   await context.close();
 });
 
-test('visibilityで音をpause/resumeし、存在しない音源でも例外を漏らさない', async ({ browser }) => {
+test('visibility復帰はtrusted gestureまで無音を保ち、存在しない音源でも例外を漏らさない', async ({ browser }) => {
   const context = await browser.newContext({ serviceWorkers: 'block' });
   await installMediaSpies(context);
   const page = await context.newPage();
@@ -522,8 +522,15 @@ test('visibilityで音をpause/resumeし、存在しない音源でも例外を�
   await expect.poll(() => page.evaluate(() => globalThis.__MEDIA_CALLS__.suspends)).toBeGreaterThan(beforeVisibility.suspends);
   await expect.poll(() => page.evaluate(() => globalThis.__MEDIA_CALLS__.audioPause)).toBeGreaterThan(beforeVisibility.audioPause);
   await page.evaluate(() => globalThis.__setTestVisibility(false));
+  await page.waitForTimeout(250);
+  expect(await page.evaluate(() => globalThis.__MEDIA_CALLS__.resumes)).toBe(beforeVisibility.resumes);
+  expect(await page.evaluate(() => globalThis.__MEDIA_CALLS__.audioPlay)).toBe(beforeVisibility.audioPlay);
+  await expect(page.locator('#modeScreen')).toBeVisible();
+  const cueCount = await page.evaluate(() => globalThis.__TABENAI_PRESENTATION__.snapshot().cueCount);
+  await page.locator('#modeScreen .screen-head').click({ position: { x: 4, y: 4 } });
   await expect.poll(() => page.evaluate(() => globalThis.__MEDIA_CALLS__.resumes)).toBeGreaterThan(beforeVisibility.resumes);
   await expect.poll(() => page.evaluate(() => globalThis.__MEDIA_CALLS__.audioPlay)).toBeGreaterThan(beforeVisibility.audioPlay);
+  expect(await page.evaluate(() => globalThis.__TABENAI_PRESENTATION__.snapshot().cueCount)).toBe(cueCount);
 
   expect(problems.pageErrors).toEqual([]);
   expect(problems.requestFailures).toEqual([]);
@@ -571,11 +578,11 @@ test('presentation主要assetをService Workerへprecacheし完全offlineで再�
   await openApp(page);
   await waitForPresentation(page);
   const expectedAssets = await page.evaluate(async () => {
-    const manifestUrl = './assets/manifest.json?v=1.0.0-rc.1';
+    const manifestUrl = './assets/manifest.json?v=1.0.0-rc.2';
     const manifest = await (await fetch(manifestUrl)).json();
     return [
-      './music-engine.js?v=1.0.0-rc.1',
-      './presentation-engine.js?v=1.0.0-rc.1',
+      './music-engine.js?v=1.0.0-rc.2',
+      './presentation-engine.js?v=1.0.0-rc.2',
       manifestUrl,
       ...Object.values(manifest.assets)
         .flatMap((group) => Object.values(group))

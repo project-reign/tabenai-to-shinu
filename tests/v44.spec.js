@@ -27,7 +27,7 @@ test('PWA起動時にタイトル導線とプレイ可能・ロードマップ�
 
   await expect(page.locator('#titleScreen')).toBeVisible();
   await expect(page.locator('#titleScreen h1')).toHaveText('食べないと死ぬ');
-  await expect(page.locator('.title-version')).toHaveText('v1.0.0-rc.1');
+  await expect(page.locator('.title-version')).toHaveText('v1.0.0-rc.2');
   await expect(page.locator('#continueBtn')).toBeDisabled();
   await expect(page.locator('#newGameBtn')).toHaveText('はじめから');
   await expect(page.locator('#recordsBtn')).toHaveText('記録');

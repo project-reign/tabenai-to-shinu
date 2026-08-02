@@ -336,7 +336,12 @@ test('trusted gesture前は無音で、操作後にBGM・音量・mute・visibil
   await page.evaluate(() => globalThis.__V47_SET_HIDDEN__(true));
   await expect.poll(() => page.evaluate(() => globalThis.__TABENAI_PRESENTATION__.snapshot().music?.visible)).toBe(false);
   await expect.poll(() => page.evaluate(() => globalThis.__V47_AUDIO_PROBE__.suspends)).toBeGreaterThan(0);
+  const resumesWhileHidden = await page.evaluate(() => globalThis.__V47_AUDIO_PROBE__.resumes);
   await page.evaluate(() => globalThis.__V47_SET_HIDDEN__(false));
+  await page.waitForTimeout(250);
+  expect(await page.evaluate(() => globalThis.__V47_AUDIO_PROBE__.resumes)).toBe(resumesWhileHidden);
+  expect(await page.evaluate(() => globalThis.__TABENAI_PRESENTATION__.snapshot().music?.visible)).toBe(false);
+  await page.locator('#settingsScreen .screen-head h1').click();
   await expect.poll(() => page.evaluate(() => globalThis.__TABENAI_PRESENTATION__.snapshot().music?.visible)).toBe(true);
   await expect.poll(() => page.evaluate(() => globalThis.__V47_AUDIO_PROBE__.resumes)).toBeGreaterThan(1);
   await context.close();

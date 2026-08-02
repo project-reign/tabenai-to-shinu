@@ -48,6 +48,7 @@ export async function installMediaSpies(context) {
       resumes: 0,
       suspends: 0,
       oscillatorStarts: 0,
+      oscillatorStops: 0,
       audioPlay: 0,
       audioPause: 0,
       audioSources: [],
@@ -76,25 +77,31 @@ export async function installMediaSpies(context) {
       }
 
       createOscillator() {
-        return {
+        const oscillator = {
           type: 'sine',
+          onended: null,
           frequency: {
             setValueAtTime() {},
             exponentialRampToValueAtTime() {}
           },
           connect() {},
           start() { calls.oscillatorStarts += 1; },
-          stop() {}
+          stop() { calls.oscillatorStops += 1; },
+          disconnect() {}
         };
+        return oscillator;
       }
 
       createGain() {
         return {
           gain: {
             setValueAtTime(value) { calls.gains.push(value); },
-            exponentialRampToValueAtTime() {}
+            exponentialRampToValueAtTime() {},
+            linearRampToValueAtTime() {},
+            cancelScheduledValues() {}
           },
-          connect() {}
+          connect() {},
+          disconnect() {}
         };
       }
     }
@@ -155,6 +162,15 @@ export async function installMediaSpies(context) {
       hidden = Boolean(value);
       document.dispatchEvent(new Event('visibilitychange'));
     };
+    const lifecycleEvent = (type, persisted = false) => {
+      const event = new Event(type);
+      Object.defineProperty(event, 'persisted', { configurable: true, value: Boolean(persisted) });
+      return event;
+    };
+    globalThis.__dispatchPageHide = persisted => window.dispatchEvent(lifecycleEvent('pagehide', persisted));
+    globalThis.__dispatchPageShow = persisted => window.dispatchEvent(lifecycleEvent('pageshow', persisted));
+    globalThis.__dispatchFreeze = () => document.dispatchEvent(new Event('freeze'));
+    globalThis.__dispatchResume = () => document.dispatchEvent(new Event('resume'));
   });
 }
 
