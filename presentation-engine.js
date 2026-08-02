@@ -519,6 +519,7 @@
       if (context.endingCode) {
         hookName = context.endingCode === 'death' || context.endingCode === 'starve' ? 'death' : 'escape';
       } else if (context.category === 'rare') hookName = 'rare';
+      else if (context.category === 'conditional') hookName = 'conditional';
       else if (context.category === 'milestone') hookName = 'milestone';
       else if (context.category === 'final') hookName = 'final';
       else if (context.warning) hookName = 'warning';

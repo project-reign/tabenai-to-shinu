@@ -1,6 +1,6 @@
 {
   "name": "tabenai-to-shinu",
-  "version": "4.8.0",
+  "version": "4.9.0",
   "assetManifestVersion": "4.7.0-2",
   "private": true,
   "type": "module",
@@ -13,7 +13,7 @@
     "test:game": "playwright test tests/game.spec.js",
     "test:pwa": "playwright test tests/pwa.spec.js",
     "test:survival": "playwright test tests/survival.spec.js",
-    "simulate:survival": "node scripts/simulate-survival.mjs 10001"
+    "simulate:survival": "node scripts/simulate-survival.mjs"
   },
   "devDependencies": {
     "@playwright/test": "1.62.1"

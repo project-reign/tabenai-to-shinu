@@ -160,7 +160,7 @@ These entries record the v4.6.0 definitions and do not contain downloaded artwor
 | `project-v4.6-css` | `mood.title`, `mood.normal`, `mood.rare`, `mood.milestone`, `mood.warning`, `mood.death`, `mood.escape`, `mood.achievement`; CSS in `index.html` | project-reign | Project-authored CSS gradients, borders, shadows, opacity, and keyframe animation | None incorporated | Repository project use; formal reuse license not specified |
 | `project-v4.6-synth` | `se.choice`, `se.warning`, `se.rare`, `se.milestone`, `se.consume`, `se.refuse`, `se.achievement`, `se.death`, `se.escape`, `se.menu`; specifications in `assets/manifest.json`, synthesis in `presentation-engine.js` | project-reign | Runtime Web Audio oscillators and gain envelopes; no sound recording or sample file | None incorporated | Repository project use; formal reuse license not specified |
 
-The `achievement` hook reuses the project CSS presentation and the `se.achievement` synthesizer. The `final` hook reuses the milestone mood presentation. No additional media file is implied by those hook names.
+The `achievement` hook reuses the project CSS presentation and the `se.achievement` synthesizer. The `final` hook reuses the milestone mood presentation. The v4.9 `conditional` hook reuses the normal BGM and milestone mood without a new media file. No additional media file is implied by those hook names.
 
 ## v4.6 historical empty replacement slots
 

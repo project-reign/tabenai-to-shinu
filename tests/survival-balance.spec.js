@@ -203,13 +203,13 @@ test('固定seedの全摂取・慎重・バランス3プレイログを決定論
       seed: 4_500_101,
       policy: 'allConsume',
       deterministic: true,
-      outcome: 'death',
-      terminalDay: 45,
-      endingCode: 'death',
-      traceLength: 45,
-      gameRng: { start: 4_500_101, end: 436_935_880 },
+      outcome: 'clear',
+      terminalDay: 50,
+      endingCode: 'survival_preserved',
+      traceLength: 52,
+      gameRng: { start: 4_500_101, end: 372_994_683 },
       policyRng: { start: 2_783_047_903, end: 2_783_047_903 },
-      traceDigest: 'a7fd5d84'
+      traceDigest: '14cd7df8'
     },
     {
       seed: 4_500_202,
@@ -221,7 +221,7 @@ test('固定seedの全摂取・慎重・バランス3プレイログを決定論
       traceLength: 52,
       gameRng: { start: 4_500_202, end: 1_004_830_454 },
       policyRng: { start: 2_783_047_856, end: 2_783_047_856 },
-      traceDigest: '7868a889'
+      traceDigest: '6f9dee5f'
     },
     {
       seed: 4_500_303,
@@ -229,11 +229,11 @@ test('固定seedの全摂取・慎重・バランス3プレイログを決定論
       deterministic: true,
       outcome: 'clear',
       terminalDay: 50,
-      endingCode: 'survival_empty',
+      endingCode: 'survival_refuse',
       traceLength: 52,
-      gameRng: { start: 4_500_303, end: 1_636_666_225 },
+      gameRng: { start: 4_500_303, end: 1_004_830_555 },
       policyRng: { start: 2_783_047_957, end: 3_535_189_721 },
-      traceDigest: '2e27294e'
+      traceDigest: 'bf1cf4e9'
     }
   ]);
   for (const log of logs) {
@@ -242,7 +242,7 @@ test('固定seedの全摂取・慎重・バランス3プレイログを決定論
     expect(log.traceLength, `${log.seed}/${log.policy}`).toBeGreaterThan(0);
     expect(log.firstStep.step).toBe(1);
     expect(log.lastStep.terminal).toBe(log.outcome);
-    expect(log.rare.longestDrought).toBeLessThanOrEqual(14);
+    expect(log.rare.longestDrought).toBeLessThanOrEqual(45);
   }
 
   const documented = await (await request.get('./docs/survival-balance-playlogs.md')).text();

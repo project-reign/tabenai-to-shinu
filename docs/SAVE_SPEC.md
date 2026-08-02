@@ -1,12 +1,12 @@
 # 保存・周回記録仕様
 
-この文書は v4.8.0「食卓の記憶庫」の localStorage、セーブ移行JSON、図鑑、ラン履歴、運命コード、日替わり記録の互換契約です。アプリの表示バージョン、ラン本体、ローカルworkspace、移行JSON、運命コードは独立して版管理します。
+この文書は v4.9.0時点の「食卓の記憶庫」における localStorage、セーブ移行JSON、図鑑、ラン履歴、運命コード、日替わり記録の互換契約です。アプリの表示バージョン、ラン本体、ローカルworkspace、移行JSON、運命コードは独立して版管理します。
 
 ## 版の境界
 
 | 層 | 現行版 | 役割 | 互換契約 |
 | --- | ---: | --- | --- |
-| アプリ | `4.8.0` | 画面と配信物のSemVer | 保存形式とは独立 |
+| アプリ | `4.9.0` | 画面と配信物のSemVer | 保存形式とは独立 |
 | ラン本体 | `version: 4` | 進行、モード、seed、PRNG、場面、フラグ | v4.2.1から不変。上げない |
 | ローカルworkspace | `version: 1` | 3スロットとrecord collectionの正規化 | `records-engine.js` 内部形式 |
 | 移行JSON | `formatVersion: 3` | 全体／単一スロットの持ち出し | 1／2／3を読み込む |
@@ -78,7 +78,7 @@ slot workspaceが一度作成された後は、旧v2/v3 localStorage keyを再�
 {
   "format": "tabenai-save",
   "formatVersion": 3,
-  "appVersion": "4.8.0",
+  "appVersion": "4.9.0",
   "scope": "all",
   "slots": [],
   "activeSlotId": "slot-1",
@@ -166,7 +166,7 @@ SURVIVALの各レア発生は `rareEncounterLog` に発生順のまま保存し�
 {
   "format": "tabenai-fate",
   "formatVersion": 1,
-  "gameVersion": "4.8.0",
+  "gameVersion": "4.9.0",
   "mode": "survival",
   "seed": 1264873921,
   "choices": [0, 1, 0]

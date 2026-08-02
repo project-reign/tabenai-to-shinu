@@ -15,7 +15,7 @@
   <link rel="icon" type="image/png" sizes="32x32" href="./icons/favicon-32.png" />
   <link rel="apple-touch-icon" sizes="180x180" href="./icons/apple-touch-icon.png" />
   <meta name="theme-color" content="#171717" />
-  <title>食べないと死ぬ：50日目の晩餐 v4.8.0</title>
+  <title>食べないと死ぬ：50日目の晩餐 v4.9.0</title>
   <style>
     :root {
       --bg: #0f1115;
@@ -330,7 +330,7 @@
       <div class="title-icon"><img src="./icons/icon-192.png" alt="食べないと死ぬ アプリアイコン"></div>
       <h1>食べないと死ぬ</h1>
       <div class="subtitle">50日目の晩餐</div>
-      <div class="title-version">v4.8.0</div>
+      <div class="title-version">v4.9.0</div>
       <div class="network-pill" id="networkStatus" hidden></div>
     </div>
     <div class="title-card">
@@ -461,7 +461,7 @@
         <div class="brand-icon" aria-hidden="true">🍽️</div>
         <div>
           <h1>食べないと死ぬ：50日目の晩餐</h1>
-          <div class="subtitle">二択だけで進む、怪食サバイバル・ノベル <strong>v4.8.0</strong></div>
+          <div class="subtitle">二択だけで進む、怪食サバイバル・ノベル <strong>v4.9.0</strong></div>
         </div>
       </div>
       <details class="app-menu" id="appMenu">
@@ -653,7 +653,7 @@
 (() => {
   'use strict';
 
-  const APP_VERSION = '4.8.0';
+  const APP_VERSION = '4.9.0';
   const VERSION = 4;
   const SAVE_KEY = 'tabenai-to-shinu-50days-v4';
   const LEGACY_KEYS = ['tabenai-to-shinu-50days-v3', 'tabenai-to-shinu-50days-v2'];
@@ -688,7 +688,7 @@
     { id: 'hard_survivor', icon: '🔥', name: 'HARD生還者', description: 'HARD 50で生還した。', hidden: true },
     { id: 'wild_fifty', icon: '🏕️', name: '野生の50日', description: 'SURVIVAL 50を生還した。' },
     { id: 'rare_encounter', icon: '✨', name: '稀少遭遇', description: '低確率イベントへ初めて遭遇した。' },
-    { id: 'luck_is_skill', icon: '🎲', name: '運も実力', description: '一つのランで自然抽選のレアイベントへ3回遭遇した。' },
+    { id: 'luck_is_skill', icon: '🎲', name: '運も実力', description: '一つのランで自然抽選の稀少イベントへ2回遭遇した。' },
     { id: 'solo_survivor', icon: '🧍', name: '孤独な生還', description: '仲間を連れずSURVIVAL 50を生還した。' },
     { id: 'refusal_master', icon: '✋', name: '拒否の達人', description: '20回以上拒否してSURVIVAL 50を生還した。' },
     { id: 'as_planned', icon: '📋', name: '全ては予定通り', description: '四つの節目で備えを成功させて生還した。' },
@@ -1538,7 +1538,7 @@
     if (state.mode === 'hard' && state.ending && CLEAR_ENDINGS.has(state.ending.code)) unlockAchievement('hard_survivor', announce);
     if (state.mode === 'survival' && state.survival) {
       if ((state.survival.rareSeen || 0) >= 1) unlockAchievement('rare_encounter', announce);
-      if ((state.survival.naturalRareSeen || 0) >= 3) unlockAchievement('luck_is_skill', announce);
+      if ((state.survival.naturalRareSeen || 0) >= SURVIVAL.trueRareCap) unlockAchievement('luck_is_skill', announce);
       if (state.survival.ordinaryMealAccepted) unlockAchievement('ordinary_best', announce);
       const survived = !!(state.ending && CLEAR_ENDINGS.has(state.ending.code));
       if (survived) {
@@ -2293,7 +2293,7 @@
       pityForced: selection.pityForced === true,
       rareChance: Number.isFinite(Number(selection.rareChance)) ? Number(selection.rareChance) : null,
       rareRoll: Number.isFinite(Number(selection.rareRoll)) ? Number(selection.rareRoll) : null,
-      pityCounter: currentRarePityCounter()
+      pityCounter: Number.isFinite(Number(selection.pityCounter)) ? Number(selection.pityCounter) : currentRarePityCounter()
     });
   }
 
@@ -3225,13 +3225,13 @@
       ui.sceneIcon.textContent = event.icon || '🏕️';
       ui.sceneTitle.textContent = event.title;
       const category = ({
-        common: '通常遭遇', uncommon: '少し珍しい遭遇', conditional: '条件付き遭遇',
-        rare: 'レア遭遇', milestone: '節目', final: '最終日'
+        common: '通常遭遇', uncommon: '少し珍しい遭遇', conditional: '因縁／仲間',
+        rare: '稀少な遭遇', milestone: '節目', final: '最終局面'
       }[event.category]) || '遭遇';
       const selection = state.survival && state.survival.currentSelection;
       const rareNote = event.category === 'rare' && selection
         ? (technicalDetailsEnabled()
-          ? `\n\n［eventId=${event.eventId} ／ rareChance=${Number(selection.rareChance || SURVIVAL.rareRate(state.day)).toFixed(5)} ／ rareRoll=${Number(selection.rareRoll).toFixed(5)} ／ ${selection.pityForced ? 'pity' : (selection.naturalHit ? 'natural' : 'other')} ／ pity counter=${currentRarePityCounter()}］`
+          ? `\n\n［eventId=${event.eventId} ／ baseChance=${Number(selection.rareBaseChance || SURVIVAL.rareRate(state.day)).toFixed(5)} ／ pityBonus=${Number(selection.rarePityBonus || 0).toFixed(5)} ／ rareChance=${Number(selection.rareChance || SURVIVAL.rareRate(state.day)).toFixed(5)} ／ rareRoll=${Number(selection.rareRoll).toFixed(5)} ／ ${selection.pityForced ? 'pity' : (selection.naturalHit ? 'natural' : 'other')} ／ pity counter=${Number.isFinite(Number(selection.pityCounter)) ? Number(selection.pityCounter) : currentRarePityCounter()}］`
           : '\n\n［正体不明の稀少な遭遇］')
         : '';
       ui.sceneText.textContent = `${event.text || ''}${rareNote}`;
@@ -3575,7 +3575,7 @@
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `tabenai-save-v4.8.0-${scope}.json`;
+      a.download = `tabenai-save-v4.9.0-${scope}.json`;
       document.body.appendChild(a);
       a.click();
       a.remove();
@@ -4057,7 +4057,7 @@
           });
           registration.update().catch(() => {});
           globalThis.__TABENAI_PWA__ = {
-            version: '4.8.0',
+            version: '4.9.0',
             scope: registration.scope,
             hasWaitingUpdate: () => !!registration.waiting,
             checkForUpdate: updateApp,

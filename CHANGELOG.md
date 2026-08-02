@@ -1,5 +1,33 @@
 # Changelog
 
+## [4.9.0] - 2026-08-02
+
+### Added
+
+- All-run and clear-run rare telemetry for each simulation policy, including 0／1／2／3+ distributions, average rare count, natural-hit and soft-pity-hit run rates, two-rare cap reach rate, longest-drought buckets, and per-rare-event encounters.
+- Ten deterministic fixed-seed clear logs covering four zero-rare runs, four one-rare runs, and two two-rare runs, with conditional and milestone pacing retained when no true rare appears.
+- Four Playwright regressions for the day-based rate schedule, non-guaranteed late soft pity, post-hit pity release, two-rare cap, zero-rare final routes, presentation-category separation, and release/debug diagnostics.
+
+### Changed
+
+- Rebalanced SURVIVAL 50 true rare base chances to 0.8% on days 1–19, 1.0% on days 20–34, 1.2% on days 35–44, and 1.5% on days 45–49.
+- Replaced the 14-miss forced behavior with a soft pity that applies only to zero-rare runs from day 35, increases gradually to at most 4% effective chance, never guarantees an encounter, and switches off after the first true rare.
+- Capped true rare encounters at two per run while leaving conditional, milestone, and final encounters active. “運も実力” now unlocks at the reachable cap of two natural true rares; existing unlocks remain persistent.
+- Separated presentation labels and hooks as “稀少な遭遇”, “因縁／仲間”, “節目”, and “最終局面”. Exact probabilities, rolls, pity state, and internal IDs remain hidden in release UI and available only through detailed diagnostics or `?debug=1`.
+- Updated the displayed application, record-engine metadata, and Service Worker cache revision to v4.9.0 without changing run schema `version: 4` or transfer `formatVersion: 3`.
+
+### Compatibility
+
+- Does not change STORY 50 or HARD 50 content, values, seeded results, canonical digests, choices, bean routes, or final dishes.
+- Keeps all five SURVIVAL final outcomes reachable without any true rare and preserves existing event effects, balance values, daily processing, seeded choice outcomes, saves, records, and replay inputs outside the rare-selection schedule.
+- Preserves three slots, the active legacy mirror, codex, 30-run history, fate codes, today’s menu, 33 achievements, formats 1／2／3, 41 art assets, six BGM themes, thirteen SE cues, offline relaunch, explicit updates, and asset-failure fallbacks.
+
+### Validation
+
+- Retains all 109 pre-v4.9 tests and adds four focused regressions for 113 Playwright tests total.
+- Calibrates 10,001 seeds and validates 100,000 seeds for each of random, allRefuse, allConsume, omniscientConservative, and humanLike, with all-run and clear-run distributions reported separately.
+- Requires zero exceptions, loops, invalid values, cooldown／oneShot／maximum-encounter／recent-three violations, and zero runs above the two-rare cap.
+
 ## [4.8.0] - 2026-08-01
 
 ### Added
