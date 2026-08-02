@@ -64,8 +64,8 @@
       ]
     },
     {
-      "name": "セーブを移行",
-      "short_name": "セーブ移行",
+      "name": "データを管理",
+      "short_name": "データ管理",
       "url": "./?data=1",
       "icons": [
         {

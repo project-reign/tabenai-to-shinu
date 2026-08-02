@@ -571,11 +571,12 @@ test('presentation主要assetをService Workerへprecacheし完全offlineで再�
   await openApp(page);
   await waitForPresentation(page);
   const expectedAssets = await page.evaluate(async () => {
-    const manifest = await (await fetch('./assets/manifest.json')).json();
+    const manifestUrl = './assets/manifest.json?v=1.0.0-rc.1';
+    const manifest = await (await fetch(manifestUrl)).json();
     return [
-      './music-engine.js',
-      './presentation-engine.js',
-      './assets/manifest.json',
+      './music-engine.js?v=1.0.0-rc.1',
+      './presentation-engine.js?v=1.0.0-rc.1',
+      manifestUrl,
       ...Object.values(manifest.assets)
         .flatMap((group) => Object.values(group))
         .filter((entry) => entry.src && entry.cache === 'precache')
@@ -691,7 +692,7 @@ test('STORY/HARDのcanonical digestはpresentation正常時・manifest失敗時�
 
   const failedContext = await browser.newContext({ serviceWorkers: 'block' });
   const failedPage = await failedContext.newPage();
-  await failedPage.route('**/assets/manifest.json', (route) => route.fulfill({ status: 503, body: 'unavailable' }));
+  await failedPage.route('**/assets/manifest.json*', (route) => route.fulfill({ status: 503, body: 'unavailable' }));
   await openApp(failedPage);
   await waitForPresentation(failedPage, 'fallback');
   const fallback = await runCanonicalGames(failedPage);

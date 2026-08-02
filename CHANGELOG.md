@@ -1,5 +1,32 @@
 # Changelog
 
+## [1.0.0-rc.1] - 2026-08-02
+
+### Added
+
+- A mechanically generated STORY／HARD reachability report covering all 44 scenes, 102 state-aware transitions, 34 refusal transitions, and all 14 ending codes. Unreachable scenes, cycles, dead ends, and binary-choice violations are all zero.
+- Ten focused Release Candidate Playwright regressions for route enumeration, every ending, fixed SURVIVAL zero／one／two-rare cases, save-on-close durability, release/debug text separation, seven viewport sizes, keyboard/focus/ARIA behavior, deferred codex rendering, and stale Service Worker script-cache isolation.
+- A versioned RC1 QA report, machine-readable transition matrix, and public-mode screenshots for the title, modes, all three games, four dishes, four boxes, codex, history, settings, data management, and offline relaunch.
+
+### Changed
+
+- Updated application/package/record metadata and the Service Worker cache revision to `1.0.0-rc.1`. Run schema `version: 4`, transfer `formatVersion: 3`, workspace format, and persistent keys are unchanged.
+- Added visible high-contrast keyboard focus, modal focus entry/trapping/restoration, Escape closing, screen-heading focus after navigation, and semantic tab／tabpanel relationships.
+- Replaced leftover roadmap-style `NEW` badges on playable HARD／SURVIVAL cards and the manifest shortcut's old migration wording with release-facing labels.
+- Added the Release Candidate notice only below “設定 → このゲームについて”; the normal title remains a finished-game presentation without developer or diagnostic terminology.
+- Revision-qualified the four application engines, web manifest, and presentation manifest so a previously active cache-first Service Worker cannot combine stale scripts with RC1 HTML. The current worker precaches those exact URLs for full offline relaunch.
+
+### Compatibility
+
+- Does not change `survival-engine.js`, STORY／HARD content or canonical digests, SURVIVAL balance, seeded outcomes, binary choices, refusals, soil routes, final dishes, final boxes, achievements, records, art, music, or sound effects.
+- Preserves three slots, active legacy mirror, codex 174, history 30, today’s menu, fate codes, 33 achievements, transfer formats 1／2／3, offline relaunch, explicit updates, and all asset-failure fallbacks.
+
+### Validation
+
+- Retains all 113 v4.9.0 tests and passes 123 Playwright tests in total, asset validation, production build, STORY/HARD canonical digest checks, and route enumeration.
+- Re-runs 100,000 seeds for each of five SURVIVAL policies (500,000 runs total) with zero exceptions, loops, invalid values, deck violations, or runs above the two-rare cap. Every clear-run rare distribution remains inside the v4.9.0 target range.
+- Confirms no horizontal overflow, clipped modals, hidden choices, console warnings, or console errors at 320×568, 375×667, 390×844, 430×932, 768×1024, 1280×720, and 1920×1080.
+
 ## [4.9.0] - 2026-08-02
 
 ### Added

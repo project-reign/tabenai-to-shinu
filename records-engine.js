@@ -5,7 +5,7 @@
   // below is pure: callers supply timestamps and storage contents, and receive
   // JSON-safe values back. No game PRNG state, wall clock, or browser storage is
   // read here.
-  const VERSION = '4.9.0';
+  const VERSION = '1.0.0-rc.1';
   const FORMAT = 'tabenai-save';
   const FORMAT_VERSION = 3;
   const WORKSPACE_VERSION = 1;
