@@ -15,6 +15,7 @@
 - Replaced leftover roadmap-style `NEW` badges on playable HARD／SURVIVAL cards and the manifest shortcut's old migration wording with release-facing labels.
 - Added the Release Candidate notice only below “設定 → このゲームについて”; the normal title remains a finished-game presentation without developer or diagnostic terminology.
 - Revision-qualified the four application engines, web manifest, and presentation manifest so a previously active cache-first Service Worker cannot combine stale scripts with RC1 HTML. The current worker precaches those exact URLs for full offline relaunch.
+- Made codex rendering deterministically incremental: the first 20 entries render immediately and an accessible “さらに20件表示” control loads later batches. Idle-callback timing can no longer render the entire catalog during startup.
 
 ### Compatibility
 

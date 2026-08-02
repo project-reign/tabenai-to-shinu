@@ -374,16 +374,6 @@ test('キーボード操作・フォーカス表示・モーダル復帰・alt�
 
 test('図鑑を20件ずつ遅延描画し、全174件を起動時に一括生成しない', async ({ browser }) => {
   const context = await browser.newContext({ serviceWorkers: 'block' });
-  await context.addInitScript(() => {
-    const queue = [];
-    globalThis.requestIdleCallback = callback => { queue.push(callback); return queue.length; };
-    globalThis.cancelIdleCallback = () => {};
-    globalThis.__flushIdleCallbacks = () => {
-      let guard = 0;
-      while (queue.length && guard < 50) { queue.shift()({ didTimeout: false, timeRemaining: () => 50 }); guard += 1; }
-      return guard;
-    };
-  });
   const page = await context.newPage();
   await openDebug(page);
   await page.evaluate(() => globalThis.__TABENAI_DEBUG__.screen('records'));
@@ -392,7 +382,14 @@ test('図鑑を20件ずつ遅延描画し、全174件を起動時に一括生成
   expect(await page.locator('.codex-item').count()).toBe(20);
   const total = Number(await page.locator('#codexGrid').getAttribute('data-total-count'));
   expect(total).toBeGreaterThan(20);
-  await page.evaluate(() => globalThis.__flushIdleCallbacks());
+  await expect(page.locator('#codexMoreBtn')).toBeVisible();
+  let rendered = 20;
+  while (rendered < total) {
+    await page.locator('#codexMoreBtn').click();
+    rendered = Math.min(rendered + 20, total);
+    await expect(page.locator('#codexGrid')).toHaveAttribute('data-rendered-count', String(rendered));
+  }
   await expect(page.locator('#codexGrid')).toHaveAttribute('data-rendered-count', String(total));
+  await expect(page.locator('#codexMoreBtn')).toBeHidden();
   await context.close();
 });

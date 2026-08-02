@@ -145,13 +145,13 @@ Service Worker cache revisionは`1.0.0-rc.1`へ分離しました。旧cache-fir
 
 | 項目 | 実測 | 上限／方針 |
 | --- | ---: | --- |
-| core shell | 1,298,565 bytes | offline起動に必須 |
+| core shell | 1,298,719 bytes | offline起動に必須 |
 | presentation precache | 106,134 bytes | 2 MiB以下 |
-| 全precache | 1,404,699 bytes | 5 MiB以下 |
-| 5 MiBまでの余裕 | 3,838,181 bytes | PASS |
+| 全precache | 1,404,853 bytes | 5 MiB以下 |
+| 5 MiBまでの余裕 | 3,838,027 bytes | PASS |
 | 正式SVG | 41点 | 8背景＋10キャラクター＋23カード |
 
-図鑑は初回20件、その後20件単位で遅延描画します。履歴は選択tabで描画し、最大30件です。イベント委譲とpresentation tokenにより再描画時のlistener、音声、演出、保存の重複を防ぎます。
+図鑑は初回20件だけを描画し、「さらに20件表示」で次のbatchを明示的に読み込みます。ブラウザのidle timingに関係なく起動時の一括描画を防ぎます。履歴は選択tabで描画し、最大30件です。イベント委譲とpresentation tokenにより再描画時のlistener、音声、演出、保存の重複を防ぎます。
 
 ## 修正した不具合・仕上げ
 
@@ -163,6 +163,7 @@ Service Worker cache revisionは`1.0.0-rc.1`へ分離しました。旧cache-fir
 6. PWA shortcutに旧名称「セーブを移行」が残っていたため、「データ管理」へ統一。
 7. RC版、package、records engine、Service Workerのversion表記を同期。
 8. 旧Service Workerのcache-first scriptとRC1 HTMLが混在する起動不良を、版付き配信URLと専用回帰テストで修正。
+9. 高速なCI環境でidle callbackが連続実行され図鑑全件を初期描画する不安定さを、20件ずつの明示読込へ変更して修正。
 
 ゲーム結果変更を伴う不具合は検出しておらず、`survival-engine.js`は変更していません。
 

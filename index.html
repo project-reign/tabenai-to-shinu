@@ -1921,9 +1921,10 @@
     const discovered = definitions.filter(item => workspace.codex.categories[activeCodexTab] && workspace.codex.categories[activeCodexTab][item.id] && workspace.codex.categories[activeCodexTab][item.id].discovered).length;
     $('recordsContent').innerHTML = `<div class="record-subtabs" role="tablist" aria-label="図鑑分類">
       ${Object.entries(labels).map(([id, label]) => `<button class="small-btn" data-codex-tab="${id}" aria-selected="${id === activeCodexTab}">${label}</button>`).join('')}
-    </div><div class="codex-summary"><strong>${labels[activeCodexTab]} ${discovered} / ${definitions.length}</strong><span>未発見は ???、画像不調時は絵文字で表示</span></div><div class="codex-grid" id="codexGrid" data-total-count="${definitions.length}" data-rendered-count="0"></div>`;
+    </div><div class="codex-summary"><strong>${labels[activeCodexTab]} ${discovered} / ${definitions.length}</strong><span>未発見は ???、画像不調時は絵文字で表示</span></div><div class="codex-grid" id="codexGrid" data-total-count="${definitions.length}" data-rendered-count="0"></div><button class="secondary wide" id="codexMoreBtn" aria-controls="codexGrid" hidden>さらに20件表示</button>`;
     document.querySelectorAll('[data-codex-tab]').forEach(button => button.addEventListener('click', () => renderCodex(button.dataset.codexTab)));
     const grid = $('codexGrid');
+    const moreButton = $('codexMoreBtn');
     let offset = 0;
     const renderBatch = () => {
       if (generation !== recordRenderGeneration || !grid.isConnected) return;
@@ -1932,11 +1933,10 @@
       offset += batch.length;
       grid.dataset.renderedCount = String(offset);
       bindCodexImageFallback(grid);
-      if (offset < definitions.length) {
-        if ('requestIdleCallback' in globalThis) requestIdleCallback(renderBatch, { timeout: 250 });
-        else setTimeout(renderBatch, 0);
-      }
+      moreButton.hidden = offset >= definitions.length;
+      moreButton.textContent = `さらに${Math.min(20, definitions.length - offset)}件表示`;
     };
+    moreButton.addEventListener('click', renderBatch);
     renderBatch();
   }
 

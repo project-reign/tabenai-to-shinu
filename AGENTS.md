@@ -43,6 +43,7 @@
 ## Records and replay invariants
 
 - Codex categories are `foods`, `events`, `characters`, and `endings`. Unlock only from a committed real-run encounter or choice; debug rendering, previews, reloads, and repeated rendering must not discover or increment an entry.
+- Render codex categories in explicit batches of at most 20 items. Do not schedule every remaining batch through idle callbacks, because a fast browser may eagerly construct the full catalog during initial display.
 - Persist first and last encounter time, encounter count, encountered modes, A/B counts, player-consumption count, refusal count, result IDs, and related asset IDs. Hidden undiscovered entries must not reveal their name, condition, or image.
 - Use stable receipts to make encounter, choice, daily-attempt, and daily-completion writes idempotent.
 - Keep at most 30 completed-run results and reject a duplicate `runId`. A run result must retain mode, seed, days, ending, title, HP, hunger, intake/refusal totals, companions, memories, bean route, rare encounters, milestones, final dish or box, brought-home item, newly unlocked achievements, explicit choices, and the choice timeline.
