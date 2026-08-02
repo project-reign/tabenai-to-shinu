@@ -7,6 +7,8 @@ const root = process.cwd();
 const mountPath = '/tabenai-to-shinu/';
 const manifestPath = `${mountPath}assets/manifest.json`;
 const failedAssetPath = `${mountPath}assets/cards/rice-ball.svg`;
+const legacyBootstrapPath = `${mountPath}legacy-bootstrap.html`;
+const legacyWorkerPath = `${mountPath}legacy-sw.js`;
 const mimeTypes = {
   '.html': 'text/html; charset=utf-8',
   '.js': 'text/javascript; charset=utf-8',
@@ -34,6 +36,38 @@ function diskPath(requestUrl) {
 test.beforeAll(async () => {
   server = createServer(async (request, response) => {
     const pathname = new URL(request.url || '/', 'http://127.0.0.1').pathname;
+    if (pathname === legacyBootstrapPath) {
+      response.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store' })
+        .end('<!doctype html><meta charset="utf-8"><title>legacy bootstrap</title>');
+      return;
+    }
+    if (pathname === legacyWorkerPath) {
+      response.writeHead(200, {
+        'Content-Type': 'text/javascript; charset=utf-8',
+        'Cache-Control': 'no-store',
+        'Service-Worker-Allowed': mountPath
+      }).end(`
+        const CACHE = 'tabenai-to-shinu-core-legacy-mixed-version-test';
+        self.addEventListener('install', event => event.waitUntil((async () => {
+          const cache = await caches.open(CACHE);
+          await cache.put(new URL('./records-engine.js', self.registration.scope), new Response(
+            'globalThis.TabenaiRecords = Object.freeze({ VERSION: "legacy" });',
+            { headers: { 'Content-Type': 'text/javascript' } }
+          ));
+          await self.skipWaiting();
+        })()));
+        self.addEventListener('activate', event => event.waitUntil(self.clients.claim()));
+        self.addEventListener('fetch', event => {
+          if (event.request.method !== 'GET') return;
+          if (event.request.mode === 'navigate') {
+            event.respondWith(fetch(event.request));
+            return;
+          }
+          event.respondWith((async () => (await caches.match(event.request)) || fetch(event.request))());
+        });
+      `);
+      return;
+    }
     if (failureMode === 'manifest-503' && pathname === manifestPath) {
       failureHits.manifest += 1;
       response.writeHead(503, {
@@ -136,16 +170,16 @@ test('初回installでasset manifestが503でもcore shellがactivateしoffline�
   expect(failureHits.manifest).toBeGreaterThan(0);
   const cacheState = await page.evaluate(async () => {
     const names = await caches.keys();
-    const coreName = names.find(name => name === 'tabenai-to-shinu-core-4.9.0');
+    const coreName = names.find(name => name === 'tabenai-to-shinu-core-1.0.0-rc.1');
     const indexUrl = new URL('./index.html', location.href).href;
-    const manifestUrl = new URL('./assets/manifest.json', location.href).href;
+    const manifestUrl = new URL('./assets/manifest.json?v=1.0.0-rc.1', location.href).href;
     return {
       names,
       coreHasIndex: coreName ? Boolean(await (await caches.open(coreName)).match(indexUrl)) : false,
       manifestCached: Boolean(await caches.match(manifestUrl))
     };
   });
-  expect(cacheState.names).toContain('tabenai-to-shinu-core-4.9.0');
+  expect(cacheState.names).toContain('tabenai-to-shinu-core-1.0.0-rc.1');
   expect(cacheState.coreHasIndex).toBe(true);
   expect(cacheState.manifestCached).toBe(false);
 
@@ -174,8 +208,8 @@ test('presentation precacheのSVG 1枚が404でもcoreをactivateし404を保存
       healthyCached: Boolean(await caches.match(healthyUrl))
     };
   });
-  expect(cacheState.names).toContain('tabenai-to-shinu-core-4.9.0');
-  expect(cacheState.names).toContain('tabenai-to-shinu-presentation-4.9.0');
+  expect(cacheState.names).toContain('tabenai-to-shinu-core-1.0.0-rc.1');
+  expect(cacheState.names).toContain('tabenai-to-shinu-presentation-1.0.0-rc.1');
   expect(cacheState.failedCached).toBe(false);
   expect(cacheState.healthyCached).toBe(true);
 
@@ -186,5 +220,48 @@ test('presentation precacheのSVG 1枚が404でもcoreをactivateし404を保存
     return Boolean(await caches.match(failedUrl));
   })).toBe(false);
   await offlinePage.close();
+  await context.close();
+});
+
+test('旧Service Workerのunversioned script cacheとRC1 HTMLを混在させない', async ({ browser }) => {
+  failureMode = 'healthy';
+  const context = await browser.newContext({ serviceWorkers: 'allow' });
+  const page = await context.newPage();
+  const pageErrors = [];
+  page.on('pageerror', error => pageErrors.push(error.message));
+
+  await page.goto(new URL('./legacy-bootstrap.html', appUrl).href);
+  await page.evaluate(async () => {
+    const registration = await navigator.serviceWorker.register('./legacy-sw.js');
+    await navigator.serviceWorker.ready;
+    if (!registration.active) await new Promise(resolve => navigator.serviceWorker.addEventListener('controllerchange', resolve, { once: true }));
+  });
+  await page.reload();
+  await expect.poll(() => page.evaluate(() => Boolean(navigator.serviceWorker.controller))).toBe(true);
+
+  await page.goto(appUrl);
+  await expect(page.locator('.title-version')).toHaveText('v1.0.0-rc.1');
+  await expect(page.locator('#settingsBtn')).toBeEnabled();
+  await page.locator('#settingsBtn').click();
+  await expect(page.locator('#settingsScreen')).toBeVisible();
+  expect(pageErrors).toEqual([]);
+
+  const loading = await page.evaluate(() => ({
+    recordVersion: globalThis.TabenaiRecords.version,
+    hasRareNormalizer: typeof globalThis.TabenaiRecords.normalizeRareEncounterLog === 'function',
+    versionedRecordsLoaded: performance.getEntriesByType('resource')
+      .some(entry => entry.name.includes('/records-engine.js?v=1.0.0-rc.1')),
+    staleUnversionedCached: false
+  }));
+  loading.staleUnversionedCached = await page.evaluate(async () => Boolean(
+    await caches.match(new URL('./records-engine.js', location.href).href)
+  ));
+  expect(loading).toEqual({
+    recordVersion: '1.0.0-rc.1',
+    hasRareNormalizer: true,
+    versionedRecordsLoaded: true,
+    staleUnversionedCached: true
+  });
+
   await context.close();
 });

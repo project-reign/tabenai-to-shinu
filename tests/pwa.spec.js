@@ -27,9 +27,10 @@ test('manifestとアイコンはGitHub Pagesサブパス相対で取得できる
   const musicResponse = await request.get('./music-engine.js');
   expect(musicResponse.ok()).toBe(true);
   const workerSource = await (await request.get('./sw.js')).text();
-  expect(workerSource).toContain("'./survival-engine.js'");
-  expect(workerSource).toContain("'./records-engine.js'");
-  expect(workerSource).toContain("'./music-engine.js'");
+  expect(workerSource).toContain('`./survival-engine.js${REVISION_QUERY}`');
+  expect(workerSource).toContain('`./records-engine.js${REVISION_QUERY}`');
+  expect(workerSource).toContain('`./music-engine.js${REVISION_QUERY}`');
+  expect(workerSource).toContain('const REVISION_QUERY');
 });
 
 test('初回オンライン起動後、サブパスからオフラインで再起動できる', async ({ browser }) => {
@@ -66,7 +67,7 @@ test('新版検出は自動適用せず、明示更新操作でskipWaitingする
     version: globalThis.__TABENAI_PWA__.version,
     scope: globalThis.__TABENAI_PWA__.scope
   }));
-  expect(pwa.version).toBe('4.9.0');
+  expect(pwa.version).toBe('1.0.0-rc.1');
   expect(pwa.scope.endsWith('/tabenai-to-shinu/')).toBe(true);
 
   const workerSource = await (await request.get('./sw.js')).text();

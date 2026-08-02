@@ -1,7 +1,7 @@
 'use strict';
 
-const APP_VERSION = '4.9.0';
-const CACHE_REVISION = '4.9.0';
+const APP_VERSION = '1.0.0-rc.1';
+const CACHE_REVISION = '1.0.0-rc.1';
 const CACHE_PREFIX = 'tabenai-to-shinu-';
 const CORE_CACHE_NAME = `${CACHE_PREFIX}core-${CACHE_REVISION}`;
 const PRESENTATION_CACHE_NAME = `${CACHE_PREFIX}presentation-${CACHE_REVISION}`;
@@ -9,15 +9,16 @@ const ACTIVE_CACHE_NAMES = new Set([CORE_CACHE_NAME, PRESENTATION_CACHE_NAME]);
 const SCOPE_URL = new URL('./', self.registration.scope);
 const OFFLINE_DOCUMENT = new URL('./index.html', SCOPE_URL).href;
 const ASSET_ROOT_URL = new URL('./assets/', SCOPE_URL).href;
-const ASSET_MANIFEST_URL = new URL('./assets/manifest.json', SCOPE_URL).href;
+const REVISION_QUERY = `?v=${encodeURIComponent(APP_VERSION)}`;
+const ASSET_MANIFEST_URL = new URL(`./assets/manifest.json${REVISION_QUERY}`, SCOPE_URL).href;
 const CORE_URLS = [
   './',
   './index.html',
-  './survival-engine.js',
-  './records-engine.js',
-  './music-engine.js',
-  './presentation-engine.js',
-  './manifest.webmanifest',
+  `./survival-engine.js${REVISION_QUERY}`,
+  `./records-engine.js${REVISION_QUERY}`,
+  `./music-engine.js${REVISION_QUERY}`,
+  `./presentation-engine.js${REVISION_QUERY}`,
+  `./manifest.webmanifest${REVISION_QUERY}`,
   './icons/favicon-32.png',
   './icons/apple-touch-icon.png',
   './icons/icon-192.png',

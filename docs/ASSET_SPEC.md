@@ -1,5 +1,13 @@
 # v4.7 アセット仕様
 
+## 1.0.0-rc.1 配信確認
+
+Release Candidateでは正式背景8点、キャラクター10点、食べ物／イベントカード23点（合計41点、106,134 bytes）、BGM 6曲、SE 13種を変更しません。Service Worker cache revisionだけを `1.0.0-rc.1` へ分離し、core shell、presentation precache、lazy runtimeの契約と障害時フォールバックを維持します。
+
+RC1の検証値はcore shell 1,298,719 bytes、presentation precache 106,134 bytes、全precache 1,404,853 bytesです。5 MiB上限に対して3,838,027 bytesの余裕があり、正式SVGは従来と同じ41点です。配布物は外部画像、外部フォント、録音音源を追加していません。
+
+RC1 HTMLが旧Service Workerのcache-first scriptと混在しないよう、四つのengine、web manifest、asset manifestを版付きURLで参照し、現行workerは同じURLをcore cacheへ保存します。安定したファイル実体とアセットIDは変更せず、offline時は現行版の版付き参照をcacheから解決します。
+
 ## 目的
 
 v4.6.0「森が目を覚ます」で画像、音、画面効果、触覚をゲーム本体から分離し、v4.7.0「いただきますの森」で正式なオリジナルSVGと決定論的Web Audio音楽をその演出基盤へ登録します。`survival-engine.js`、STORY 50、HARD 50、SURVIVAL 50のイベント、数値、選択肢、拒否権、保存PRNG、シード再現性、結末は変更しません。

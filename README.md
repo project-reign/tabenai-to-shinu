@@ -1,6 +1,16 @@
 # 食べないと死ぬ：50日目の晩餐
 
-二つの選択肢だけで50日目を目指す、ブラウザ向け怪食サバイバル・ノベルです。v4.9.0はSTORY 50とHARD 50を変えず、SURVIVAL 50のtrue rareを「一周で一回起こるか、起こらないか」の頻度へ整えます。v4.8.0の3セーブスロット、永続図鑑、詳細リザルト、運命コード、JST日替わりの「今日の献立」はそのまま利用できます。
+二つの選択肢だけで50日目を目指す、ブラウザ向け怪食サバイバル・ノベルです。1.0.0-rc.1は、現在ある50日版を完成作品として公開できるか判定するRelease Candidateです。STORY 50、HARD 50、SURVIVAL 50の物語、数値、分岐、シード結果、レア頻度はv4.9.0から変更せず、全ルート、保存、画面、アクセシビリティ、PWAと障害時フォールバックを仕上げています。
+
+## 1.0.0-rc.1 完成版候補
+
+機械列挙でSTORY／HARDそれぞれ44シーン・102遷移、14種類の結末、常時二択、34件の拒否遷移を確認し、到達不能、循環、行き止まり、二択違反はいずれも0件でした。SURVIVALは100,000 seed×5方針の計500,000ランを再検証し、完走ランのtrue rare分布、2回上限、soft pity、全節目、四箱と最終拒否、死亡／餓死、デッキ制約がv4.9.0の基準を満たすことを確認しています。
+
+3スロット、保存形式1／2／3、図鑑174件、実績33件、履歴30件、運命コード、今日の献立、正式アート41点、BGM 6曲、SE 13種を維持します。RC1で加えた変更は、バージョン表示、キーボードフォーカス、モーダルのフォーカス管理、公開用表記、画面サイズ回帰とQA証跡だけです。保存形式とゲーム結果は変えていません。
+
+- [Release Candidate QA報告書](docs/RC1_QA_REPORT.md)
+- [STORY／HARD全ルート到達確認](docs/rc1/STORY_HARD_ROUTE_REPORT.md)
+- [RC1確認スクリーンショット](docs/screenshots/rc1/)
 
 ## 遊ぶ
 
@@ -142,7 +152,7 @@ Service Workerはcore shell、presentation precache、lazy runtimeの三つの�
 - 演出素材の有無、読込順、音声・触覚設定によってゲーム結果や保存PRNGを変えない
 - 3スロット、図鑑、ランID、運命コード、日替わりseedの生成でもゲーム保存PRNGを消費しない
 
-ランの保存スキーマは v4.2.1 と同じ `version: 4` のままです。3スロットは `tabenai-to-shinu-run-slots-v1` へ保存し、active slotだけを従来キー `tabenai-to-shinu-50days-v4` へ互換mirrorします。モードがない旧セーブには自動的に `mode: "story"` を追加します。実績・設定は `tabenai-to-shinu-meta-v1`、図鑑、履歴、日替わり記録は各専用キーへ分離します。アプリの表示バージョン `4.9.0`、workspace `version: 1`、ラン `version: 4`、移行JSON `formatVersion: 3` は別の概念です。
+ランの保存スキーマは v4.2.1 と同じ `version: 4` のままです。3スロットは `tabenai-to-shinu-run-slots-v1` へ保存し、active slotだけを従来キー `tabenai-to-shinu-50days-v4` へ互換mirrorします。モードがない旧セーブには自動的に `mode: "story"` を追加します。実績・設定は `tabenai-to-shinu-meta-v1`、図鑑、履歴、日替わり記録は各専用キーへ分離します。アプリの表示バージョン `1.0.0-rc.1`、workspace `version: 1`、ラン `version: 4`、移行JSON `formatVersion: 3` は別の概念です。
 
 セーブ移行JSONはSURVIVAL 50の決定済みイベントを含むランデータと、実績・記録・設定、図鑑、ラン履歴、日替わり記録を保持します。旧run、旧meta、`formatVersion: 1`、`formatVersion: 2`、`formatVersion: 3` を読み込めます。
 
@@ -166,13 +176,15 @@ http://127.0.0.1:4173/tabenai-to-shinu/
 
 ```bash
 npm run validate:assets
-npm test
-npm run simulate:survival
+npm test -- --workers=1
+npm run build
+npm run report:routes
+npm run simulate:survival -- 100000
 ```
 
 固定seedによる全摂取・慎重・バランスの決定論的検証ログは [`docs/survival-balance-playlogs.md`](docs/survival-balance-playlogs.md)、v4.9のrare 0／1／2回を含む10本の確認ログは [`docs/v49-rare-balance-playlogs.md`](docs/v49-rare-balance-playlogs.md) にあります。
 
-v4.8.0までの既存109件を削除・弱体化せず、v4.9.0では日別基礎率、保証なしsoft pity、2回上限、rare 0回の全生還、演出分類、公開／debug表示分離を4件追加し、全113件を実行します。
+v4.9.0までの既存113件を削除・弱体化せず、RC1では全ルート列挙、14結末、固定SURVIVALレア回数、保存終了耐久、公開表示、7画面サイズ、キーボード／ARIA、遅延描画、旧版／新版cache競合を10件追加し、全123件を実行します。
 
 - 44シーンの全102選択遷移と条件付き遷移
 - 全拒否選択

@@ -1,5 +1,14 @@
 # AGENTS.md
 
+## 1.0 Release Candidate gate
+
+- `1.0.0-rc.1` is a completion and release-readiness pass over the existing v4.9.0 fifty-day game. Do not add modes, routes, systems, events, or balance changes.
+- Keep STORY／HARD canonical digests at STORY `6d3acaf7` and HARD `6ce87897`. Keep their shared graph at 44 reachable scenes and 102 state-aware transitions with zero unreachable scenes, cycles, dead ends, or binary-choice violations.
+- Regenerate `docs/rc1/STORY_HARD_ROUTE_REPORT.md` and `docs/rc1/story-hard-transition-matrix.json` with `npm run report:routes` whenever a player-facing scene or transition is touched.
+- Treat a game-result change as a release blocker unless the task explicitly authorizes balance work. Fix only clear defects in presentation, wording, accessibility, layout, save safety, build, or delivery.
+- The Release Candidate label belongs only in “設定 → このゲームについて”. Keep the title and normal player flow free of development and diagnostic language.
+- Preserve the RC evidence in `docs/RC1_QA_REPORT.md` and `docs/screenshots/rc1/`; screenshots must be captured in normal public mode unless the evidence specifically concerns diagnostics.
+
 ## Product invariants
 
 - Every playable scene must expose exactly two choices.
@@ -34,6 +43,7 @@
 ## Records and replay invariants
 
 - Codex categories are `foods`, `events`, `characters`, and `endings`. Unlock only from a committed real-run encounter or choice; debug rendering, previews, reloads, and repeated rendering must not discover or increment an entry.
+- Render codex categories in explicit batches of at most 20 items. Do not schedule every remaining batch through idle callbacks, because a fast browser may eagerly construct the full catalog during initial display.
 - Persist first and last encounter time, encounter count, encountered modes, A/B counts, player-consumption count, refusal count, result IDs, and related asset IDs. Hidden undiscovered entries must not reveal their name, condition, or image.
 - Use stable receipts to make encounter, choice, daily-attempt, and daily-completion writes idempotent.
 - Keep at most 30 completed-run results and reject a duplicate `runId`. A run result must retain mode, seed, days, ending, title, HP, hunger, intake/refusal totals, companions, memories, bean route, rare encounters, milestones, final dish or box, brought-home item, newly unlocked achievements, explicit choices, and the choice timeline.
@@ -54,6 +64,7 @@
 - A first online load followed by a fully offline relaunch is a release requirement.
 - Keep three delivery tiers explicit: core shell, presentation precache, and lazy runtime. The current Service Worker uses two physical versioned caches, core and presentation; lazy responses enter the presentation cache only after a successful runtime fetch.
 - Core-shell precaching is the only mandatory install step. Fetch the asset manifest best-effort, fetch presentation precache entries independently, cache only HTTP 200 responses, and never let a manifest failure or one presentation failure reject the Service Worker install. Never cache a 404 response.
+- Keep the HTML references and Service Worker precache entries for all application engines and manifests on the same revision-qualified URLs. This prevents an older cache-first worker from combining stale scripts with a newly fetched HTML document.
 - Precache only the application shell and the small assets marked `precache` in `assets/manifest.json`. A missing presentation or lazy asset must fall back without interrupting play.
 - Treat cache activation as an application update: clean obsolete caches only when the explicitly accepted worker activates.
 
@@ -125,9 +136,10 @@ Run before submitting:
 npm ci
 npx playwright install chromium
 npm run validate:assets
-npm test
+npm test -- --workers=1
 npm run build
-npm run simulate:survival
+npm run report:routes
+npm run simulate:survival -- 100000
 ```
 
 The survival validation suite must retain all existing tests and cover binary choices, refusal rights, deterministic decks, reload locking, cooldown/one-shot/recent suppression, day-based rare rates, non-guaranteed soft pity, the two-rare cap, every conditional event, all milestones and final boxes, multiple clear paths without a rare, save transfer, offline relaunch, and iPhone 390×844 layout. Calibrate at 10,001 seeds and perform final validation at 100,000 seeds for each required policy. Report all-run and clear-run rare distributions separately, including 0/1/2/3+, average rare count, natural-hit runs, pity-hit runs, cap hits, longest drought, and per-event encounters. Clear-run targets are 45–55% zero, 35–45% one, 5–10% two, 0–1% three-or-more, and a 0.55–0.75 average. Classify clear/death/starve/other and require zero exceptions, infinite loops, invalid values, or deck-rule violations. Require random clear 50–65%, all-consume clear 45–75%, human-like clear 70–90%, all-refuse clear 0–5%, random death 5–25%, and random starvation 15–40%. Regenerate all policy tables and the ten fixed-seed rare play logs after changing a balance constant.
