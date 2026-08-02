@@ -10,7 +10,7 @@ await mkdir(dist, { recursive: true });
 
 for (const path of [
   'index.html', 'asset-gallery.html', 'asset-gallery.js', 'manifest.webmanifest', 'sw.js',
-  'survival-engine.js', 'music-engine.js', 'presentation-engine.js'
+  'survival-engine.js', 'records-engine.js', 'music-engine.js', 'presentation-engine.js'
 ]) {
   await cp(resolve(root, path), resolve(dist, path));
 }

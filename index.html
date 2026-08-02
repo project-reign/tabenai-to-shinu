@@ -15,7 +15,7 @@
   <link rel="icon" type="image/png" sizes="32x32" href="./icons/favicon-32.png" />
   <link rel="apple-touch-icon" sizes="180x180" href="./icons/apple-touch-icon.png" />
   <meta name="theme-color" content="#171717" />
-  <title>食べないと死ぬ：50日目の晩餐 v4.7.0</title>
+  <title>食べないと死ぬ：50日目の晩餐 v4.8.0</title>
   <style>
     :root {
       --bg: #0f1115;
@@ -31,6 +31,7 @@
       --shadow: 0 18px 60px rgba(0,0,0,.38);
     }
     * { box-sizing: border-box; }
+    [hidden] { display: none !important; }
     html { min-height: 100%; background: var(--bg); }
     body {
       min-height: 100vh;
@@ -74,6 +75,10 @@
     .title-actions { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
     .title-actions button { min-height:52px; }
     .title-actions .wide { grid-column:1/-1; }
+    .daily-card { display:grid; grid-template-columns:minmax(0,1fr) auto; align-items:center; gap:12px; margin-top:12px; padding:11px 12px; border:1px solid #5f5335; border-radius:14px; background:linear-gradient(135deg,#262117,#17191f); }
+    .daily-card strong, .daily-card small { display:block; }
+    .daily-card small { color:var(--muted); font-size:.76rem; }
+    .daily-card .primary { padding:9px 12px; }
     .title-manage { margin-top:12px; }
     .title-manage summary { color:var(--muted); text-align:center; padding:8px; }
     .title-manage-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-top:7px; }
@@ -88,13 +93,47 @@
     .mode-card .roadmap { margin-top:auto; color:#ffe0a0; font-size:.78rem; }
     .mode-card.locked { opacity:.67; }
     .screen-card { padding:18px; }
-    .record-tabs { display:flex; gap:7px; margin-bottom:14px; }
+    .record-tabs { display:flex; flex-wrap:wrap; gap:7px; margin-bottom:14px; }
     .record-tabs button[aria-selected="true"] { border-color:#9a8148; color:#ffe49a; }
+    .record-subtabs { display:flex; flex-wrap:wrap; gap:7px; margin-bottom:12px; }
+    .record-subtabs button[aria-selected="true"] { border-color:#9a8148; color:#ffe49a; }
     .record-grid { display:grid; grid-template-columns:1fr 1fr; gap:9px; }
     .record-item { padding:12px; border:1px solid #353b48; border-radius:13px; background:#15181f; }
     .record-item.locked { color:#7f8794; }
     .record-item strong { display:block; }
     .record-item small { color:var(--muted); }
+    .slot-context { margin:0 0 13px; padding:10px 12px; border:1px solid #413b2d; border-radius:13px; background:#1e1b16; color:#e9ddb8; }
+    .slot-list { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:11px; }
+    .slot-card { display:flex; min-width:0; min-height:260px; flex-direction:column; gap:8px; padding:15px; border:1px solid #3a4050; border-radius:17px; background:linear-gradient(160deg,#20242e,#14171d); }
+    .slot-card.active { border-color:#9a8148; box-shadow:0 0 0 1px rgba(244,201,93,.14); }
+    .slot-card.empty { color:#8f97a5; }
+    .slot-card h2 { margin:0; overflow-wrap:anywhere; font-size:1.08rem; }
+    .slot-card dl { display:grid; grid-template-columns:auto minmax(0,1fr); gap:3px 8px; margin:0; font-size:.78rem; }
+    .slot-card dt { color:#87909f; }
+    .slot-card dd { min-width:0; margin:0; overflow:hidden; color:#dfe3ea; text-overflow:ellipsis; white-space:nowrap; }
+    .slot-card .slot-primary { margin-top:auto; }
+    .slot-actions { display:grid; grid-template-columns:repeat(3,1fr); gap:5px; }
+    .slot-actions .small-btn { min-width:0; padding:7px 5px; font-size:.72rem; }
+    .codex-summary { display:flex; justify-content:space-between; gap:10px; margin-bottom:10px; color:var(--muted); font-size:.82rem; }
+    .codex-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:9px; }
+    .codex-item { display:grid; grid-template-columns:54px minmax(0,1fr); gap:10px; min-width:0; padding:11px; border:1px solid #353b48; border-radius:13px; background:#15181f; }
+    .codex-item.locked { color:#7f8794; }
+    .codex-visual { width:54px; height:54px; display:grid; place-items:center; overflow:hidden; border-radius:12px; background:#0e1116; font-size:1.8rem; }
+    .codex-visual img { width:100%; height:100%; object-fit:contain; }
+    .codex-item.locked .codex-visual { filter:grayscale(1); }
+    .codex-item strong, .codex-item small { display:block; min-width:0; overflow-wrap:anywhere; }
+    .codex-item small { color:var(--muted); font-size:.72rem; }
+    .history-list { display:grid; gap:10px; }
+    .history-card { padding:13px; border:1px solid #353b48; border-radius:14px; background:#15181f; }
+    .history-card header { display:flex; justify-content:space-between; gap:10px; }
+    .history-card p { margin:7px 0; color:#cfd4dd; font-size:.82rem; }
+    .history-card details { margin-top:8px; }
+    .timeline { max-height:240px; overflow:auto; margin:8px 0 0; padding-left:1.3rem; color:#cfd4dd; font-size:.76rem; }
+    .fate-code { width:100%; min-height:76px; resize:vertical; color:#ffe8a8; background:#0f1218; border:1px solid #3a4050; border-radius:10px; padding:9px; font:500 .72rem/1.45 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; }
+    .data-options { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px; }
+    .data-options label { display:grid; gap:4px; color:var(--muted); font-size:.78rem; }
+    .data-options select { width:100%; color:var(--text); background:#15181f; border:1px solid #3a4050; border-radius:10px; padding:9px; }
+    .import-preview { margin-top:10px; padding:11px; border:1px solid #4b4736; border-radius:12px; background:#242117; color:#f6e7b9; font-size:.8rem; }
     .settings-list { display:grid; gap:15px; }
     .credit-actions { display:flex; justify-content:flex-end; margin-top:14px; }
     .credit-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }
@@ -225,7 +264,7 @@
     }
     @media (max-width:760px) {
       .shell-screen { align-content:start; padding-top:max(18px,env(safe-area-inset-top)); }
-      .mode-grid, .record-grid { grid-template-columns:1fr; }
+      .mode-grid, .record-grid, .slot-list, .codex-grid { grid-template-columns:1fr; }
       .credit-grid { grid-template-columns:1fr; }
       .credit-wide { grid-column:auto; }
       .app { width:min(100% - 16px, 1040px); padding-top:max(8px,env(safe-area-inset-top)); }
@@ -275,6 +314,9 @@
       .title-icon { width:74px; height:74px; border-radius:21px; font-size:40px; margin-bottom:12px; }
       .title-card { padding:14px; }
       .title-manage-grid { grid-template-columns:1fr; }
+      .daily-card { grid-template-columns:1fr auto; }
+      .slot-card { min-height:auto; }
+      .data-options { grid-template-columns:1fr; }
       .setting-row { align-items:flex-start; }
       .setting-control { min-width:132px; }
       .setting-control input[type="range"] { width:96px; }
@@ -288,8 +330,8 @@
       <div class="title-icon"><img src="./icons/icon-192.png" alt="食べないと死ぬ アプリアイコン"></div>
       <h1>食べないと死ぬ</h1>
       <div class="subtitle">50日目の晩餐</div>
-      <div class="title-version">v4.7.0</div>
-      <div class="network-pill" id="networkStatus">● ONLINE</div>
+      <div class="title-version">v4.8.0</div>
+      <div class="network-pill" id="networkStatus" hidden></div>
     </div>
     <div class="title-card">
       <div class="run-summary" id="runSummary"><strong>記録なし</strong>新しい運命を始めよう。</div>
@@ -299,13 +341,17 @@
         <button class="secondary" id="recordsBtn">記録</button>
         <button class="secondary wide" id="settingsBtn">設定</button>
       </div>
+      <article class="daily-card" id="dailyCard">
+        <div><small>今日の献立 ／ 日本時間</small><strong id="dailyTitle">今日の献立</strong><small id="dailySummary">日替わりSURVIVALを準備中</small></div>
+        <button class="primary" id="dailyStartBtn">挑戦</button>
+      </article>
       <details class="title-manage">
-        <summary>管理メニュー</summary>
+        <summary>メニュー</summary>
         <div class="title-manage-grid">
-          <button class="small-btn" id="titleInstallBtn">インストール・更新</button>
-          <button class="small-btn" id="titleDataBtn">セーブ移行</button>
+          <button class="small-btn" id="titleInstallBtn">アプリ情報・更新</button>
+          <button class="small-btn" id="titleDataBtn">データ管理</button>
           <button class="small-btn" id="titleShareBtn">共有</button>
-          <button class="small-btn" id="titleCreditsBtn">クレジット／ライセンス</button>
+          <button class="small-btn" id="titleCreditsBtn" hidden>技術情報</button>
         </div>
       </details>
     </div>
@@ -314,7 +360,7 @@
   <section class="shell-screen" id="modeScreen" hidden>
     <div class="screen-head">
       <div><div class="subtitle">NEW GAME</div><h1>モードを選ぶ</h1></div>
-      <button class="small-btn" id="modeBackBtn">タイトルへ</button>
+      <div><button class="small-btn" id="fateOpenBtn">運命コード</button> <button class="small-btn" id="modeBackBtn">タイトルへ</button></div>
     </div>
     <div class="mode-grid">
       <button class="mode-card" id="modeStoryBtn">
@@ -346,6 +392,15 @@
     </div>
   </section>
 
+  <section class="shell-screen" id="slotScreen" hidden>
+    <div class="screen-head">
+      <div><div class="subtitle">MEMORY SLOTS</div><h1 id="slotScreenTitle">セーブスロット</h1></div>
+      <button class="small-btn" id="slotBackBtn">戻る</button>
+    </div>
+    <div class="slot-context" id="slotContext">保存先を選んでください。</div>
+    <div class="slot-list" id="slotList" aria-live="polite"></div>
+  </section>
+
   <section class="shell-screen" id="recordsScreen" hidden>
     <div class="screen-head">
       <div><div class="subtitle">ARCHIVE</div><h1>記録</h1></div>
@@ -354,8 +409,10 @@
     <div class="card screen-card">
       <div class="record-tabs" role="tablist">
         <button class="small-btn" data-record-tab="achievements" aria-selected="true">実績</button>
+        <button class="small-btn" data-record-tab="codex" aria-selected="false">図鑑</button>
         <button class="small-btn" data-record-tab="endings" aria-selected="false">エンディング</button>
-        <button class="small-btn" data-record-tab="stats" aria-selected="false">統計</button>
+        <button class="small-btn" data-record-tab="history" aria-selected="false">ラン履歴</button>
+        <button class="small-btn" data-record-tab="stats" aria-selected="false">通算統計</button>
       </div>
       <div id="recordsContent"></div>
     </div>
@@ -379,21 +436,22 @@
       <label class="setting-row"><span><strong>SEをミュート</strong><br><small class="subtitle">視覚情報はそのまま維持</small></span><input type="checkbox" id="seMutedSetting"></label>
       <label class="setting-row"><span><strong>触覚フィードバック</strong><br><small class="subtitle">対応端末のみ短く振動</small></span><input type="checkbox" id="hapticsSetting"></label>
       <label class="setting-row"><span><strong>軽量モード（画像とBGM編成を簡略化）</strong><br><small class="subtitle">画像を絵文字と本文へ切り替え、BGMの音数を減らします</small></span><input type="checkbox" id="lightVisualsSetting"></label>
+      <label class="setting-row"><span><strong>詳細な判定情報</strong><br><small class="subtitle">上級者向け。運命の内部値と再現情報を表示します</small></span><input type="checkbox" id="detailedJudgementSetting"></label>
     </div>
-    <div class="credit-actions"><button class="secondary" id="settingsCreditsBtn">クレジット／アセットライセンス</button></div>
+    <div class="credit-actions"><button class="secondary" id="settingsCreditsBtn">このゲームについて</button></div>
   </section>
 
   <section class="shell-screen" id="creditsScreen" hidden>
     <div class="screen-head">
       <div><div class="subtitle">CREDITS &amp; LICENSES</div><h1>いただきますの森</h1></div>
-      <button class="small-btn" id="creditsBackBtn">タイトルへ</button>
+      <button class="small-btn" id="creditsBackBtn">設定へ</button>
     </div>
     <div class="credit-grid">
       <article class="credit-card"><h2>正式アート</h2><p>背景8点、キャラクター10点、フード／イベントカード23点。すべて本プロジェクトのために図形とグラデーションから制作したオリジナルSVGです。</p></article>
       <article class="credit-card"><h2>正式音響</h2><p>「空の皿」「腹の鳴る森」「あり得ない一皿」「五十日目」「残された器」「朝食のない朝」と全SEは、外部楽曲・サンプルを使わず、決定論的なWeb Audioシーケンスで演奏します。軽量モードでは曲・長さ・ループを保ったまま音数と装飾音を減らします。</p></article>
       <article class="credit-card"><h2>制作・著作</h2><p>企画・ゲーム・アート・音響：project-reign。開発支援：OpenAI ChatGPT / Codex。特定の作品・作家の画風模倣、外部画像、外部フォント、無断素材は使用していません。</p></article>
-      <article class="credit-card"><h2>ライセンスID</h2><p><code>project-v4.7-original-svg</code><br><code>project-v4.7-generated-audio</code><br><code>project-v4.7-synth</code></p></article>
-      <article class="credit-card credit-wide"><h2>監査資料</h2><p>個別アセットのID、subject、alt、ライセンスは <a href="./asset-gallery.html">開発用アセットギャラリー</a> とリポジトリの <code>ASSET_LICENSES.md</code> で確認できます。画像・台帳・音響が読み込めない場合も、絵文字・本文・常時二択だけで最後まで進行できます。</p></article>
+      <article class="credit-card"><h2>利用条件</h2><p>正式アートと音響はproject-reignが本作のために制作したオリジナル素材です。画像や音響を読み込めない場合も、絵文字・本文・二択だけで最後まで進行できます。</p></article>
+      <article class="credit-card credit-wide" id="technicalCredits" hidden><h2>技術・監査情報</h2><p><code>project-v4.7-original-svg</code><br><code>project-v4.7-generated-audio</code><br><code>project-v4.7-synth</code></p><p>個別アセットのID、subject、alt、ライセンスは <a href="./asset-gallery.html">開発用アセットギャラリー</a> とリポジトリの <code>ASSET_LICENSES.md</code> で確認できます。</p></article>
     </div>
   </section>
 
@@ -403,17 +461,17 @@
         <div class="brand-icon" aria-hidden="true">🍽️</div>
         <div>
           <h1>食べないと死ぬ：50日目の晩餐</h1>
-          <div class="subtitle">二択だけで進む、怪食サバイバル・ノベル <strong>v4.7.0</strong></div>
+          <div class="subtitle">二択だけで進む、怪食サバイバル・ノベル <strong>v4.8.0</strong></div>
         </div>
       </div>
       <details class="app-menu" id="appMenu">
-        <summary aria-label="管理メニュー">☰</summary>
-        <nav class="menu-panel" aria-label="管理操作">
+        <summary aria-label="メニュー">☰</summary>
+        <nav class="menu-panel" aria-label="メニュー操作">
           <button class="small-btn" id="rulesBtn">遊び方</button>
-          <button class="small-btn" id="installBtn">インストール・更新</button>
-          <button class="small-btn" id="seedBtn">シード</button>
+          <button class="small-btn" id="installBtn">アプリ情報・更新</button>
+          <button class="small-btn" id="seedBtn" hidden>判定情報</button>
           <button class="small-btn" id="shareBtn">共有</button>
-          <button class="small-btn" id="dataBtn">セーブ移行</button>
+          <button class="small-btn" id="dataBtn">データ管理</button>
           <button class="small-btn" id="saveBtn">手動保存</button>
           <button class="small-btn" id="resetBtn">最初から</button>
           <button class="small-btn" id="titleBtn">タイトルへ戻る</button>
@@ -460,7 +518,7 @@
             <span class="badge" id="modeBadge">STORY 50</span>
             <span class="badge" id="statusBadge">健康</span>
             <span class="badge" id="sceneCountBadge">選択 0</span>
-            <span class="badge" id="seedBadge">SEED</span>
+            <span class="badge" id="seedBadge" hidden></span>
           </div>
           <h2 id="sceneTitle">少し温かいおにぎり</h2>
           <div class="scene-text" id="sceneText"></div>
@@ -501,7 +559,7 @@
           <li><strong>体力</strong>が0になると死亡。</li>
           <li><strong>空腹</strong>が100になると餓死。</li>
           <li>食べ物には毒・時間・記憶・寄生・変質・契約などの効果があります。</li>
-          <li><strong>確率判定</strong>は運命シードで固定されます。同じシードなら同じ選択で同じ結果になります。</li>
+          <li><strong>運命判定</strong>は運命コードで再現できます。同じコードなら同じ選択で同じ結果になります。</li>
           <li>ランダム要素はキノコ、回避、半存在サンド、記憶・手がかりの消失、皿の入れ替えなどにあります。</li>
           <li><strong>何もしない</strong>選択にも結果があります。拒否は可能ですが、安全とは限りません。</li>
           <li>黒豆は、白い土・赤い土・灰色の土で育ち方と手がかりが変わります。</li>
@@ -543,15 +601,34 @@
     <div class="modal-box">
       <h2 id="dataTitle">セーブの書き出し・読み込み</h2>
       <div class="rules">
-        <p>固定URLを変更したときや、別のiPhone・PCへ移すときに使います。下の文字列には進行状況、仲間、手がかり、エンディング図鑑が含まれます。</p>
-        <p class="subtitle">文字列を他人へ渡すと、プレイ状況や運命シードも共有されます。パスワード等は含まれません。</p>
+        <p>全3スロット、実績・設定・図鑑・ラン履歴・今日の献立をまとめて移行できます。単一スロットだけの書き出しにも対応します。</p>
+        <p class="subtitle">文字列を他人へ渡すと、プレイ状況と再現に必要な情報も共有されます。パスワード等は含まれません。</p>
+      </div>
+      <div class="data-options">
+        <label>書き出し範囲<select id="exportScope"><option value="all">全体バックアップ</option><option value="active">使用中スロットのみ</option><option value="slot-1">スロット 1のみ</option><option value="slot-2">スロット 2のみ</option><option value="slot-3">スロット 3のみ</option></select></label>
+        <label>単一スロットの読込先（旧形式はスロット 1）<select id="importTargetSlot"><option value="slot-1">スロット 1</option><option value="slot-2">スロット 2</option><option value="slot-3">スロット 3</option></select></label>
       </div>
       <textarea class="data-textarea" id="saveTransferText" spellcheck="false" placeholder="「書き出す」でセーブ文字列を作成、または受け取った文字列を貼り付けます。"></textarea>
+      <div class="import-preview" id="importPreview" hidden></div>
       <div class="data-actions">
         <button class="primary" id="exportSaveBtn">書き出す・コピー</button>
         <button class="secondary" id="downloadSaveBtn">JSONを保存</button>
-        <button class="primary" id="importSaveBtn">貼り付けたセーブを読み込む</button>
+        <button class="primary" id="importSaveBtn">プレビュー後に読み込む</button>
         <button class="secondary" id="closeDataBtn">閉じる</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="fateModal" role="dialog" aria-modal="true" aria-labelledby="fateTitle">
+    <div class="modal-box">
+      <h2 id="fateTitle">運命コード</h2>
+      <div class="rules"><p>モードと選択の流れを含む再現コードです。内容を確認してから新規スロットへ開始します。</p></div>
+      <textarea class="data-textarea" id="fateCodeText" spellcheck="false" placeholder="TABENAI-FATE-1... を貼り付け"></textarea>
+      <div class="import-preview" id="fatePreview" hidden></div>
+      <div class="data-actions">
+        <button class="primary" id="fatePreviewBtn">内容をプレビュー</button>
+        <button class="primary" id="fateStartBtn" disabled>新規スロットへ</button>
+        <button class="secondary" id="closeFateBtn">閉じる</button>
       </div>
     </div>
   </div>
@@ -571,16 +648,20 @@
   <script src="./survival-engine.js"></script>
   <script src="./music-engine.js"></script>
   <script src="./presentation-engine.js"></script>
+  <script src="./records-engine.js"></script>
   <script>
 (() => {
   'use strict';
 
-  const APP_VERSION = '4.7.0';
+  const APP_VERSION = '4.8.0';
   const VERSION = 4;
   const SAVE_KEY = 'tabenai-to-shinu-50days-v4';
   const LEGACY_KEYS = ['tabenai-to-shinu-50days-v3', 'tabenai-to-shinu-50days-v2'];
   const ENDING_KEY = 'tabenai-to-shinu-endings-v4';
   const META_KEY = 'tabenai-to-shinu-meta-v1';
+  let storageNoticeReady = false;
+  let storageFailurePending = false;
+  let lastStorageFailureNoticeAt = 0;
   const MAX_HP = 100;
   const MAX_HUNGER = 100;
   const MODE_CONFIG = {
@@ -611,7 +692,17 @@
     { id: 'solo_survivor', icon: '🧍', name: '孤独な生還', description: '仲間を連れずSURVIVAL 50を生還した。' },
     { id: 'refusal_master', icon: '✋', name: '拒否の達人', description: '20回以上拒否してSURVIVAL 50を生還した。' },
     { id: 'as_planned', icon: '📋', name: '全ては予定通り', description: '四つの節目で備えを成功させて生還した。' },
-    { id: 'ordinary_best', icon: '🍱', name: '普通がいちばん', description: '完全に普通の定食を食べた。', hidden: true }
+    { id: 'ordinary_best', icon: '🍱', name: '普通がいちばん', description: '完全に普通の定食を食べた。', hidden: true },
+    { id: 'archive_ten', icon: '📚', name: '食卓の記録者', description: '図鑑を10件発見した。' },
+    { id: 'food_half', icon: '🥢', name: '異食蒐集家', description: '食べ物図鑑の半分を発見した。' },
+    { id: 'event_half', icon: '👁️', name: '森の目撃者', description: 'イベント図鑑の半分を発見した。' },
+    { id: 'codex_complete', icon: '📖', name: '怪食大百科', description: '食べ物・イベント・存在の全項目を発見した。', hidden: true },
+    { id: 'three_destinies', icon: '🗂️', name: '三つの運命', description: '3スロットすべてを使用した。' },
+    { id: 'fate_replay', icon: '🔁', name: '昨日の自分', description: '運命コードからランを開始した。' },
+    { id: 'daily_start', icon: '📅', name: '今日の献立', description: '日替わりSURVIVALを開始した。' },
+    { id: 'daily_clear', icon: '🌄', name: '本日の生還者', description: '今日の献立を生還した。' },
+    { id: 'refusal_hundred', icon: '✋', name: '拒否の記録', description: '累計100回の拒否を記録した。' },
+    { id: 'result_saved', icon: '🧾', name: '五十日の記憶', description: '詳細リザルトを保存した。' }
   ];
   const ENDING_CATALOG = [
     ['death', '力尽きた'], ['starve', '食べずに死んだ'], ['ancient', '古きものの晩餐'],
@@ -631,11 +722,76 @@
     soup: { icon: '🍲', name: '空のスープ', tell: '中身は見えないのに重さがあり、周囲の音が器へ吸い込まれる。' },
     cake: { icon: '🍰', name: '腐りかけのケーキ', tell: '甘く腐った匂いがし、カビが文字のような模様を作っている。' }
   };
+  const STORY_FOOD_SCENES = new Set([
+    'riceball', 'gel', 'mushroom', 'can', 'soap', 'apple', 'chocolate', 'memoryJuice',
+    'potato', 'capsule', 'capsuleSelect', 'poisonCake', 'timeNoodle', 'loopCake', 'pizza',
+    'clonePudding', 'clonePuddingWho', 'cookie', 'jrEgg', 'jrEggUse', 'bean', 'beanUse', 'sandwich',
+    'shadow', 'shadowFoodType', 'shadowRiceBread', 'futureLunch',
+    'saladTrial', 'meatTrial', 'soupTrial', 'cakeTrial', 'restoreDrop', 'eveRice',
+    'finalPair', 'finalDish', 'finalCommit'
+  ]);
+  const ENTITY_DEFINITIONS = [
+    { id: 'tako', name: '寄生タコ', emoji: '🐙', assetId: 'character.tako', description: '缶帽子と八本の触腕を持つ同行者。' },
+    { id: 'jr', name: 'Jr.', emoji: '🪱', assetId: 'character.jr', description: '琥珀色の薬鞄を掛けた解毒寄生虫。' },
+    { id: 'bean-child', name: '黒豆の幼体', emoji: '🫘', assetId: 'character.bean-child', description: '土と身体の記憶を育てる小さな存在。' },
+    { id: 'bean-white', name: '白い土の黒豆', emoji: '⚪', assetId: 'character.bean-past-white', description: '過去の記憶を纏う白い土の姿。' },
+    { id: 'bean-red', name: '赤い土の黒豆', emoji: '🔴', assetId: 'character.bean-future-red', description: '未来の記憶を孕む赤い土の姿。' },
+    { id: 'bean-gray', name: '灰色の土の黒豆', emoji: '⚫', assetId: 'character.bean-present-gray', description: '現在を選び取った灰色の土の姿。' },
+    { id: 'bean-body', name: '身体発芽の黒豆', emoji: '🫀', assetId: 'character.bean-body', description: 'プレイヤーの身体を畑にした姿。', hidden: true },
+    { id: 'shadow', name: '食卓の影', emoji: '🌑', assetId: 'character.shadow', description: '空腹を分け合う、もう一つの輪郭。' },
+    { id: 'clone', name: 'もう一人の自分', emoji: '👥', assetId: null, description: '同じ記憶を持って食卓へ増えた存在。' },
+    { id: 'ancient', name: '古きもの', emoji: '🕳️', assetId: null, description: '森の食卓よりも古くから眠る存在。', hidden: true },
+    { id: 'invisible-cleaner', name: '透明清掃員', emoji: '🧹', assetId: 'character.invisible-cleaner', description: '見えない市場を管理する清掃員。' },
+    { id: 'forest-manager', name: '森の管理者', emoji: '🌲', assetId: 'character.forest-manager', description: '生還を許可する森の管理者。', hidden: true }
+  ];
+  const ENTITY_EVENT_MAP = {
+    tako: new Set(['jrEgg', 'jrEggUse', 'tako-egg-sac', 'tako-return', 'tako-survival-check']),
+    jr: new Set(['jrEgg', 'jrEggUse', 'jr-shell', 'jr-hunger']),
+    shadow: new Set(['shadow', 'shadowFoodType', 'shadowRiceBread', 'shadow-plate', 'shadow-snack']),
+    'invisible-cleaner': new Set(['invisible-market']),
+    'forest-manager': new Set(['forest-manager'])
+  };
+  const STORY_ASSET_MAP = {
+    riceball: 'art.rice-ball', gel: 'art.blue-gel', mushroom: 'art.red-mushroom', can: 'art.whisper-can',
+    soap: 'art.strawberry-soap', apple: 'art.golden-apple', cookie: 'art.revive-cookie',
+    clonePudding: 'art.black-pudding', clonePuddingWho: 'art.black-pudding', capsule: 'art.red-blue-capsules',
+    capsuleSelect: 'art.red-blue-capsules', bean: 'art.black-bean-three-soils', beanUse: 'art.black-bean-three-soils',
+    soil: 'art.black-bean-three-soils', soilColor: 'art.black-bean-three-soils', graySoil: 'art.black-bean-three-soils',
+    saladTrial: 'art.salad', meatTrial: 'art.burnt-meat', soupTrial: 'art.empty-soup', cakeTrial: 'art.rotten-cake',
+    restoreDrop: 'art.full-heal-drop', finalPair: 'art.four-dishes', finalDish: 'art.four-dishes', finalCommit: 'art.four-dishes'
+  };
+  const SURVIVAL_ASSET_MAP = {
+    'stored-bread': 'art.stored-bread', 'inverted-rain': 'art.inverted-rain', 'white-tablet': 'art.white-tablet',
+    'steam-soup': 'art.steam-soup', 'bone-biscuit': 'art.bone-biscuit', 'whisper-can': 'art.whisper-can',
+    'three-soil-sacks': 'art.black-bean-three-soils', 'ordinary-meal': 'art.ordinary-meal',
+    'final-pair': 'art.four-boxes', 'final-select-preserved-living': 'art.four-boxes',
+    'final-select-empty-return': 'art.four-boxes', 'final-commit': 'art.four-boxes'
+  };
+  const ASSET_URLS = {
+    'art.rice-ball': './assets/cards/rice-ball.svg', 'art.blue-gel': './assets/cards/blue-gel.svg',
+    'art.red-mushroom': './assets/cards/red-mushroom.svg', 'art.whisper-can': './assets/cards/whisper-can.svg',
+    'art.strawberry-soap': './assets/cards/strawberry-soap.svg', 'art.golden-apple': './assets/cards/golden-apple.svg',
+    'art.revive-cookie': './assets/cards/revive-cookie.svg', 'art.black-pudding': './assets/cards/black-pudding.svg',
+    'art.red-blue-capsules': './assets/cards/red-blue-capsules.svg',
+    'art.black-bean-three-soils': './assets/cards/black-bean-three-soils.svg', 'art.salad': './assets/cards/salad.svg',
+    'art.burnt-meat': './assets/cards/burnt-meat.svg', 'art.empty-soup': './assets/cards/empty-soup.svg',
+    'art.rotten-cake': './assets/cards/rotten-cake.svg', 'art.full-heal-drop': './assets/cards/full-heal-drop.svg',
+    'art.four-dishes': './assets/cards/four-dishes.svg', 'art.stored-bread': './assets/cards/stored-bread.svg',
+    'art.inverted-rain': './assets/cards/inverted-rain.svg', 'art.white-tablet': './assets/cards/white-tablet.svg',
+    'art.steam-soup': './assets/cards/steam-soup.svg', 'art.bone-biscuit': './assets/cards/bone-biscuit.svg',
+    'art.ordinary-meal': './assets/cards/ordinary-meal.svg', 'art.four-boxes': './assets/cards/four-boxes.svg',
+    'character.tako': './assets/characters/tako.svg', 'character.jr': './assets/characters/jr.svg',
+    'character.bean-child': './assets/characters/bean-child.svg', 'character.bean-past-white': './assets/characters/bean-past-white.svg',
+    'character.bean-future-red': './assets/characters/bean-future-red.svg', 'character.bean-present-gray': './assets/characters/bean-present-gray.svg',
+    'character.bean-body': './assets/characters/bean-body.svg', 'character.shadow': './assets/characters/shadow.svg',
+    'character.invisible-cleaner': './assets/characters/invisible-cleaner.svg', 'character.forest-manager': './assets/characters/forest-manager.svg'
+  };
 
   const $ = id => document.getElementById(id);
   const clamp = (n, min, max) => Math.max(min, Math.min(max, n));
   const clone = value => JSON.parse(JSON.stringify(value));
   const SURVIVAL = globalThis.TabenaiSurvival || null;
+  const RECORDS = globalThis.TabenaiRecords || null;
 
   function nextRandom(run) {
     // Mulberry32。既存STORY/HARDと同じ保存可能な列を、明示したrunだけで進める。
@@ -663,13 +819,15 @@
   const freshState = (seed = makeSeed(), mode = 'story', prepareSurvival = true) => {
     const selectedMode = MODE_CONFIG[mode] ? mode : 'story';
     const config = MODE_CONFIG[selectedMode];
+    const seedNumber = Number(seed);
+    const normalizedSeed = Number.isFinite(seedNumber) ? seedNumber >>> 0 : 0x6d2b79f5;
     const run = {
     version: VERSION,
     mode: selectedMode,
     startedAt: null,
     lastPlayedAt: null,
-    seed: seed >>> 0,
-    rngState: (seed || 0x6d2b79f5) >>> 0,
+    seed: normalizedSeed,
+    rngState: normalizedSeed,
     scene: 'riceball',
     day: 1,
     hp: config.initialHp,
@@ -756,10 +914,22 @@
   const requestedDataTransfer = launchParams.get('data') === '1';
   const requestedResume = launchParams.get('resume') === '1';
   const debugMode = launchParams.get('debug') === '1';
-  const loadedState = loadState();
+  let meta = loadMeta();
+  const legacyLoadedState = loadState();
+  let workspace;
+  workspace = loadWorkspace(legacyLoadedState);
+  const workspaceMirror = RECORDS ? RECORDS.activeMirror(workspace) : legacyLoadedState;
+  const loadedState = workspaceMirror ? normalizeState(workspaceMirror) : null;
   let hasActiveRun = !!loadedState;
   let state = loadedState || freshState();
-  let meta = loadMeta();
+  let pendingLaunch = null;
+  let slotScreenOrigin = 'title';
+  let activeRecordTab = 'achievements';
+  let activeCodexTab = 'foods';
+  let recordRenderGeneration = 0;
+  let pendingImport = null;
+  let pendingFate = null;
+  let creditsOrigin = 'settings';
   const presentation = globalThis.TabenaiPresentation
     ? globalThis.TabenaiPresentation.create({ manifestUrl: './assets/manifest.json', settings: meta.settings })
     : null;
@@ -782,9 +952,11 @@
     choiceBTitle: $('choiceBTitle'), choiceBDesc: $('choiceBDesc'),
     companionList: $('companionList'), clueList: $('clueList'), clueEmpty: $('clueEmpty'),
     logList: $('logList'), rulesModal: $('rulesModal'), toast: $('toast'), sceneCard: $('sceneCard'), sceneContent: $('sceneContent'),
-    titleScreen: $('titleScreen'), modeScreen: $('modeScreen'), recordsScreen: $('recordsScreen'),
+    titleScreen: $('titleScreen'), modeScreen: $('modeScreen'), slotScreen: $('slotScreen'), recordsScreen: $('recordsScreen'),
     settingsScreen: $('settingsScreen'), creditsScreen: $('creditsScreen'), gameScreen: $('gameScreen')
   };
+  storageNoticeReady = true;
+  if (storageFailurePending) setTimeout(notifyStorageFailure, 0);
 
   function freshMeta() {
     return {
@@ -808,6 +980,13 @@
           longestRareDrought: 0,
           boxesOpened: { preserved: 0, living: 0, empty: 0, return: 0 },
           finalRefusals: 0
+        },
+        records: {
+          fateReplays: 0,
+          dailyStarts: 0,
+          resultsSaved: 0,
+          storageDegraded: 0,
+          runSerial: 0
         }
       },
       settings: {
@@ -818,9 +997,10 @@
         bgmVolume: 0.45,
         seVolume: 0.65,
         bgmMuted: false,
-        seMuted: false,
-        haptics: true,
-        lightVisuals: false
+         seMuted: false,
+         haptics: true,
+         lightVisuals: false,
+         detailedJudgement: false
       }
     };
   }
@@ -829,22 +1009,56 @@
     const base = freshMeta();
     const input = raw && typeof raw === 'object' ? raw : {};
     const inputStats = input.stats && typeof input.stats === 'object' ? input.stats : {};
-    const out = Object.assign({}, base, input);
-    out.achievements = Object.assign({}, input.achievements && typeof input.achievements === 'object' ? input.achievements : {});
-    out.endings = Object.assign({}, input.endings && typeof input.endings === 'object' ? input.endings : {});
-    out.stats = Object.assign({}, base.stats, inputStats);
+    const count = value => Math.max(0, Math.floor(Number.isFinite(Number(value)) ? Number(value) : 0));
+    const timestamp = value => typeof value === 'string' && Number.isFinite(Date.parse(value)) ? value : null;
+    const safeMapKey = value => typeof value === 'string' && value.length <= 160
+      && !['__proto__', 'constructor', 'prototype'].includes(value);
+    const out = { ...base };
+    out.achievements = {};
+    for (const [id, record] of Object.entries(input.achievements && typeof input.achievements === 'object' ? input.achievements : {})) {
+      if (!safeMapKey(id)) continue;
+      out.achievements[id] = { unlockedAt: timestamp(record && record.unlockedAt) };
+    }
+    out.endings = {};
+    for (const [code, record] of Object.entries(input.endings && typeof input.endings === 'object' ? input.endings : {})) {
+      if (!safeMapKey(code)) continue;
+      const source = record && typeof record === 'object' ? record : { count: record };
+      out.endings[code] = {
+        title: typeof source.title === 'string' ? source.title.slice(0, 160) : code,
+        firstReachedAt: timestamp(source.firstReachedAt),
+        count: Math.max(1, count(source.count))
+      };
+    }
+    out.stats = { ...base.stats, ...inputStats };
+    for (const key of ['totalRuns', 'totalChoices', 'totalAte', 'totalRefused', 'longestDay', 'day50Reached']) {
+      out.stats[key] = count(inputStats[key]);
+    }
     out.stats.modeClears = Object.assign({}, base.stats.modeClears, inputStats.modeClears && typeof inputStats.modeClears === 'object' ? inputStats.modeClears : {});
+    for (const key of Object.keys(base.stats.modeClears)) out.stats.modeClears[key] = count(out.stats.modeClears[key]);
     out.stats.soils = Object.assign({}, base.stats.soils, inputStats.soils && typeof inputStats.soils === 'object' ? inputStats.soils : {});
+    for (const key of Object.keys(base.stats.soils)) out.stats.soils[key] = count(out.stats.soils[key]);
     out.stats.dishesSeen = Object.assign({}, base.stats.dishesSeen, inputStats.dishesSeen && typeof inputStats.dishesSeen === 'object' ? inputStats.dishesSeen : {});
-    out.stats.dishHistory = Array.isArray(out.stats.dishHistory) ? out.stats.dishHistory : [];
+    for (const key of Object.keys(base.stats.dishesSeen)) out.stats.dishesSeen[key] = count(out.stats.dishesSeen[key]);
+    out.stats.dishHistory = (Array.isArray(inputStats.dishHistory) ? inputStats.dishHistory : []).slice(-100).map(item => ({
+      dish: DISH_KEYS.includes(item && item.dish) ? item.dish : null,
+      mode: item && MODE_CONFIG[item.mode] ? item.mode : 'story',
+      seed: (Number.isFinite(Number(item && item.seed)) ? Number(item.seed) : 0) >>> 0,
+      reachedAt: timestamp(item && item.reachedAt)
+    })).filter(item => item.dish);
     const inputSurvival = inputStats.survival && typeof inputStats.survival === 'object' ? inputStats.survival : {};
     out.stats.survival = Object.assign({}, base.stats.survival, inputSurvival);
+    for (const key of ['rareEvents', 'pityEvents', 'longestRareDrought', 'finalRefusals']) {
+      out.stats.survival[key] = count(inputSurvival[key]);
+    }
     out.stats.survival.boxesOpened = Object.assign({}, base.stats.survival.boxesOpened, inputSurvival.boxesOpened && typeof inputSurvival.boxesOpened === 'object' ? inputSurvival.boxesOpened : {});
+    for (const key of Object.keys(base.stats.survival.boxesOpened)) out.stats.survival.boxesOpened[key] = count(out.stats.survival.boxesOpened[key]);
+    out.stats.records = Object.assign({}, base.stats.records, inputStats.records && typeof inputStats.records === 'object' ? inputStats.records : {});
+    for (const key of Object.keys(base.stats.records)) out.stats.records[key] = count(out.stats.records[key]);
     out.settings = Object.assign({}, base.settings, input.settings && typeof input.settings === 'object' ? input.settings : {});
     if (!['small', 'standard', 'large'].includes(out.settings.fontSize)) out.settings.fontSize = 'standard';
     out.settings.bgmVolume = Number.isFinite(Number(out.settings.bgmVolume)) ? clamp(Number(out.settings.bgmVolume), 0, 1) : base.settings.bgmVolume;
     out.settings.seVolume = Number.isFinite(Number(out.settings.seVolume)) ? clamp(Number(out.settings.seVolume), 0, 1) : base.settings.seVolume;
-    for (const key of ['reducedMotion', 'confirmChoices', 'autoScroll', 'bgmMuted', 'seMuted', 'haptics', 'lightVisuals']) {
+    for (const key of ['reducedMotion', 'confirmChoices', 'autoScroll', 'bgmMuted', 'seMuted', 'haptics', 'lightVisuals', 'detailedJudgement']) {
       if (typeof out.settings[key] !== 'boolean') out.settings[key] = base.settings[key];
     }
     out.version = 1;
@@ -872,7 +1086,425 @@
   }
 
   function saveMeta() {
-    try { localStorage.setItem(META_KEY, JSON.stringify(meta)); } catch (_) {}
+    try {
+      localStorage.setItem(META_KEY, JSON.stringify(meta));
+      return true;
+    } catch (_) {
+      notifyStorageFailure();
+      return false;
+    }
+  }
+
+  function loadWorkspace(legacyRun) {
+    if (!RECORDS) return null;
+    const stored = {};
+    for (const key of Object.values(RECORDS.storageKeys)) {
+      try { stored[key] = localStorage.getItem(key); } catch (_) { stored[key] = null; }
+    }
+    let decoded;
+    try { decoded = RECORDS.decodeStorage(stored); }
+    catch (_) { decoded = { workspace: RECORDS.freshWorkspace(), warnings: [{ key: 'workspace', error: 'decode' }] }; }
+    if (decoded.warnings.length && meta && meta.stats && meta.stats.records) {
+      meta.stats.records.storageDegraded = Math.max(0, Number(meta.stats.records.storageDegraded) || 0) + 1;
+      saveMeta();
+    }
+    let value = decoded.workspace;
+    const alreadyHasSlots = value.slots.some(slot => slot.run);
+    const migrationTime = new Date().toISOString();
+    if (!alreadyHasSlots && legacyRun && value.migrations.singleRunToSlot1) {
+      value = RECORDS.setSlot(value, 'slot-1', legacyRun, { timestamp: migrationTime, activate: true });
+      value.migrations.singleRunToSlot1 = true;
+      value.migrations.migratedAt = value.migrations.migratedAt || migrationTime;
+    } else {
+      value = RECORDS.migrateLegacyRun(value, alreadyHasSlots ? null : legacyRun, migrationTime).workspace;
+    }
+    if (legacyRun && value.slots.some(slot => slot.run)) {
+      const mirrorRunId = legacyRun.recording && legacyRun.recording.runId;
+      const sameRunIdentity = slot => !!(slot && slot.run) && (mirrorRunId
+        ? !!(slot.run.recording && slot.run.recording.runId === mirrorRunId)
+        : slot.run.seed === legacyRun.seed && slot.run.startedAt === legacyRun.startedAt);
+      const activeMatching = value.slots.find(slot => slot.id === value.activeSlotId && sameRunIdentity(slot));
+      const matching = value.slots.find(sameRunIdentity);
+      const targetId = (activeMatching && activeMatching.id)
+        || (matching && matching.id)
+        || RECORDS.normalizeSlotId(legacyRun.recording && legacyRun.recording.slotId)
+        || value.activeSlotId;
+      const target = targetId && value.slots.find(slot => slot.id === targetId);
+      const mirrorTime = Date.parse(legacyRun.lastPlayedAt || legacyRun.startedAt || '') || 0;
+      const slotTime = target && target.run ? (Date.parse(target.run.lastPlayedAt || target.updatedAt || target.run.startedAt || '') || 0) : 0;
+      if (target && (!target.run || mirrorTime > slotTime)
+        && RECORDS.stableStringify(target.run) !== RECORDS.stableStringify(legacyRun)) {
+        value = RECORDS.setSlot(value, target.id, legacyRun, {
+          timestamp: legacyRun.lastPlayedAt || target.updatedAt || migrationTime,
+          activate: true
+        });
+      }
+    }
+    if (!value.activeSlotId) {
+      const latest = value.slots.filter(slot => slot.run).sort((left, right) => String(right.updatedAt || '').localeCompare(String(left.updatedAt || '')))[0];
+      if (latest) value = RECORDS.setActiveSlot(value, latest.id);
+    }
+    writeWorkspace(value, false);
+    return value;
+  }
+
+  function writeWorkspace(value, showToast = false) {
+    if (!RECORDS || !value) return false;
+    const commit = candidate => {
+      const encoded = RECORDS.encodeStorage(candidate);
+      const mirror = encoded[RECORDS.storageKeys.legacyRun];
+      if (mirror === null) localStorage.removeItem(SAVE_KEY);
+      else localStorage.setItem(SAVE_KEY, mirror);
+      const orderedKeys = [
+        RECORDS.storageKeys.slots,
+        RECORDS.storageKeys.activeSlot,
+        RECORDS.storageKeys.codex,
+        RECORDS.storageKeys.daily,
+        RECORDS.storageKeys.migrationMarker,
+        RECORDS.storageKeys.history
+      ];
+      for (const key of orderedKeys) {
+        const text = encoded[key];
+        if (text === null) localStorage.removeItem(key);
+        else localStorage.setItem(key, text);
+      }
+      workspace = RECORDS.normalizeWorkspace(candidate);
+      return true;
+    };
+    try {
+      const ok = commit(value);
+      if (ok && showToast) toast('保存しました');
+      return ok;
+    } catch (_) {
+      if (meta && meta.stats && meta.stats.records) {
+        meta.stats.records.storageDegraded = Math.max(0, Number(meta.stats.records.storageDegraded) || 0) + 1;
+        saveMeta();
+      }
+      try {
+        const estimated = RECORDS.estimateStorageBytes(RECORDS.encodeStorage(value));
+        const compacted = RECORDS.compactForQuota(value, Math.max(8 * 1024, Math.floor(estimated * .72)));
+        if (compacted.fits && commit(compacted.workspace)) {
+          if (showToast) toast('古い履歴を縮約して保存しました');
+          return true;
+        }
+      } catch (_) {}
+      notifyStorageFailure();
+      return false;
+    }
+  }
+
+  function notifyStorageFailure() {
+    storageFailurePending = true;
+    const now = Date.now();
+    if (!storageNoticeReady || now - lastStorageFailureNoticeAt < 5000) return;
+    storageFailurePending = false;
+    lastStorageFailureNoticeAt = now;
+    toast('保存に失敗しました。端末の空き容量を確認し、全体バックアップを書き出してください');
+  }
+
+  function activeSlotId() {
+    return workspace && workspace.activeSlotId || null;
+  }
+
+  function workspaceSlot(id) {
+    return workspace && workspace.slots.find(slot => slot.id === id) || null;
+  }
+
+  function displaySlotId(id) {
+    const normalized = RECORDS && RECORDS.normalizeSlotId(id);
+    if (!normalized) return '保存先';
+    const playerLabel = `スロット ${normalized.slice(-1)}`;
+    return technicalDetailsEnabled() ? normalized : playerLabel;
+  }
+
+  function storyCatalogEvents() {
+    return Object.entries(scenes).map(([id, scene]) => ({
+      id: `story:${id}`,
+      sourceId: id,
+      mode: 'story',
+      name: scene.title,
+      description: `STORY 50 第${scene.day}日の場面。`,
+      emoji: scene.icon || '🎭',
+      assetId: STORY_ASSET_MAP[id] || null,
+      hidden: false
+    }));
+  }
+
+  function survivalCatalogEvents() {
+    return (SURVIVAL ? SURVIVAL.events : []).map(event => ({
+      id: `survival:${event.id}`,
+      sourceId: event.id,
+      mode: 'survival',
+      name: event.title,
+      description: event.text || `SURVIVAL 50の${event.category}遭遇。`,
+      emoji: event.icon || '🌲',
+      assetId: SURVIVAL_ASSET_MAP[event.id] || null,
+      hidden: event.category === 'rare',
+      category: event.category,
+      tags: Array.isArray(event.tags) ? event.tags.slice() : []
+    }));
+  }
+
+  function catalogDefinitions(category) {
+    if (category === 'events') return [...storyCatalogEvents(), ...survivalCatalogEvents()];
+    if (category === 'foods') {
+      const storyFoods = storyCatalogEvents().filter(item => STORY_FOOD_SCENES.has(item.sourceId));
+      const survivalFoods = survivalCatalogEvents().filter(item => item.tags.some(tag => ['food', 'drink', 'medicine'].includes(tag)));
+      return [...storyFoods, ...survivalFoods];
+    }
+    if (category === 'characters') return ENTITY_DEFINITIONS.map(item => ({ ...item }));
+    if (category === 'endings') return ENDING_CATALOG.map(([id, name]) => ({
+      id,
+      name,
+      emoji: (meta.endings[id] && state.ending && state.ending.code === id && state.ending.icon) || '🏁',
+      description: 'ランの最後に到達した結末。',
+      hidden: !['death', 'starve'].includes(id)
+    }));
+    return [];
+  }
+
+  function catalogDefinition(category, id) {
+    return catalogDefinitions(category).find(item => item.id === id) || null;
+  }
+
+  function assetIdsForEncounter(mode, sourceId) {
+    const assetId = mode === 'survival' ? SURVIVAL_ASSET_MAP[sourceId] : STORY_ASSET_MAP[sourceId];
+    return assetId ? [assetId] : [];
+  }
+
+  function ensureRecording() {
+    if (!RECORDS || silentMode || debugMode) return null;
+    if (state.recording && typeof state.recording === 'object' && state.recording.runId) return state.recording;
+    const startedAt = state.startedAt || state.lastPlayedAt || new Date().toISOString();
+    state.startedAt = startedAt;
+    meta.stats.records.runSerial = Math.max(0, Number(meta.stats.records.runSerial) || 0) + 1;
+    const runIdBase = RECORDS.makeRunId({ mode: state.mode, seed: state.seed, startedAt, choices: [] });
+    state.recording = {
+      runId: `${runIdBase}-${meta.stats.records.runSerial.toString(36)}`,
+      slotId: activeSlotId() || 'slot-1',
+      choices: [],
+      timeline: [],
+      rareEncounterLog: [],
+      encounterTokens: [],
+      dailyDate: null,
+      fateReplay: false,
+      expectedChoices: [],
+      achievementIdsAtStart: Object.keys(meta.achievements)
+    };
+    return state.recording;
+  }
+
+  function currentEncounterDescriptor() {
+    if (state.mode === 'survival') {
+      const event = currentSurvivalEvent();
+      if (!event) return null;
+      const source = (SURVIVAL.events || []).find(item => item.id === event.eventId) || event;
+      return {
+        mode: 'survival', sourceId: event.eventId, id: `survival:${event.eventId}`,
+        name: event.title, emoji: event.icon || '🌲', category: event.category,
+        tags: Array.isArray(source.tags) ? source.tags.slice() : [], assetIds: assetIdsForEncounter('survival', event.eventId)
+      };
+    }
+    const scene = scenes[state.scene];
+    if (!scene) return null;
+    return {
+      mode: state.mode, sourceId: state.scene, id: `story:${state.scene}`,
+      name: scene.title, emoji: scene.icon || '🎭', category: 'story',
+      tags: STORY_FOOD_SCENES.has(state.scene) ? ['food'] : [], assetIds: assetIdsForEncounter('story', state.scene)
+    };
+  }
+
+  function entityIdsForEncounter(descriptor) {
+    const ids = [];
+    for (const [id, eventIds] of Object.entries(ENTITY_EVENT_MAP)) {
+      if (eventIds.has(descriptor.sourceId)) ids.push(id);
+    }
+    if (descriptor.sourceId === 'bean' || descriptor.sourceId === 'beanUse' || descriptor.sourceId === 'three-soil-sacks') ids.push('bean-child');
+    if (state.companions.tako) ids.push('tako');
+    if (state.companions.jr) ids.push('jr');
+    if (state.companions.clone) ids.push('clone');
+    if (state.flags.shadowAwake) ids.push('shadow');
+    if (state.flags.ancientAwake) ids.push('ancient');
+    const hasBean = state.companions.beanChild || state.flags.beanCarried || state.flags.beanInside || state.flags.beanPossessed || state.flags.beanSoil;
+    if (hasBean) {
+      const route = state.flags.beanPossessed || state.flags.beanSoil === 'body'
+        ? 'bean-body'
+        : ({ white: 'bean-white', red: 'bean-red', gray: 'bean-gray' }[state.flags.beanSoil] || 'bean-child');
+      ids.push(route);
+    }
+    return [...new Set(ids)];
+  }
+
+  function commitCodexObservation(category, id, phase, token, details = {}) {
+    if (!RECORDS || !workspace || !token) return false;
+    const definition = catalogDefinition(category, id);
+    const result = RECORDS.recordCodex(workspace.codex, {
+      source: 'play', committed: true, category, id, phase, token,
+      occurredAt: details.occurredAt || state.lastPlayedAt || new Date().toISOString(),
+      mode: state.mode,
+      name: definition && definition.name,
+      hidden: definition && definition.hidden,
+      emoji: definition && definition.emoji,
+      assetIds: details.assetIds || (definition && definition.assetId ? [definition.assetId] : []),
+      resultId: details.resultId,
+      choiceIndex: details.choiceIndex,
+      consumedByPlayer: details.consumedByPlayer === true,
+      refused: details.refused === true,
+      choiceKind: details.choiceKind
+    });
+    workspace.codex = result.codex;
+    return result.recorded;
+  }
+
+  function recordCurrentEncounter() {
+    const recording = ensureRecording();
+    const descriptor = recording && currentEncounterDescriptor();
+    if (!recording || !descriptor || state.ended) return false;
+    const token = `${recording.runId}:encounter:${state.choiceCount}:${descriptor.id}`;
+    const entityIds = entityIdsForEncounter(descriptor);
+    const relatedAssets = [...descriptor.assetIds, ...entityIds.map(id => catalogDefinition('characters', id)).filter(Boolean).map(item => item.assetId).filter(Boolean)];
+    let recorded = commitCodexObservation('events', descriptor.id, 'encounter', token, { assetIds: relatedAssets });
+    if (descriptor.tags.some(tag => ['food', 'drink', 'medicine'].includes(tag))) {
+      recorded = commitCodexObservation('foods', descriptor.id, 'encounter', token, { assetIds: descriptor.assetIds }) || recorded;
+    }
+    for (const entityId of entityIds) {
+      const definition = catalogDefinition('characters', entityId);
+      recorded = commitCodexObservation('characters', entityId, 'encounter', token, {
+        assetIds: definition && definition.assetId ? [definition.assetId] : []
+      }) || recorded;
+    }
+    if (recorded && !recording.encounterTokens.includes(token)) recording.encounterTokens.push(token);
+    return recorded;
+  }
+
+  function recordCommittedChoice(descriptor, choice, index, before) {
+    const recording = ensureRecording();
+    if (!recording || !descriptor) return;
+    const token = `${recording.runId}:choice:${state.choiceCount}:${descriptor.id}`;
+    const consumed = state.mode === 'survival'
+      ? choice.consumedByPlayer === true
+      : choice.kind === 'eat' && choice.consumedByPlayer !== false;
+    const refused = choice.kind === 'skip' || choice.refusal === true;
+    const resultId = state.ending && state.ending.code
+      ? state.ending.code
+      : (state.mode === 'survival' && state.survival ? state.survival.currentEventId : state.scene);
+    commitCodexObservation('events', descriptor.id, 'choice', token, {
+      assetIds: descriptor.assetIds, choiceIndex: index, consumedByPlayer: consumed, refused, choiceKind: choice.kind, resultId
+    });
+    if (descriptor.tags.some(tag => ['food', 'drink', 'medicine'].includes(tag))) {
+      commitCodexObservation('foods', descriptor.id, 'choice', token, {
+        assetIds: descriptor.assetIds, choiceIndex: index, consumedByPlayer: consumed, refused, choiceKind: choice.kind, resultId
+      });
+    }
+    recording.choices.push(index);
+    recording.timeline.push({
+      order: recording.choices.length,
+      day: before.day,
+      sceneId: descriptor.id,
+      title: descriptor.name,
+      choiceIndex: index,
+      choice: choice.title,
+      kind: choice.kind || null,
+      consumedByPlayer: consumed,
+      refused,
+      hpBefore: before.hp,
+      hpAfter: state.hp,
+      hungerBefore: before.hunger,
+      hungerAfter: state.hunger,
+      result: state.lastResult || '',
+      resultId
+    });
+  }
+
+  function updateDailyProgress(completed = false) {
+    const recording = state.recording;
+    if (!RECORDS || !recording || !recording.dailyDate) return;
+    const update = RECORDS.updateDailyRecord(workspace.dailyRecords, {
+      date: recording.dailyDate,
+      day: state.day,
+      choiceCount: state.choiceCount,
+      playedAt: state.lastPlayedAt || new Date().toISOString(),
+      completed,
+      runId: completed ? recording.runId : undefined,
+      cleared: completed && !!(state.ending && CLEAR_ENDINGS.has(state.ending.code)),
+      deathReason: completed && state.ending && !CLEAR_ENDINGS.has(state.ending.code) ? state.ending.title : null
+    });
+    workspace.dailyRecords = update.records;
+  }
+
+  function finalizeRunRecord() {
+    if (!RECORDS || silentMode || debugMode || !state.ended || !state.ending) return false;
+    const recording = ensureRecording();
+    if (!recording) return false;
+    const endedAt = state.lastPlayedAt || new Date().toISOString();
+    const endingToken = `${recording.runId}:ending:${state.ending.code}`;
+    commitCodexObservation('endings', state.ending.code, 'encounter', endingToken, { resultId: state.ending.code });
+    let assessment = null;
+    if (state.mode === 'survival' && SURVIVAL) assessment = SURVIVAL.assessEnding(state);
+    const rareIds = state.mode === 'survival' && state.survival
+      ? Object.keys(state.survival.encounterCounts || {}).filter(id => {
+          const event = (SURVIVAL.events || []).find(item => item.id === id);
+          return event && event.category === 'rare';
+        })
+      : [];
+    const rareEncounterLog = RECORDS.normalizeRareEncounterLog(recording.rareEncounterLog);
+    const unlockedAtStart = new Set(recording.achievementIdsAtStart || []);
+    const willAdd = !workspace.history.some(item => item.runId === recording.runId);
+    updateDailyProgress(true);
+    if (willAdd) meta.stats.records.resultsSaved += 1;
+    evaluateRecordAchievements(!silentMode);
+    const result = RECORDS.makeRunResult(state, {
+      runId: recording.runId,
+      gameVersion: APP_VERSION,
+      completedAt: endedAt,
+      savedAt: endedAt,
+      title: assessment ? `${state.ending.title}／${assessment.rank}` : state.ending.title,
+      choices: recording.choices,
+      timeline: recording.timeline,
+      rareEncounters: rareIds,
+      rareEncounterLog,
+      rareTotal: rareEncounterLog.length,
+      naturalTotal: rareEncounterLog.filter(item => item.naturalHit && !item.pityForced).length,
+      pityTotal: rareEncounterLog.filter(item => item.pityForced).length,
+      longestRareDrought: state.survival && state.survival.longestRareDrought,
+      finalDish: state.flags.selectedTrueDish,
+      finalBox: state.survival && state.survival.selectedBox,
+      broughtHome: assessment && assessment.carried,
+      unlockedAchievements: Object.keys(meta.achievements).filter(id => !unlockedAtStart.has(id))
+    });
+    const history = RECORDS.addRunHistory(workspace.history, result);
+    workspace.history = history.history;
+    return history.added;
+  }
+
+  function evaluateRecordAchievements(announce = true) {
+    if (!RECORDS || !workspace || !meta) return;
+    const discoveredKnown = category => {
+      const entries = workspace.codex && workspace.codex.categories && workspace.codex.categories[category] || {};
+      return catalogDefinitions(category).reduce((count, definition) => count + (entries[definition.id] && entries[definition.id].discovered ? 1 : 0), 0);
+    };
+    const discovered = {
+      foods: discoveredKnown('foods'),
+      events: discoveredKnown('events'),
+      characters: discoveredKnown('characters'),
+      endings: discoveredKnown('endings')
+    };
+    const foodTotal = catalogDefinitions('foods').length;
+    const eventTotal = catalogDefinitions('events').length;
+    const characterTotal = catalogDefinitions('characters').length;
+    if (Object.values(discovered).reduce((sum, count) => sum + count, 0) >= 10) unlockAchievement('archive_ten', announce);
+    if (foodTotal && discovered.foods >= Math.ceil(foodTotal / 2)) unlockAchievement('food_half', announce);
+    if (eventTotal && discovered.events >= Math.ceil(eventTotal / 2)) unlockAchievement('event_half', announce);
+    if (discovered.foods >= foodTotal && discovered.events >= eventTotal && discovered.characters >= characterTotal) {
+      unlockAchievement('codex_complete', announce);
+    }
+    if (workspace.slots.every(slot => !!slot.run)) unlockAchievement('three_destinies', announce);
+    if ((meta.stats.records.fateReplays || 0) > 0) unlockAchievement('fate_replay', announce);
+    if ((meta.stats.records.dailyStarts || 0) > 0) unlockAchievement('daily_start', announce);
+    if (Object.values(workspace.dailyRecords).some(record => record && record.cleared)) unlockAchievement('daily_clear', announce);
+    if ((meta.stats.totalRefused || 0) >= 100) unlockAchievement('refusal_hundred', announce);
+    if ((meta.stats.records.resultsSaved || 0) > 0) unlockAchievement('result_saved', announce);
+    saveMeta();
   }
 
   function unlockAchievement(id, announce = true) {
@@ -880,9 +1512,9 @@
     const achievement = ACHIEVEMENTS.find(item => item.id === id);
     if (!achievement) return false;
     meta.achievements[id] = { unlockedAt: new Date().toISOString() };
-    saveMeta();
-    if (announce && !silentMode) toast(`実績解除：${achievement.name}`);
-    if (announce && !silentMode && presentation) presentation.notifyAchievement(achievement);
+    const persisted = saveMeta();
+    if (announce && persisted && !silentMode) toast(`実績解除：${achievement.name}`);
+    if (announce && persisted && !silentMode && presentation) presentation.notifyAchievement(achievement);
     return true;
   }
 
@@ -916,6 +1548,7 @@
         if ([10, 20, 30, 40].every(day => state.survival.milestoneSuccess && state.survival.milestoneSuccess[day])) unlockAchievement('as_planned', announce);
       }
     }
+    evaluateRecordAchievements(announce);
     saveMeta();
   }
 
@@ -935,6 +1568,10 @@
     saveMeta();
   }
 
+  function technicalDetailsEnabled() {
+    return debugMode || !!(meta && meta.settings && meta.settings.detailedJudgement);
+  }
+
   function applySettings() {
     document.documentElement.dataset.fontSize = meta.settings.fontSize;
     document.documentElement.classList.toggle('reduce-motion', !!meta.settings.reducedMotion);
@@ -950,6 +1587,11 @@
     if ($('seMutedSetting')) $('seMutedSetting').checked = !!meta.settings.seMuted;
     if ($('hapticsSetting')) $('hapticsSetting').checked = !!meta.settings.haptics;
     if ($('lightVisualsSetting')) $('lightVisualsSetting').checked = !!meta.settings.lightVisuals;
+    if ($('detailedJudgementSetting')) $('detailedJudgementSetting').checked = !!meta.settings.detailedJudgement;
+    if ($('seedBadge')) $('seedBadge').hidden = !technicalDetailsEnabled();
+    if ($('seedBtn')) $('seedBtn').hidden = !technicalDetailsEnabled();
+    if ($('technicalCredits')) $('technicalCredits').hidden = !technicalDetailsEnabled();
+    if ($('titleCreditsBtn')) $('titleCreditsBtn').hidden = !debugMode;
     if (presentation) presentation.setSettings(meta.settings);
   }
 
@@ -968,20 +1610,46 @@
   function renderTitle() {
     const status = $('networkStatus');
     if (status) {
-      status.textContent = navigator.onLine ? '● ONLINE' : '● OFFLINE';
+      const showOnlineDiagnostic = navigator.onLine && technicalDetailsEnabled();
+      status.hidden = navigator.onLine && !showOnlineDiagnostic;
+      status.textContent = navigator.onLine ? (showOnlineDiagnostic ? '● ONLINE' : '') : '● OFFLINE';
       status.classList.toggle('offline', !navigator.onLine);
     }
-    $('continueBtn').disabled = !hasActiveRun;
-    $('continueBtn').textContent = state.ended ? '結末を見る' : 'つづきから';
-    $('runSummary').innerHTML = hasActiveRun
-      ? `<strong>${escapeHtml(MODE_CONFIG[state.mode].label)} ／ 第${state.day}日 ／ HP ${state.hp} ／ 空腹 ${state.hunger}</strong>最終プレイ：${escapeHtml(formatTimestamp(state.lastPlayedAt))}${state.ended && state.ending ? ` ／ ${escapeHtml(state.ending.title)}` : ''}`
-      : '<strong>記録なし</strong>新しい運命を始めよう。';
+    const occupied = workspace ? workspace.slots.filter(slot => !!slot.run) : [];
+    $('continueBtn').disabled = occupied.length === 0;
+    $('continueBtn').textContent = 'つづきから';
+    const selected = workspace && workspaceSlot(workspace.activeSlotId)
+      || occupied.slice().sort((left, right) => String(right.updatedAt || '').localeCompare(String(left.updatedAt || '')))[0];
+    if (selected && selected.run) {
+      const summary = RECORDS.slotSummary(selected);
+      $('runSummary').innerHTML = `<strong>${escapeHtml(selected.name)} ／ ${escapeHtml(MODE_CONFIG[summary.mode].label)} ／ 第${summary.day}日 ／ HP ${summary.hp} ／ 空腹 ${summary.hunger}</strong>最終プレイ：${escapeHtml(formatTimestamp(summary.lastPlayedAt))}${summary.ended && selected.run.ending ? ` ／ ${escapeHtml(selected.run.ending.title)}` : ''}`;
+    } else {
+      $('runSummary').innerHTML = '<strong>記録なし</strong>新しい運命を始めよう。';
+    }
+    if ((meta.stats.records.storageDegraded || 0) > 0) {
+      $('runSummary').insertAdjacentHTML('beforeend', '<small class="subtitle">記録の破損または容量不足を検出しました。進行と実績を優先して保護しました。</small>');
+    }
+    if (RECORDS && $('dailyCard')) {
+      const daily = RECORDS.dailyInfo(new Date());
+      const record = workspace.dailyRecords[daily.date];
+      $('dailyTitle').textContent = `今日の献立 ${daily.date}`;
+      const playerSummary = record
+        ? `挑戦 ${record.attempts}回 ／ 最高第${record.bestDay}日 ／ 選択 ${record.choiceCount}回 ／ ${record.cleared ? '生還済み' : (record.deathReason || '挑戦中')}`
+        : '未挑戦・完全オフライン対応';
+      const technicalSummary = technicalDetailsEnabled()
+        ? ` ／ SEED ${daily.seed} ／ ${RECORDS.dailyAlgorithm}（JST日付）`
+        : '';
+      $('dailySummary').textContent = `${playerSummary}${technicalSummary}`;
+      $('dailyStartBtn').dataset.dailyDate = daily.date;
+      $('dailyStartBtn').dataset.dailySeed = String(daily.seed);
+    }
   }
 
   function showScreen(name) {
     const screens = {
       title: ui.titleScreen,
       modes: ui.modeScreen,
+      slots: ui.slotScreen,
       records: ui.recordsScreen,
       settings: ui.settingsScreen,
       credits: ui.creditsScreen,
@@ -989,20 +1657,68 @@
     };
     for (const [key, element] of Object.entries(screens)) element.hidden = key !== name;
     if (name === 'title') renderTitle();
-    if (name === 'records') renderRecords('achievements');
+    if (name === 'records') renderRecords(activeRecordTab);
     if (name === 'settings') applySettings();
     if (presentation && name !== 'game') presentation.presentScreen(name);
     if (name === 'game') render();
     scrollTo({ top: 0, behavior: reducedMotionActive() ? 'auto' : 'smooth' });
   }
 
-  function startNewRun(mode, seed = makeSeed()) {
-    if (hasActiveRun && !confirm('現在の進行を上書きして、新しい運命を始めますか？')) return false;
+  function prepareNewRun(mode, seed = makeSeed(), options = {}) {
+    pendingLaunch = {
+      mode: MODE_CONFIG[mode] ? mode : 'story',
+      seed: seed >>> 0,
+      dailyDate: options.dailyDate || null,
+      fateChoices: Array.isArray(options.fateChoices) ? options.fateChoices.slice() : null,
+      source: options.source || 'new'
+    };
+    slotScreenOrigin = options.origin || 'modes';
+    renderSlotScreen('new');
+    showScreen('slots');
+    return true;
+  }
+
+  function startNewRun(mode, seed = makeSeed(), slotId = activeSlotId() || 'slot-1', options = {}) {
+    const target = workspaceSlot(slotId);
+    if (target && target.run && !options.overwriteConfirmed
+      && !confirm(`${target.name}の進行を上書きして、新しい運命を始めますか？`)) return false;
     state = freshState(seed, mode);
     state.startedAt = new Date().toISOString();
     state.lastPlayedAt = state.startedAt;
+    if (RECORDS) {
+      meta.stats.records.runSerial = Math.max(0, Number(meta.stats.records.runSerial) || 0) + 1;
+      const runId = `${RECORDS.makeRunId({ mode: state.mode, seed: state.seed, startedAt: state.startedAt, choices: [] })}-${meta.stats.records.runSerial.toString(36)}`;
+      state.recording = {
+        runId,
+        slotId,
+        choices: [],
+        timeline: [],
+        rareEncounterLog: [],
+        encounterTokens: [],
+        dailyDate: options.dailyDate || null,
+        fateReplay: options.source === 'fate',
+        expectedChoices: Array.isArray(options.fateChoices) ? options.fateChoices.slice() : [],
+        achievementIdsAtStart: Object.keys(meta.achievements)
+      };
+      if (options.dailyDate) {
+        const daily = RECORDS.updateDailyRecord(workspace.dailyRecords, {
+          date: options.dailyDate,
+          started: true,
+          attemptId: runId,
+          playedAt: state.startedAt,
+          day: state.day,
+          choiceCount: 0
+        });
+        workspace.dailyRecords = daily.records;
+        meta.stats.records.dailyStarts += 1;
+      }
+      if (options.source === 'fate') meta.stats.records.fateReplays += 1;
+    }
     hasActiveRun = true;
     meta.stats.totalRuns += 1;
+    workspace = RECORDS.setSlot(workspace, slotId, state, { timestamp: state.lastPlayedAt, activate: true });
+    recordCurrentEncounter();
+    evaluateRecordAchievements(!silentMode);
     saveState();
     saveMeta();
     const url = new URL('./?resume=1', location.href);
@@ -1010,11 +1726,254 @@
     return true;
   }
 
-  function renderRecords(tab = 'achievements') {
-    document.querySelectorAll('[data-record-tab]').forEach(button => {
-      button.setAttribute('aria-selected', String(button.dataset.recordTab === tab));
+  function openContinueSlots() {
+    pendingLaunch = null;
+    slotScreenOrigin = 'title';
+    renderSlotScreen('continue');
+    showScreen('slots');
+  }
+
+  function activateSlot(id) {
+    const slot = workspaceSlot(id);
+    if (!slot || !slot.run) return false;
+    workspace = RECORDS.setActiveSlot(workspace, id);
+    state = normalizeState(slot.run);
+    if (state.recording) state.recording.slotId = id;
+    hasActiveRun = true;
+    recordCurrentEncounter();
+    evaluateRecordAchievements(!silentMode);
+    if (state.ended) finalizeRunRecord();
+    workspace = RECORDS.setSlot(workspace, id, state, { timestamp: slot.updatedAt || state.lastPlayedAt, activate: true });
+    writeWorkspace(workspace, false);
+    showScreen('game');
+    return true;
+  }
+
+  function renderSlotScreen(purpose = pendingLaunch ? 'new' : 'continue') {
+    const creating = purpose === 'new' && pendingLaunch;
+    $('slotScreenTitle').textContent = creating ? '保存先スロットを選ぶ' : 'つづきから';
+    $('slotContext').textContent = creating
+      ? `${MODE_CONFIG[pendingLaunch.mode].label}${pendingLaunch.dailyDate ? ` ／ 今日の献立 ${pendingLaunch.dailyDate}` : ''}${pendingLaunch.source === 'fate' ? ' ／ 運命コード再生' : ''}${technicalDetailsEnabled() ? ` ／ SEED ${pendingLaunch.seed}` : ''}`
+      : '3つの食卓から再開する記憶を選んでください。';
+    $('slotList').innerHTML = workspace.slots.map(slot => {
+      const summary = RECORDS.slotSummary(slot);
+      const active = workspace.activeSlotId === slot.id;
+      const sceneDefinition = !summary.empty && summary.mode === 'survival'
+        ? (SURVIVAL && (SURVIVAL.events || []).find(event => event.id === summary.scene))
+        : (!summary.empty && scenes[summary.scene]);
+      const sceneLabel = sceneDefinition && sceneDefinition.title || summary.scene || '不明';
+      const details = summary.empty
+        ? '<p class="empty">まだ記録はありません。</p>'
+        : `<dl><dt>モード</dt><dd>${escapeHtml(MODE_CONFIG[summary.mode].label)}</dd><dt>日数</dt><dd>第${summary.day}日${summary.ended ? '・完了' : ''}</dd><dt>HP／空腹</dt><dd>${summary.hp}／${summary.hunger}</dd>${technicalDetailsEnabled() ? `<dt>SEED</dt><dd>${summary.seed}</dd>` : ''}<dt>場面</dt><dd>${escapeHtml(sceneLabel)}</dd><dt>仲間</dt><dd>${escapeHtml(summary.companions.join('、') || 'なし')}</dd><dt>最終プレイ</dt><dd>${escapeHtml(formatTimestamp(summary.lastPlayedAt))}</dd></dl>`;
+      const primary = creating
+        ? `<button class="primary slot-primary" data-slot-start="${slot.id}">${summary.empty ? 'ここから始める' : '上書きして始める'}</button>`
+        : (summary.empty ? '<button class="secondary slot-primary" disabled>空きスロット</button>' : `<button class="primary slot-primary" data-slot-continue="${slot.id}">つづきから</button>`);
+      const actions = summary.empty ? '' : `<div class="slot-actions"><button class="small-btn" data-slot-rename="${slot.id}">名前変更</button><button class="small-btn" data-slot-copy="${slot.id}">複製</button><button class="small-btn" data-slot-delete="${slot.id}">削除</button></div>`;
+      return `<article class="slot-card ${summary.empty ? 'empty' : ''} ${active ? 'active' : ''}" data-slot="${slot.id}"><span class="badge ${active ? 'accent' : ''}">${active ? '使用中' : `スロット ${slot.id.slice(-1)}`}</span><h2>${escapeHtml(slot.name)}</h2>${details}${primary}${actions}</article>`;
+    }).join('');
+    document.querySelectorAll('[data-slot-start]').forEach(button => button.addEventListener('click', () => {
+      const launch = pendingLaunch;
+      if (!launch) return;
+      startNewRun(launch.mode, launch.seed, button.dataset.slotStart, launch);
+    }));
+    document.querySelectorAll('[data-slot-continue]').forEach(button => button.addEventListener('click', () => activateSlot(button.dataset.slotContinue)));
+    document.querySelectorAll('[data-slot-rename]').forEach(button => button.addEventListener('click', () => {
+      const slot = workspaceSlot(button.dataset.slotRename);
+      const name = prompt('スロット名（40文字まで）', slot && slot.name || '');
+      if (name === null) return;
+      try { workspace = RECORDS.renameSlot(workspace, button.dataset.slotRename, name); writeWorkspace(workspace); renderSlotScreen(purpose); }
+      catch (error) { alert(error.message); }
+    }));
+    document.querySelectorAll('[data-slot-copy]').forEach(button => button.addEventListener('click', () => {
+      const sourceId = button.dataset.slotCopy;
+      const empty = workspace.slots.find(slot => slot.id !== sourceId && !slot.run);
+      const suggested = empty ? empty.id.slice(-1) : String((Number(sourceId.slice(-1)) % 3) + 1);
+      const answer = prompt('複製先スロット番号（1〜3）', suggested);
+      const targetId = RECORDS.normalizeSlotId(answer);
+      if (!targetId || targetId === sourceId) return;
+      const target = workspaceSlot(targetId);
+      if (target && target.run && !confirm(`${target.name}を複製で上書きしますか？`)) return;
+      const copiedAt = new Date().toISOString();
+      workspace = RECORDS.duplicateSlot(workspace, sourceId, targetId, { timestamp: copiedAt });
+      const copied = workspaceSlot(targetId);
+      if (copied && copied.run && !copied.run.ended && copied.run.recording) {
+        copied.run.recording.runId = `run-${RECORDS.fnv1a32(`${copied.run.recording.runId}|${targetId}|${copiedAt}`).toString(16).padStart(8, '0')}`;
+        copied.run.recording.slotId = targetId;
+        copied.run.recording.encounterTokens = [];
+      }
+      writeWorkspace(workspace); evaluateRecordAchievements(true); renderSlotScreen(purpose);
+    }));
+    document.querySelectorAll('[data-slot-delete]').forEach(button => button.addEventListener('click', () => {
+      const slot = workspaceSlot(button.dataset.slotDelete);
+      if (!slot || !confirm(`${slot.name}を削除しますか？ 実績・図鑑・履歴は残ります。`)) return;
+      workspace = RECORDS.deleteSlot(workspace, button.dataset.slotDelete);
+      if (!workspace.activeSlotId) {
+        const fallback = workspace.slots.filter(item => item.run).sort((left, right) => String(right.updatedAt || '').localeCompare(String(left.updatedAt || '')))[0];
+        if (fallback) workspace = RECORDS.setActiveSlot(workspace, fallback.id);
+      }
+      const mirror = RECORDS.activeMirror(workspace);
+      if (mirror) state = normalizeState(mirror);
+      writeWorkspace(workspace); hasActiveRun = !!mirror; renderSlotScreen(purpose);
+    }));
+  }
+
+  function bindCodexImageFallback(root = document) {
+    root.querySelectorAll('[data-codex-image]').forEach(image => {
+      const fallback = image.parentElement && image.parentElement.querySelector('[data-codex-fallback]');
+      image.addEventListener('load', () => { if (fallback) fallback.hidden = true; }, { once: true });
+      image.addEventListener('error', () => { image.hidden = true; if (fallback) fallback.hidden = false; }, { once: true });
+      if (image.complete) {
+        if (image.naturalWidth > 0 && fallback) fallback.hidden = true;
+        else if (image.naturalWidth === 0) image.hidden = true;
+      }
     });
-    if (tab === 'achievements') {
+  }
+
+  function codexItemMarkup(category, definition) {
+    const record = workspace.codex.categories[category] && workspace.codex.categories[category][definition.id];
+    const view = RECORDS.describeCodexEntry(definition, record);
+    const assetUrl = !meta.settings.lightVisuals && view.discovered && view.assetId ? ASSET_URLS[view.assetId] : null;
+    const stats = view.record
+      ? `遭遇 ${view.record.encounterCount}回 ／ A ${view.record.choiceA} ・ B ${view.record.choiceB} ／ 摂取 ${view.record.consumedCount} ・ 拒否 ${view.record.refusedCount}`
+      : '実際のランで遭遇すると開示';
+    const dates = view.record
+      ? `初回 ${formatTimestamp(view.record.firstEncounteredAt)} ／ 最終 ${formatTimestamp(view.record.lastEncounteredAt)} ／ ${view.record.modes.map(mode => MODE_CONFIG[mode].label).join('・')}`
+      : (definition.hidden ? '条件・名称・画像は未発見のため非公開' : '未発見');
+    return `<article class="codex-item ${view.discovered ? '' : 'locked'}" data-codex-id="${escapeHtml(definition.id)}" data-discovered="${view.discovered}">
+      <div class="codex-visual"><span data-codex-fallback>${escapeHtml(view.emoji)}</span>${assetUrl ? `<img data-codex-image src="${escapeHtml(assetUrl)}" alt="${escapeHtml(view.name)}" loading="lazy" decoding="async">` : ''}</div>
+      <div><strong>${escapeHtml(view.name)}</strong><small>${escapeHtml(view.description)}</small><small>${escapeHtml(stats)}</small><small>${escapeHtml(dates)}</small></div>
+    </article>`;
+  }
+
+  function renderCodex(category = activeCodexTab) {
+    activeCodexTab = ['foods', 'events', 'characters', 'endings'].includes(category) ? category : 'foods';
+    const generation = ++recordRenderGeneration;
+    const labels = { foods: '食べ物', events: 'イベント', characters: '仲間／登場存在', endings: 'エンディング' };
+    const definitions = catalogDefinitions(activeCodexTab);
+    const discovered = definitions.filter(item => workspace.codex.categories[activeCodexTab] && workspace.codex.categories[activeCodexTab][item.id] && workspace.codex.categories[activeCodexTab][item.id].discovered).length;
+    $('recordsContent').innerHTML = `<div class="record-subtabs" role="tablist" aria-label="図鑑分類">
+      ${Object.entries(labels).map(([id, label]) => `<button class="small-btn" data-codex-tab="${id}" aria-selected="${id === activeCodexTab}">${label}</button>`).join('')}
+    </div><div class="codex-summary"><strong>${labels[activeCodexTab]} ${discovered} / ${definitions.length}</strong><span>未発見は ???、画像不調時は絵文字で表示</span></div><div class="codex-grid" id="codexGrid" data-total-count="${definitions.length}" data-rendered-count="0"></div>`;
+    document.querySelectorAll('[data-codex-tab]').forEach(button => button.addEventListener('click', () => renderCodex(button.dataset.codexTab)));
+    const grid = $('codexGrid');
+    let offset = 0;
+    const renderBatch = () => {
+      if (generation !== recordRenderGeneration || !grid.isConnected) return;
+      const batch = definitions.slice(offset, offset + 20);
+      grid.insertAdjacentHTML('beforeend', batch.map(item => codexItemMarkup(activeCodexTab, item)).join(''));
+      offset += batch.length;
+      grid.dataset.renderedCount = String(offset);
+      bindCodexImageFallback(grid);
+      if (offset < definitions.length) {
+        if ('requestIdleCallback' in globalThis) requestIdleCallback(renderBatch, { timeout: 250 });
+        else setTimeout(renderBatch, 0);
+      }
+    };
+    renderBatch();
+  }
+
+  function resultShareText(result) {
+    const ending = result.ending && result.ending.title || result.title || '未知の結末';
+    return [
+      '『食べないと死ぬ』詳細リザルト',
+      `${MODE_CONFIG[result.mode].label} ／ 第${result.day}日`,
+      `${ending} ／ HP ${result.hp} ／ 空腹 ${result.hunger}`,
+      `摂取 ${result.consumed}回 ／ 拒否 ${result.refused}回 ／ 選択 ${result.totalChoices}回`,
+      result.broughtHome ? `持ち帰る物：${result.broughtHome}` : '',
+      `運命コード：${result.fateCode}`
+    ].filter(Boolean).join('\n');
+  }
+
+  async function shareRunResult(runId) {
+    const result = workspace.history.find(item => item.runId === runId);
+    if (!result) return;
+    const text = resultShareText(result);
+    try {
+      if (navigator.share) await navigator.share({ title: '食べないと死ぬ リザルト', text });
+      else if (navigator.clipboard) { await navigator.clipboard.writeText(text); toast('リザルトをコピーしました'); }
+      else prompt('リザルト', text);
+    } catch (error) { if (error && error.name !== 'AbortError') toast('共有できませんでした'); }
+  }
+
+  function displayAchievementName(id) {
+    const item = ACHIEVEMENTS.find(achievement => achievement.id === id);
+    return item ? item.name : '記録された実績';
+  }
+
+  function displayBeanRoute(route) {
+    return ({ white: '白い土', red: '赤い土', gray: '灰色の土', body: '身体発芽' }[route]) || (route ? '黒豆の記憶' : 'なし');
+  }
+
+  function displayFinalDish(id) {
+    return DISH[id] ? DISH[id].name : (id ? '記録された一皿' : 'なし');
+  }
+
+  function displayFinalBox(id) {
+    return ({ preserved: '保存食の箱', living: '生きている箱', empty: '空の箱', return: '帰還の箱' }[id]) || (id ? '記録された箱' : 'なし');
+  }
+
+  function displayCompanionName(id) {
+    return ({ tako: '寄生タコ', jr: 'Jr.', beanChild: '黒豆の幼体', clone: 'もう一人の自分' }[id]) || '名もない同行者';
+  }
+
+  function displayMemoryName(id) {
+    return ({
+      tako: '寄生タコの記憶', birthday: '失った誕生日の記憶', entryReason: '森へ来た理由',
+      lastLost: '失われた最後の記憶', fakeChef: '偽りの料理人', join: '結び直した記憶'
+    }[id]) || '名もない記憶';
+  }
+
+  function displayEventName(id) {
+    const rawId = String(id || '');
+    const withoutPrefix = rawId.replace(/^(story|survival):/, '');
+    const definition = catalogDefinition('events', rawId)
+      || catalogDefinition('events', `survival:${withoutPrefix}`)
+      || catalogDefinition('events', `story:${withoutPrefix}`);
+    if (definition && definition.name) return definition.name;
+    const survivalEvent = SURVIVAL && (SURVIVAL.events || []).find(event => event.id === withoutPrefix);
+    if (survivalEvent) return survivalEvent.title;
+    const storyScene = scenes[withoutPrefix];
+    return storyScene && storyScene.title || '名もない出来事';
+  }
+
+  function historyCardMarkup(result) {
+    const companions = Object.entries(result.companions || {})
+      .filter(([key, value]) => ['tako', 'jr', 'beanChild', 'clone'].includes(key) && !!value)
+      .map(([key]) => displayCompanionName(key));
+    const memories = Object.entries(result.memories || {}).filter(([, value]) => !!value).map(([key]) => displayMemoryName(key));
+    const milestoneCount = Object.values(result.milestones || {}).filter(Boolean).length;
+    const rareLog = RECORDS.normalizeRareEncounterLog(result.rareEncounterLog);
+    const rareItems = rareLog.length
+      ? rareLog.map(item => `${displayEventName(item.eventId)}（第${item.day}日）`)
+      : (result.rareEncounters || []).map(displayEventName);
+    const rareTotal = rareLog.length || Number(result.rareTotal) || rareItems.length;
+    const timeline = (result.timeline || []).map(item => `<li>#${item.order} 第${item.day}日 ${escapeHtml(item.title || displayEventName(item.sceneId))} → ${escapeHtml(item.choice || (item.choiceIndex === 0 ? 'A' : 'B'))} ／ HP ${item.hpBefore}→${item.hpAfter} ／ 空腹 ${item.hungerBefore}→${item.hungerAfter}</li>`).join('');
+    const technical = technicalDetailsEnabled() ? `<div class="technical-details"><p><strong>詳細な判定情報</strong></p>
+      <p>runId ${escapeHtml(result.runId)} ／ SEED ${result.seed} ／ endingCode ${escapeHtml(result.endingCode || 'none')} ／ beanRoute ${escapeHtml(result.beanRoute || 'none')}</p>
+      <p>achievement IDs：${escapeHtml((result.unlockedAchievements || []).join('、') || 'none')}</p>
+      <p>rare総数 ${rareTotal} ／ natural総数 ${Number(result.naturalTotal) || 0} ／ pity総数 ${Number(result.pityTotal) || 0} ／ longestRareDrought ${Number(result.longestRareDrought) || 0}</p>
+      <ol>${rareLog.map(item => `<li>eventId=${escapeHtml(item.eventId)} ／ day=${item.day} ／ ${item.pityForced ? 'pity' : (item.naturalHit ? 'natural' : 'other')} ／ rareChance=${item.rareChance === null ? 'n/a' : item.rareChance} ／ rareRoll=${item.rareRoll === null ? 'n/a' : item.rareRoll} ／ pity counter=${item.pityCounter}</li>`).join('') || '<li>rare logなし</li>'}</ol>
+    </div>` : '';
+    return `<article class="history-card" data-run-id="${escapeHtml(result.runId)}">
+      <header><strong>${escapeHtml(MODE_CONFIG[result.mode].label)} ／ ${escapeHtml(result.title || (result.ending && result.ending.title) || '結末')}</strong><small>${escapeHtml(formatTimestamp(result.completedAt))}</small></header>
+      <p>第${result.day}日 ／ HP ${result.hp} ／ 空腹 ${result.hunger} ／ 摂取 ${result.consumed} ／ 拒否 ${result.refused}</p>
+      <p>仲間：${escapeHtml(companions.join('、') || 'なし')} ／ 記憶：${escapeHtml(memories.join('、') || 'なし')} ／ 黒豆：${escapeHtml(displayBeanRoute(result.beanRoute))}</p>
+      <p>レア遭遇 ${rareTotal}回：${escapeHtml(rareItems.join('、') || 'なし')} ／ 節目 ${milestoneCount}/4 ／ 四皿：${escapeHtml(displayFinalDish(result.finalDish))} ／ 四箱：${escapeHtml(displayFinalBox(result.finalBox))}</p>
+      <p>持ち帰る物：${escapeHtml(result.broughtHome || 'なし')} ／ 解除実績：${escapeHtml((result.unlockedAchievements || []).map(displayAchievementName).join('、') || 'なし')}</p>
+      <details><summary>選択タイムライン ${result.totalChoices}件</summary>${result.timelineCompacted ? `<p>容量確保のため${result.timelineChoiceCount}件を要約済み。</p>` : `<ol class="timeline">${timeline}</ol>`}</details>
+      ${technical}
+      <label>運命コード<textarea class="fate-code" readonly>${escapeHtml(result.fateCode)}</textarea></label>
+      <div class="button-row"><button class="small-btn" data-share-result="${escapeHtml(result.runId)}">テキスト共有</button><button class="small-btn" data-copy-fate="${escapeHtml(result.runId)}">運命コードをコピー</button></div>
+    </article>`;
+  }
+
+  function renderRecords(tab = 'achievements') {
+    activeRecordTab = ['achievements', 'codex', 'endings', 'history', 'stats'].includes(tab) ? tab : 'achievements';
+    recordRenderGeneration += 1;
+    document.querySelectorAll('[data-record-tab]').forEach(button => {
+      button.setAttribute('aria-selected', String(button.dataset.recordTab === activeRecordTab));
+    });
+    if (activeRecordTab === 'achievements') {
       $('recordsContent').innerHTML = `<div class="record-grid">${ACHIEVEMENTS.map(item => {
         const unlocked = meta.achievements[item.id];
         const concealed = item.hidden && !unlocked;
@@ -1025,28 +1984,48 @@
       }).join('')}</div>`;
       return;
     }
-    if (tab === 'endings') {
+    if (activeRecordTab === 'codex') { renderCodex(activeCodexTab); return; }
+    if (activeRecordTab === 'endings') {
       $('recordsContent').innerHTML = `<div class="record-grid">${ENDING_CATALOG.map(([code, title]) => {
         const record = meta.endings[code];
         return `<article class="record-item ${record ? '' : 'locked'}" data-ending="${code}">
           <strong>${record ? '🏁' : '🔒'} ${escapeHtml(record ? title : '???')}</strong>
-          <small>${record ? `初到達：${escapeHtml(formatTimestamp(record.firstReachedAt))} ／ ${record.count}回` : 'まだ到達していない'}</small>
+          <small>${record ? `初到達：${escapeHtml(formatTimestamp(record.firstReachedAt))} ／ ${escapeHtml(record.count)}回` : 'まだ到達していない'}</small>
         </article>`;
       }).join('')}</div>`;
       return;
     }
+    if (activeRecordTab === 'history') {
+      $('recordsContent').innerHTML = workspace.history.length
+        ? `<div class="history-list">${workspace.history.map(historyCardMarkup).join('')}</div>`
+        : '<div class="empty"><strong>ラン履歴はまだありません。</strong><p>エンディングまで遊ぶと、詳細リザルトを最大30件保存します。</p></div>';
+      document.querySelectorAll('[data-share-result]').forEach(button => button.addEventListener('click', () => shareRunResult(button.dataset.shareResult)));
+      document.querySelectorAll('[data-copy-fate]').forEach(button => button.addEventListener('click', async () => {
+        const result = workspace.history.find(item => item.runId === button.dataset.copyFate);
+        if (!result) return;
+        try { await navigator.clipboard.writeText(result.fateCode); toast('運命コードをコピーしました'); }
+        catch (_) { prompt('運命コード', result.fateCode); }
+      }));
+      return;
+    }
     const s = meta.stats;
+    const counts = RECORDS.codexCounts(workspace.codex);
+    const storageBytes = RECORDS.estimateStorageBytes(RECORDS.encodeStorage(workspace));
     $('recordsContent').innerHTML = `<div class="record-grid">
-      <article class="record-item"><strong>${s.totalRuns} ラン</strong><small>開始したラン</small></article>
-      <article class="record-item"><strong>${s.totalChoices} 回</strong><small>総選択数</small></article>
-      <article class="record-item"><strong>${s.totalAte} / ${s.totalRefused}</strong><small>食べた / 拒否した</small></article>
-      <article class="record-item"><strong>第${s.longestDay}日</strong><small>最長生存</small></article>
-      <article class="record-item"><strong>${s.day50Reached} 回</strong><small>50日目到達</small></article>
-      <article class="record-item"><strong>${s.modeClears.story} / ${s.modeClears.hard} / ${s.modeClears.survival}</strong><small>STORY / HARD / SURVIVAL 生還</small></article>
+      <article class="record-item"><strong>${escapeHtml(s.totalRuns)} ラン</strong><small>開始したラン</small></article>
+      <article class="record-item"><strong>${escapeHtml(s.totalChoices)} 回</strong><small>総選択数</small></article>
+      <article class="record-item"><strong>${escapeHtml(s.totalAte)} / ${escapeHtml(s.totalRefused)}</strong><small>食べた / 拒否した</small></article>
+      <article class="record-item"><strong>第${escapeHtml(s.longestDay)}日</strong><small>最長生存</small></article>
+      <article class="record-item"><strong>${escapeHtml(s.day50Reached)} 回</strong><small>50日目到達</small></article>
+      <article class="record-item"><strong>${escapeHtml(s.modeClears.story)} / ${escapeHtml(s.modeClears.hard)} / ${escapeHtml(s.modeClears.survival)}</strong><small>STORY / HARD / SURVIVAL 生還</small></article>
       <article class="record-item"><strong>${Object.values(s.soils).filter(Boolean).length} 種</strong><small>土・身体発芽ルート</small></article>
       <article class="record-item"><strong>${s.dishHistory.length} 皿</strong><small>最後の晩餐の選択履歴</small></article>
-      <article class="record-item"><strong>${s.survival.rareEvents} 回</strong><small>SURVIVAL レア遭遇</small></article>
+      <article class="record-item"><strong>${escapeHtml(s.survival.rareEvents)} 回</strong><small>SURVIVAL レア遭遇</small></article>
       <article class="record-item"><strong>${Object.values(s.survival.boxesOpened).reduce((sum, value) => sum + Number(value || 0), 0)} 箱</strong><small>生存者の配膳・開封</small></article>
+      <article class="record-item"><strong>${counts.total} 件</strong><small>図鑑の発見</small></article>
+      <article class="record-item"><strong>${workspace.history.length} / ${RECORDS.historyLimit}</strong><small>詳細リザルト</small></article>
+      <article class="record-item"><strong>${Object.keys(workspace.dailyRecords).length} 日</strong><small>今日の献立記録</small></article>
+      <article class="record-item"><strong>記録容量　${(s.records.storageDegraded || 0) > 0 ? '履歴を整理済み' : '余裕あり'}</strong>${technicalDetailsEnabled() ? `<small>localStorage ${Math.ceil(storageBytes / 1024)} KiB</small>` : ''}</article>
     </div>`;
   }
 
@@ -1073,7 +2052,14 @@
 
   function rollText(label, probability, success) {
     const effectiveProbability = clamp(probability - (MODE_CONFIG[state.mode] || MODE_CONFIG.story).rollPenalty, .1, .95);
-    return `\n［運命判定：${label} ${success ? '成功' : '失敗'}／${Math.round(effectiveProbability * 100)}％］`;
+    if (technicalDetailsEnabled()) {
+      const rollValue = state.lastRoll && Number.isFinite(Number(state.lastRoll.value))
+        ? `／ロール ${Number(state.lastRoll.value).toFixed(5)}`
+        : '';
+      return `\n［詳細：${label} ${success ? '成功' : '失敗'}／${Math.round(effectiveProbability * 100)}％${rollValue}］`;
+    }
+    if (!success) return '\n［運命に見放された］';
+    return effectiveProbability >= 0.6 ? '\n［運命が味方した］' : '\n［どうにか切り抜けた］';
   }
 
   function addLog(text) {
@@ -1236,7 +2222,9 @@
       const record = JSON.parse(localStorage.getItem(ENDING_KEY) || '{}');
       record[code] = (record[code] || 0) + 1;
       localStorage.setItem(ENDING_KEY, JSON.stringify(record));
-    } catch (_) {}
+    } catch (_) {
+      notifyStorageFailure();
+    }
   }
 
   function finish(code, title, text, icon = '🏁') {
@@ -1264,19 +2252,49 @@
       choices: (event.choices || []).map((choice, index) => ({
         ...choice,
         title: choice.title || choice.label || '選ぶ',
-        desc: SURVIVAL.visibleChoiceDescription(state, event.id, index)
+        desc: (() => {
+          if (technicalDetailsEnabled()) return SURVIVAL.visibleChoiceDescription(state, event.id, index);
+          const info = SURVIVAL.publicChoiceInfo(state, event.id, index);
+          const risk = ({ safe: '安全そう', low: '少し不穏', medium: '危険', high: '命懸け' }[info.risk]) || '正体不明';
+          const benefit = ({ food: '空腹を満たせそう', heal: '傷を癒やせそう', clue: '手掛かりになりそう', companion: '仲間につながりそう', none: '見返りは分からない' }[info.benefit]) || '見返りは分からない';
+          return `${choice.description || ''} ［${risk}／${benefit}］${info.note ? ` ${info.note}` : ''}`.trim();
+        })()
       }))
     };
   }
 
+  function currentRarePityCounter() {
+    const history = state.survival && Array.isArray(state.survival.history) ? state.survival.history : [];
+    let pityCounter = 0;
+    for (let index = history.length - 2; index >= 0; index -= 1) {
+      const previous = history[index];
+      if (previous && previous.category === 'rare') break;
+      if (previous && !['milestone', 'final'].includes(previous.category)) pityCounter += 1;
+    }
+    return pityCounter;
+  }
+
   function recordSurvivalEncounter(event) {
     if (!event || event.category !== 'rare') return;
+    const selection = state.survival.currentSelection || {};
     meta.stats.survival.rareEvents += 1;
-    if (state.survival.currentSelection && state.survival.currentSelection.pityForced) meta.stats.survival.pityEvents += 1;
+    if (selection.pityForced) meta.stats.survival.pityEvents += 1;
     meta.stats.survival.longestRareDrought = Math.max(
       meta.stats.survival.longestRareDrought || 0,
       Number(state.survival.longestRareDrought || 0)
     );
+    const recording = ensureRecording();
+    if (!recording) return;
+    if (!Array.isArray(recording.rareEncounterLog)) recording.rareEncounterLog = [];
+    recording.rareEncounterLog.push({
+      eventId: event.eventId || event.id,
+      day: Number(selection.day || state.day) || 0,
+      naturalHit: selection.naturalHit === true,
+      pityForced: selection.pityForced === true,
+      rareChance: Number.isFinite(Number(selection.rareChance)) ? Number(selection.rareChance) : null,
+      rareRoll: Number.isFinite(Number(selection.rareRoll)) ? Number(selection.rareRoll) : null,
+      pityCounter: currentRarePityCounter()
+    });
   }
 
   function recordSurvivalEndingDetails(event, choice) {
@@ -1300,6 +2318,9 @@
     const choice = event.choices[index];
     if (!choice) return;
     if (!silentMode && meta.settings.confirmChoices && !confirm(`「${choice.title}」を選びますか？`)) return;
+    recordCurrentEncounter();
+    const recordDescriptor = currentEncounterDescriptor();
+    const recordBefore = { day: state.day, hp: state.hp, hunger: state.hunger };
     if (!silentMode && presentation) presentation.action(choice.kind, { warning: choice.visibleRisk === 'high' });
     clickLocked = true;
 
@@ -1334,9 +2355,13 @@
     }
     if (state.ended && state.ending) recordSurvivalEndingDetails(event, choice);
 
+    if (!silentMode) state.lastPlayedAt = new Date().toISOString();
+    recordCommittedChoice(recordDescriptor, choice, index, recordBefore);
+    if (!state.ended) recordCurrentEncounter();
     meta.stats.longestDay = Math.max(meta.stats.longestDay || 0, state.day || 0);
     evaluateAchievements(!silentMode);
-    if (!silentMode) state.lastPlayedAt = new Date().toISOString();
+    if (state.ended) finalizeRunRecord();
+    else updateDailyProgress(false);
     saveMeta();
     if (!silentMode) {
       saveState();
@@ -1352,6 +2377,14 @@
 
   function resolveChoice(index) {
     if (clickLocked || state.ended) return;
+    const recording = state.recording;
+    if (recording && recording.fateReplay && recording.choices.length < recording.expectedChoices.length) {
+      const expected = recording.expectedChoices[recording.choices.length];
+      if (index !== expected) {
+        if (!silentMode) toast(`運命コードの次の選択は ${expected === 0 ? 'A' : 'B'} です`);
+        return;
+      }
+    }
     if (state.mode === 'survival') {
       resolveSurvivalChoice(index);
       return;
@@ -1362,6 +2395,9 @@
     const choice = scene.choices(state)[index];
     if (!choice) return;
     if (!silentMode && meta.settings.confirmChoices && !confirm(`「${choice.title}」を選びますか？`)) return;
+    recordCurrentEncounter();
+    const recordDescriptor = currentEncounterDescriptor();
+    const recordBefore = { day: state.day, hp: state.hp, hunger: state.hunger };
     if (!silentMode && presentation) presentation.action(choice.kind);
     clickLocked = true;
 
@@ -1387,9 +2423,13 @@
       checkDeath();
     }
     if (!state.ended) state.scene = typeof next === 'string' ? next : (scene.next || state.scene);
+    if (!silentMode) state.lastPlayedAt = new Date().toISOString();
+    recordCommittedChoice(recordDescriptor, choice, index, recordBefore);
+    if (!state.ended) recordCurrentEncounter();
     meta.stats.longestDay = Math.max(meta.stats.longestDay || 0, state.day || 0);
     evaluateAchievements(!silentMode);
-    if (!silentMode) state.lastPlayedAt = new Date().toISOString();
+    if (state.ended) finalizeRunRecord();
+    else updateDailyProgress(false);
     saveMeta();
     if (!silentMode) {
       saveState();
@@ -1601,7 +2641,7 @@
         E('食べる', '未来の空腹より、過去の記憶を差し出す。', () => {
           state.hunger = 0;
           const lost = forgetMemory();
-          setResult(`三日後、「${lost}」が消えた。失う記憶は運命シードで固定されている。`);
+          setResult(`三日後、「${lost}」が消えた。同じ運命では、同じ記憶を失う。`);
           addLog(`黒チョコで「${lost}」を失った。`);
           return 'memoryJuice';
         }),
@@ -1732,7 +2772,7 @@
       text: () => 'もう後戻りはできない。自分が食べるか、もう一人へ食べさせるか。',
       choices: () => [
         E('自分が食べる', '自分が本物だと証明する。', () => { state.flags.monsterForm = true; state.companions.clone = false; state.flags.cloneUnresolved = false; state.hp = 100; state.hunger = 0; state.status = '怪物化'; setResult('あなたは本物だった。だから怪物になった。偽物は怖がって逃げたが、旅はまだ続く。'); addLog('黒プリンで怪物化した。'); return 'cookie'; }),
-        E('もう一人に食べさせる', '先に名乗った方へ責任を取らせる。', () => { state.companions.clone = false; state.flags.cloneUnresolved = false; adjust({ hunger: 8 }); setResult('もう一人は黒い煙となって消滅。あなたが本物だった。'); addLog('偽物の自分を消した。'); return 'cookie'; })
+        Object.assign(E('もう一人に食べさせる', '先に名乗った方へ責任を取らせる。', () => { state.companions.clone = false; state.flags.cloneUnresolved = false; adjust({ hunger: 8 }); setResult('もう一人は黒い煙となって消滅。あなたが本物だった。'); addLog('偽物の自分を消した。'); return 'cookie'; }), { consumedByPlayer: false })
       ]
     },
     cookie: {
@@ -1800,7 +2840,7 @@
           addLog('石柱から仲間を庇った。');
           return 'bean';
         }),
-        C('全力で避ける', '成功率72％。失敗しても即死はしにくい。', () => {
+        C('全力で避ける', '身軽なら切り抜けやすいが、失敗すれば大きく負傷する。', () => {
           const p = state.flags.monsterForm ? 0.88 : 0.72;
           const clean = roll('石柱回避', p);
           adjust({ hp: clean ? -12 : -34, hunger: 7, status: clean ? '打撲' : '重い打撲' });
@@ -1839,7 +2879,7 @@
       text: () => '黒豆へ関わることは決めた。食べて体内へ入れるか、瓶へ入れて持つか。',
       choices: () => [
         E('食べる', '攻略法を身体の中から聞く。', () => { state.flags.beanInside = true; adjust({ hp: -14, hunger: -14, status: '発根中' }); setResult('黒豆は胃で根を伸ばし始めた。「40日目までに土へ埋めろ」と笑う。'); addLog('黒豆を食べ、体内で発根した。'); return 'soil'; }),
-        C('食べずに持つ', '未来の自分の指示を守る。', () => { state.flags.beanCarried = true; adjust({ hunger: 13 }); setResult('瓶の中で黒豆が脈打つ。食べ物の反応はない。'); addLog('黒豆を持ち歩くことにした。'); return 'soil'; })
+        Object.assign(C('食べずに持つ', '未来の自分の指示を守る。', () => { state.flags.beanCarried = true; adjust({ hunger: 13 }); setResult('瓶の中で黒豆が脈打つ。食べ物の反応はない。'); addLog('黒豆を持ち歩くことにした。'); return 'soil'; }), { refusal: true })
       ]
     },
     soil: {
@@ -1862,7 +2902,7 @@
       day: 37, icon: '🥪', title: '半分だけ存在するサンドイッチ',
       text: () => '存在する半分を食べれば満腹。\n存在しない半分なら、「空腹だった事実」が影へ移る。噛むまで分からない。',
       choices: () => [
-        E('食べる', '二つの結果は50％ずつ。シードで固定される。', () => {
+        E('食べる', '噛むまで、どちらの半分を引くか分からない。', () => {
           const existing = roll('存在する半分', 0.5);
           if (existing) {
             adjust({ hunger: -50, hp: 4 });
@@ -1905,7 +2945,7 @@
       text: () => '白いご飯は空腹を本体へ戻す。黒いパンは影を満たし、自我を与える。',
       choices: () => [
         E('白いご飯を自分で食べる', '空腹を自分へ戻し、普通に満たす。', () => { state.flags.shadowHunger = false; state.hunger = 28; adjust({ hp: 5 }); setResult('空腹は正常に戻り、影も足元へ帰った。'); addLog('白いご飯で影を戻した。'); return (state.flags.beanInside || state.flags.beanCarried) ? 'beanDeadline' : 'futureLunch'; }),
-        E('黒いパンを影に与える', '影を独立した存在として満たす。', () => { state.flags.shadowHunger = false; state.flags.shadowAwake = true; adjust({ hunger: 7 }); setResult('影は満腹になり、自我を持った。「次はお前が食べられる番だ」と笑う。'); addLog('影へ黒いパンを与えた。'); return (state.flags.beanInside || state.flags.beanCarried) ? 'beanDeadline' : 'futureLunch'; })
+        Object.assign(E('黒いパンを影に与える', '影を独立した存在として満たす。', () => { state.flags.shadowHunger = false; state.flags.shadowAwake = true; adjust({ hunger: 7 }); setResult('影は満腹になり、自我を持った。「次はお前が食べられる番だ」と笑う。'); addLog('影へ黒いパンを与えた。'); return (state.flags.beanInside || state.flags.beanCarried) ? 'beanDeadline' : 'futureLunch'; }), { consumedByPlayer: false })
       ]
     },
     beanDeadline: {
@@ -2013,7 +3053,7 @@
           if (known.length) {
             const [flag, label] = pick(known);
             removeClueByFlag(flag, label);
-            setResult(`全快した代わりに、「${label}」の情報を忘れた。忘却対象はシードで固定。`);
+            setResult(`全快した代わりに、「${label}」の情報を忘れた。忘れる情報は、同じ運命で決まる。`);
           } else setResult('全快した。忘れるほどの情報を持っていなかった。');
           addLog('全快ドロップを食べた。');
           return 'eveRice';
@@ -2090,7 +3130,10 @@
     if (ui.modeBadge) ui.modeBadge.textContent = MODE_CONFIG[state.mode].label;
     ui.statusBadge.textContent = state.status;
     ui.sceneCountBadge.textContent = `選択 ${state.choiceCount}`;
-    if (ui.seedBadge) ui.seedBadge.textContent = `SEED ${state.seed}`;
+    if (ui.seedBadge) {
+      ui.seedBadge.hidden = !technicalDetailsEnabled();
+      ui.seedBadge.textContent = technicalDetailsEnabled() ? `SEED ${state.seed}` : '';
+    }
   }
 
   function renderCompanions() {
@@ -2135,24 +3178,25 @@
     ui.sceneContent.innerHTML = `
       <div class="ending">
         <div class="ending-icon">${escapeHtml(e.icon || '🏁')}</div>
-        <span class="badge accent">ENDING：${escapeHtml(e.code || 'END')}</span>
+        <span class="badge accent">エンディング</span>
         <h2>${escapeHtml(e.title)}</h2>
         <p class="scene-text">${escapeHtml(e.text)}</p>
         <div class="ending-score">
-          <div><span class="subtitle">生存日数</span><b>${state.day}日</b></div>
-          <div><span class="subtitle">選択回数</span><b>${state.choiceCount}</b></div>
-          <div><span class="subtitle">仲間・影</span><b>${companionCount()}人</b></div>
-          <div><span class="subtitle">運命判定</span><b>${state.stats.randomChecks}回</b></div>
+          <div><span class="subtitle">生存日数</span><b>${escapeHtml(state.day)}日</b></div>
+          <div><span class="subtitle">選択回数</span><b>${escapeHtml(state.choiceCount)}</b></div>
+          <div><span class="subtitle">仲間・影</span><b>${escapeHtml(companionCount())}人</b></div>
+          <div><span class="subtitle">運命の巡り</span><b>${state.stats.lucky >= state.stats.unlucky ? '味方した' : '試された'}</b></div>
         </div>
-        <p class="subtitle">SEED ${state.seed} ／ エンディング記録：${escapeHtml(endingRecordsText())}</p>
+        <p class="subtitle">エンディング記録：${escapeHtml(endingRecordsText())}</p>
+        ${technicalDetailsEnabled() ? `<details class="technical-details"><summary>詳細な判定情報</summary><p>endingCode ${escapeHtml(e.code || 'END')} ／ SEED ${escapeHtml(state.seed)} ／ 運命判定 ${escapeHtml(state.stats.randomChecks)}回</p></details>` : ''}
         <div class="ending-actions">
           <button class="primary" id="newSeedRestart">新しい運命</button>
-          <button class="secondary" id="sameSeedRestart">同じシード</button>
+          <button class="secondary" id="sameSeedRestart">同じ運命</button>
           <button class="secondary" id="endingLog">ログを見る</button>
         </div>
       </div>`;
-    $('newSeedRestart').addEventListener('click', () => restartWithSeed(makeSeed()));
-    $('sameSeedRestart').addEventListener('click', () => restartWithSeed(state.seed));
+    $('newSeedRestart').addEventListener('click', () => restartWithSeed(makeSeed(), false));
+    $('sameSeedRestart').addEventListener('click', () => restartWithSeed(state.seed, true));
     $('endingLog').addEventListener('click', () => {
       const details = document.querySelector('.side details');
       if (details) { details.open = true; details.scrollIntoView({ behavior: reducedMotionActive() ? 'auto' : 'smooth' }); }
@@ -2180,10 +3224,15 @@
       }
       ui.sceneIcon.textContent = event.icon || '🏕️';
       ui.sceneTitle.textContent = event.title;
-      const category = String(event.category || 'common').toUpperCase();
+      const category = ({
+        common: '通常遭遇', uncommon: '少し珍しい遭遇', conditional: '条件付き遭遇',
+        rare: 'レア遭遇', milestone: '節目', final: '最終日'
+      }[event.category]) || '遭遇';
       const selection = state.survival && state.survival.currentSelection;
       const rareNote = event.category === 'rare' && selection
-        ? `\n\n［RARE ${Math.round(Number(selection.rareChance || SURVIVAL.rareRate(state.day)) * 100)}％${selection.pityForced ? '／PITY' : ''}］`
+        ? (technicalDetailsEnabled()
+          ? `\n\n［eventId=${event.eventId} ／ rareChance=${Number(selection.rareChance || SURVIVAL.rareRate(state.day)).toFixed(5)} ／ rareRoll=${Number(selection.rareRoll).toFixed(5)} ／ ${selection.pityForced ? 'pity' : (selection.naturalHit ? 'natural' : 'other')} ／ pity counter=${currentRarePityCounter()}］`
+          : '\n\n［正体不明の稀少な遭遇］')
         : '';
       ui.sceneText.textContent = `${event.text || ''}${rareNote}`;
       ui.choiceATitle.textContent = event.choices[0].title;
@@ -2267,17 +3316,21 @@
   }
 
   function saveState(showToast = false) {
-    try {
-      hasActiveRun = true;
-      localStorage.setItem(SAVE_KEY, JSON.stringify(state));
-      if (showToast) toast('保存しました');
-    } catch (_) {
-      if (showToast) toast('保存できませんでした');
+    hasActiveRun = true;
+    if (!RECORDS || !workspace) {
+      try { localStorage.setItem(SAVE_KEY, JSON.stringify(state)); if (showToast) toast('保存しました'); return true; }
+      catch (_) { if (showToast) toast('保存できませんでした'); return false; }
     }
+    const slotId = activeSlotId() || 'slot-1';
+    workspace = RECORDS.setSlot(workspace, slotId, state, {
+      timestamp: state.lastPlayedAt || state.startedAt,
+      activate: true
+    });
+    return writeWorkspace(workspace, showToast);
   }
 
   function migrateLegacy(old) {
-    const migrated = freshState(old && old.seed ? old.seed : makeSeed());
+    const migrated = freshState(old && old.seed !== undefined ? old.seed : makeSeed());
     for (const k of ['scene', 'day', 'hp', 'hunger', 'status', 'choiceCount', 'ended', 'ending', 'lastResult', 'lastRoll', 'log', 'clues', 'rngState', 'startedAt', 'lastPlayedAt']) {
       if (old && old[k] !== undefined) migrated[k] = clone(old[k]);
     }
@@ -2307,8 +3360,10 @@
     if (sceneAliases[migrated.scene]) migrated.scene = sceneAliases[migrated.scene];
     if (migrated.companions.beanChild && !migrated.flags.beanSoil) migrated.flags.beanSoil = migrated.flags.beanPossessed ? 'body' : 'gray';
     if (migrated.scene === 'finalCommit' && !migrated.flags.selectedTrueDish) migrated.scene = 'finalPair';
-    migrated.seed = (Number(migrated.seed) || makeSeed()) >>> 0;
-    migrated.rngState = (Number(migrated.rngState) || migrated.seed) >>> 0;
+    const migratedSeed = Number(migrated.seed);
+    const migratedRngState = Number(migrated.rngState);
+    migrated.seed = Number.isFinite(migratedSeed) ? migratedSeed >>> 0 : makeSeed();
+    migrated.rngState = Number.isFinite(migratedRngState) ? migratedRngState >>> 0 : migrated.seed;
     migrated.mode = 'story';
     migrated.version = VERSION;
     return migrated;
@@ -2316,7 +3371,7 @@
 
   function normalizeState(raw) {
     const requestedMode = raw && MODE_CONFIG[raw.mode] ? raw.mode : 'story';
-    const base = freshState(raw && raw.seed ? raw.seed : makeSeed(), requestedMode, false);
+    const base = freshState(raw && raw.seed !== undefined ? raw.seed : makeSeed(), requestedMode, false);
     const out = Object.assign(base, raw || {});
     out.stats = Object.assign(base.stats, raw && raw.stats || {});
     out.memories = Object.assign(base.memories, raw && raw.memories || {});
@@ -2325,10 +3380,17 @@
     out.companions = Object.assign(base.companions, raw && raw.companions || {});
     out.log = Array.isArray(out.log) ? out.log : [];
     out.clues = Array.isArray(out.clues) ? out.clues : [];
+    const runCount = (value, maximum = 1_000_000) => clamp(Math.max(0, Math.floor(Number.isFinite(Number(value)) ? Number(value) : 0)), 0, maximum);
+    out.day = runCount(out.day, 9999);
+    out.choiceCount = runCount(out.choiceCount, 10000);
+    for (const key of Object.keys(base.stats)) out.stats[key] = runCount(out.stats[key]);
     out.hp = clamp(Number(out.hp) || 0, 0, MAX_HP);
     out.hunger = clamp(Number(out.hunger) || 0, 0, MAX_HUNGER);
-    out.seed = (Number(out.seed) || makeSeed()) >>> 0;
-    out.rngState = (Number(out.rngState) || out.seed) >>> 0;
+    out.status = typeof out.status === 'string' ? out.status.slice(0, 160) : '健康';
+    const stateSeed = Number(out.seed);
+    const stateRng = Number(out.rngState);
+    out.seed = Number.isFinite(stateSeed) ? stateSeed >>> 0 : makeSeed();
+    out.rngState = Number.isFinite(stateRng) ? stateRng >>> 0 : out.seed;
     out.mode = MODE_CONFIG[out.mode] ? out.mode : 'story';
     if (out.mode === 'survival') {
       if (!SURVIVAL) throw new Error('SURVIVAL engine is unavailable');
@@ -2338,46 +3400,88 @@
     }
     out.startedAt = typeof out.startedAt === 'string' ? out.startedAt : null;
     out.lastPlayedAt = typeof out.lastPlayedAt === 'string' ? out.lastPlayedAt : null;
+    if (out.ending && typeof out.ending === 'object') {
+      out.ending = {
+        code: typeof out.ending.code === 'string' ? out.ending.code.slice(0, 120) : 'unknown',
+        title: typeof out.ending.title === 'string' ? out.ending.title.slice(0, 160) : '未知の結末',
+        text: typeof out.ending.text === 'string' ? out.ending.text.slice(0, 2000) : '',
+        icon: typeof out.ending.icon === 'string' ? out.ending.icon.slice(0, 16) : '🏁'
+      };
+    } else if (out.ended) {
+      out.ending = { code: 'unknown', title: '未知の結末', text: '', icon: '🏁' };
+    }
+    out.ended = out.ended === true;
+    if (out.recording && typeof out.recording === 'object' && typeof out.recording.runId === 'string') {
+      let dailyDate = null;
+      try {
+        const candidate = typeof out.recording.dailyDate === 'string' ? out.recording.dailyDate : null;
+        if (candidate && RECORDS.dailySeed(candidate) === out.seed) dailyDate = candidate;
+      } catch (_) {}
+      out.recording = {
+        runId: out.recording.runId.slice(0, 80),
+        slotId: RECORDS && RECORDS.normalizeSlotId(out.recording.slotId) || null,
+        choices: Array.isArray(out.recording.choices) ? out.recording.choices.filter(value => value === 0 || value === 1).slice(0, 10000) : [],
+        timeline: Array.isArray(out.recording.timeline) ? out.recording.timeline.slice(-10000) : [],
+        rareEncounterLog: RECORDS ? RECORDS.normalizeRareEncounterLog(out.recording.rareEncounterLog) : [],
+        encounterTokens: Array.isArray(out.recording.encounterTokens) ? [...new Set(out.recording.encounterTokens.map(String))].slice(-10000) : [],
+        dailyDate,
+        fateReplay: out.recording.fateReplay === true,
+        expectedChoices: Array.isArray(out.recording.expectedChoices) ? out.recording.expectedChoices.filter(value => value === 0 || value === 1).slice(0, 10000) : [],
+        achievementIdsAtStart: Array.isArray(out.recording.achievementIdsAtStart) ? [...new Set(out.recording.achievementIdsAtStart.map(String))] : []
+      };
+    } else {
+      delete out.recording;
+    }
     out.version = VERSION;
     return out;
   }
 
   function loadState() {
+    const finishLoaded = loaded => {
+      if (!loaded.lastPlayedAt) loaded.lastPlayedAt = new Date().toISOString();
+      if (!loaded.startedAt) loaded.startedAt = loaded.lastPlayedAt;
+      return loaded;
+    };
     try {
       const raw = localStorage.getItem(SAVE_KEY);
       if (raw) {
         const parsed = JSON.parse(raw);
         if (parsed && parsed.version === VERSION) {
-          const loaded = normalizeState(parsed);
-          if (!loaded.lastPlayedAt) loaded.lastPlayedAt = new Date().toISOString();
-          if (!loaded.startedAt) loaded.startedAt = loaded.lastPlayedAt;
-          return loaded;
+          return finishLoaded(normalizeState(parsed));
         }
       }
-      for (const key of LEGACY_KEYS) {
+    } catch (_) {}
+    let workspaceInitialized = false;
+    if (RECORDS) {
+      try {
+        workspaceInitialized = localStorage.getItem(RECORDS.storageKeys.slots) !== null
+          || localStorage.getItem(RECORDS.storageKeys.migrationMarker) === '1';
+      } catch (_) {}
+    }
+    // Old v2/v3 keys become historical input once a slot workspace exists.
+    // Loading them again would resurrect an intentionally deleted run.
+    if (workspaceInitialized) return null;
+    for (const key of LEGACY_KEYS) {
+      try {
         const legacy = localStorage.getItem(key);
         if (!legacy) continue;
         const parsed = JSON.parse(legacy);
         if (parsed && (parsed.version === 3 || parsed.version === 2)) {
-          const loaded = normalizeState(migrateLegacy(parsed));
-          if (!loaded.lastPlayedAt) loaded.lastPlayedAt = new Date().toISOString();
-          if (!loaded.startedAt) loaded.startedAt = loaded.lastPlayedAt;
-          return loaded;
+          return finishLoaded(normalizeState(migrateLegacy(parsed)));
         }
-      }
-    } catch (_) {}
+      } catch (_) {}
+    }
     return null;
   }
 
-  function restartWithSeed(seed) {
+  function restartWithSeed(seed, preserveDaily = false) {
     const mode = state.mode;
-    state = freshState(seed, mode);
-    state.startedAt = new Date().toISOString();
-    state.lastPlayedAt = state.startedAt;
-    meta.stats.totalRuns += 1;
-    try { localStorage.setItem(SAVE_KEY, JSON.stringify(state)); } catch (_) {}
-    saveMeta();
-    location.assign(new URL('./?resume=1', location.href).href);
+    const dailyDate = preserveDaily && state.recording && state.recording.dailyDate || null;
+    startNewRun(mode, seed, activeSlotId() || 'slot-1', {
+      overwriteConfirmed: true,
+      dailyDate,
+      source: dailyDate ? 'daily' : 'restart'
+    });
   }
 
   function resetGame() {
@@ -2401,20 +3505,20 @@
     }
   }
 
-  function makeTransferPayload() {
+  function makeTransferPayload(scopeValue = null) {
     if (hasActiveRun) saveState(false);
     let endings = {};
     try { endings = JSON.parse(localStorage.getItem(ENDING_KEY) || '{}'); } catch (_) {}
-    return {
-      format: 'tabenai-save',
-      formatVersion: 2,
+    const scope = scopeValue || ($('exportScope') && $('exportScope').value) || 'all';
+    const slotId = scope === 'active' ? activeSlotId() : (scope.startsWith('slot-') ? scope : null);
+    if (scope === 'active' && !slotId) throw new Error('使用中のスロットがありません');
+    return RECORDS.makeTransferPayload(workspace, {
+      slotId,
       appVersion: APP_VERSION,
       exportedAt: new Date().toISOString(),
-      run: hasActiveRun ? clone(state) : null,
-      state: clone(state),
-      meta: clone(meta),
+      meta,
       endings
-    };
+    });
   }
 
   function bytesToBase64Url(bytes) {
@@ -2447,52 +3551,194 @@
   }
 
   async function exportSave() {
-    const text = encodeTransfer(makeTransferPayload());
-    const box = $('saveTransferText');
-    box.value = text;
-    box.focus();
-    box.select();
     try {
+      const text = encodeTransfer(makeTransferPayload());
+      const box = $('saveTransferText');
+      box.value = text;
+      pendingImport = null;
+      previewImportText();
+      box.focus();
+      box.select();
       await navigator.clipboard.writeText(text);
       toast('セーブ文字列をコピーしました');
-    } catch (_) {
-      toast('書き出しました。長押ししてコピーしてください');
+    } catch (error) {
+      if ($('saveTransferText').value) toast('書き出しました。長押ししてコピーしてください');
+      else alert(error && error.message ? error.message : error);
     }
   }
 
   function downloadSave() {
-    const payload = makeTransferPayload();
-    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `tabenai-save-day${state.day}-seed${state.seed}.json`;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    setTimeout(() => URL.revokeObjectURL(url), 1000);
-    toast('セーブJSONを保存しました');
+    try {
+      const scope = ($('exportScope') && $('exportScope').value) || 'all';
+      const payload = makeTransferPayload(scope);
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `tabenai-save-v4.8.0-${scope}.json`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      toast('セーブJSONを保存しました');
+    } catch (error) { alert(error && error.message ? error.message : error); }
+  }
+
+  function importTargetFor(payload) {
+    const normalized = RECORDS.normalizeTransfer(payload);
+    if (normalized.formatVersion < 3) return 'slot-1';
+    if (normalized.formatVersion === 3 && normalized.scope === 'all') return null;
+    return $('importTargetSlot').value;
+  }
+
+  function previewImportText() {
+    const box = $('saveTransferText');
+    const previewBox = $('importPreview');
+    pendingImport = null;
+    if (!box.value.trim()) {
+      $('importTargetSlot').disabled = false;
+      previewBox.hidden = true;
+      previewBox.textContent = '';
+      return null;
+    }
+    try {
+      const payload = decodeTransfer(box.value);
+      const targetSlotId = importTargetFor(payload);
+      const preview = RECORDS.previewTransfer(payload, { currentWorkspace: workspace, targetSlotId });
+      $('importTargetSlot').disabled = preview.formatVersion < 3 || (preview.formatVersion === 3 && preview.scope === 'all');
+      if (preview.formatVersion < 3) $('importTargetSlot').value = 'slot-1';
+      pendingImport = { text: box.value, payload, targetSlotId, preview };
+      const slotLines = preview.slots.map(slot => `${slot.name}：${MODE_CONFIG[slot.mode].label} 第${slot.day}日${technicalDetailsEnabled() ? ` ／ SEED ${slot.seed}` : ''}`).join('\n');
+      const replacementNotice = preview.formatVersion === 3
+        ? '\n実績・設定・図鑑・ラン履歴・今日の献立もバックアップ内容で置き換えます。'
+        : '';
+      const transferKind = preview.formatVersion < 3 ? '旧形式のセーブ' : (preview.scope === 'all' ? '全体バックアップ' : '単一スロットのバックアップ');
+      const technicalTransfer = technicalDetailsEnabled() ? ` ／ formatVersion ${preview.formatVersion} ／ scope ${preview.scope}` : '';
+      previewBox.textContent = `${transferKind}${technicalTransfer}\n${slotLines || '保存スロット：すべて空'}\n図鑑 ${preview.codexCount}件 ／ 履歴 ${preview.historyCount}件 ／ 日替わり ${preview.dailyCount}日${preview.targetSlotId ? `\n読込先：${displaySlotId(preview.targetSlotId)}` : ''}${preview.overwriteSlotIds.length ? `\n上書き／消去対象：${preview.overwriteSlotIds.map(displaySlotId).join('、')}` : ''}${replacementNotice}`;
+      previewBox.hidden = false;
+      return pendingImport;
+    } catch (error) {
+      previewBox.textContent = `プレビューできません：${error && error.message ? error.message : error}`;
+      previewBox.hidden = false;
+      return null;
+    }
+  }
+
+  function normalizeImportedRuns(value) {
+    const normalized = RECORDS.normalizeWorkspace(value);
+    normalized.slots = normalized.slots.map(slot => {
+      if (!slot.run) return slot;
+      const incoming = slot.run;
+      const run = incoming.version === 2 || incoming.version === 3
+        ? normalizeState(migrateLegacy(incoming))
+        : normalizeState(incoming);
+      return { ...slot, run };
+    });
+    if (!normalized.activeSlotId) {
+      const fallback = normalized.slots.filter(slot => slot.run).sort((left, right) => String(right.updatedAt || '').localeCompare(String(left.updatedAt || '')))[0];
+      if (fallback) normalized.activeSlotId = fallback.id;
+    }
+    return RECORDS.normalizeWorkspace(normalized);
   }
 
   function importSave() {
     try {
-      const payload = decodeTransfer($('saveTransferText').value);
-      const incoming = payload && (payload.run || payload.state);
-      if (!payload || payload.format !== 'tabenai-save' || !incoming) throw new Error('このゲームのセーブ形式ではありません');
-      if (incoming.version === 2 || incoming.version === 3) state = normalizeState(migrateLegacy(incoming));
-      else state = normalizeState(incoming);
-      localStorage.setItem(SAVE_KEY, JSON.stringify(state));
-      hasActiveRun = true;
-      if (payload.meta && typeof payload.meta === 'object') {
-        meta = normalizeMeta(payload.meta);
-        saveMeta();
+      if (!pendingImport || pendingImport.text !== $('saveTransferText').value || pendingImport.targetSlotId !== importTargetFor(decodeTransfer($('saveTransferText').value))) {
+        previewImportText();
       }
-      if (payload.endings && typeof payload.endings === 'object') localStorage.setItem(ENDING_KEY, JSON.stringify(payload.endings));
+      if (!pendingImport) throw new Error('先に有効な内容をプレビューしてください');
+      const confirmation = [];
+      if (pendingImport.preview.overwriteSlotIds.length) {
+        confirmation.push(`${pendingImport.preview.overwriteSlotIds.join('、')}の進行を上書きまたは消去します。`);
+      }
+      if (pendingImport.preview.formatVersion === 3) {
+        confirmation.push('実績・設定・図鑑・ラン履歴・今日の献立をバックアップ内容で置き換えます。');
+      }
+      if (confirmation.length && !confirm(`${confirmation.join('\n')}\n読み込みますか？`)) return;
+      const before = workspace;
+      const beforeMeta = clone(meta);
+      const beforeState = state;
+      const beforeHasActiveRun = hasActiveRun;
+      const protectedKeys = [...new Set([
+        SAVE_KEY,
+        META_KEY,
+        ENDING_KEY,
+        ...Object.values(RECORDS.storageKeys)
+      ])];
+      const storageBefore = new Map(protectedKeys.map(key => [key, localStorage.getItem(key)]));
+      const restoreStorage = () => {
+        for (const [key, value] of storageBefore) {
+          try {
+            if (value === null) localStorage.removeItem(key);
+            else localStorage.setItem(key, value);
+          } catch (_) {}
+        }
+      };
+      try {
+        const applied = RECORDS.applyTransfer(workspace, pendingImport.payload, { targetSlotId: pendingImport.targetSlotId });
+        workspace = normalizeImportedRuns(applied.workspace);
+        if (applied.formatVersion === 3) meta = normalizeMeta(applied.meta || {});
+        else if (applied.meta && Object.keys(applied.meta).length) meta = normalizeMeta(applied.meta);
+        const mirror = RECORDS.activeMirror(workspace);
+        state = mirror ? normalizeState(mirror) : freshState();
+        hasActiveRun = !!mirror;
+        if (!writeWorkspace(workspace, false)) throw new Error('保存容量が不足し、読み込みを完了できませんでした');
+        if (applied.formatVersion === 3) localStorage.setItem(ENDING_KEY, JSON.stringify(applied.endings || {}));
+        else if (applied.endings && Object.keys(applied.endings).length) localStorage.setItem(ENDING_KEY, JSON.stringify(applied.endings));
+        // Import needs a checked write; saveMeta intentionally swallows failures during normal play.
+        localStorage.setItem(META_KEY, JSON.stringify(meta));
+      } catch (error) {
+        workspace = before;
+        meta = beforeMeta;
+        state = beforeState;
+        hasActiveRun = beforeHasActiveRun;
+        restoreStorage();
+        throw error;
+      }
       toast('セーブを読み込みました');
       setTimeout(() => location.reload(), 500);
     } catch (error) {
       alert(`読み込みに失敗しました。\n${error && error.message ? error.message : error}`);
     }
+  }
+
+  function previewFateInput() {
+    const box = $('fatePreview');
+    pendingFate = null;
+    try {
+      const preview = RECORDS.previewFateCode($('fateCodeText').value);
+      pendingFate = preview;
+      const technicalFate = technicalDetailsEnabled() ? ` ／ SEED ${preview.seed} ／ ゲーム版 ${preview.gameVersion}` : '';
+      box.textContent = `${MODE_CONFIG[preview.mode].label} ／ 明示選択 ${preview.choiceCount}回${technicalFate}${preview.gameVersion !== APP_VERSION ? '\n※別バージョンのコードです。現行ロジックで再生します。' : ''}`;
+      box.hidden = false;
+      $('fateStartBtn').disabled = false;
+      return preview;
+    } catch (error) {
+      box.textContent = `プレビューできません：${error && error.message ? error.message : error}`;
+      box.hidden = false;
+      $('fateStartBtn').disabled = true;
+      return null;
+    }
+  }
+
+  function openFateModal() {
+    pendingFate = null;
+    $('fateCodeText').value = '';
+    $('fatePreview').hidden = true;
+    $('fateStartBtn').disabled = true;
+    $('fateModal').classList.add('open');
+    $('fateCodeText').focus();
+  }
+
+  function startFateReplay() {
+    if (!pendingFate) return;
+    const replay = pendingFate;
+    $('fateModal').classList.remove('open');
+    prepareNewRun(replay.mode, replay.seed, {
+      source: 'fate',
+      fateChoices: replay.choices,
+      origin: 'modes'
+    });
   }
 
   async function shareGame() {
@@ -2509,19 +3755,29 @@
 
   ui.choiceA.addEventListener('click', () => resolveChoice(0));
   ui.choiceB.addEventListener('click', () => resolveChoice(1));
-  $('continueBtn').addEventListener('click', () => { if (hasActiveRun) showScreen('game'); });
+  $('continueBtn').addEventListener('click', openContinueSlots);
   $('newGameBtn').addEventListener('click', () => showScreen('modes'));
   $('recordsBtn').addEventListener('click', () => showScreen('records'));
   $('settingsBtn').addEventListener('click', () => showScreen('settings'));
-  $('titleCreditsBtn').addEventListener('click', () => showScreen('credits'));
-  $('settingsCreditsBtn').addEventListener('click', () => showScreen('credits'));
+  $('titleCreditsBtn').addEventListener('click', () => { creditsOrigin = 'title'; showScreen('credits'); });
+  $('settingsCreditsBtn').addEventListener('click', () => { creditsOrigin = 'settings'; showScreen('credits'); });
   $('modeBackBtn').addEventListener('click', () => showScreen('title'));
+  $('slotBackBtn').addEventListener('click', () => { pendingLaunch = null; showScreen(slotScreenOrigin === 'modes' ? 'modes' : 'title'); });
   $('recordsBackBtn').addEventListener('click', () => showScreen('title'));
   $('settingsBackBtn').addEventListener('click', () => showScreen('title'));
-  $('creditsBackBtn').addEventListener('click', () => showScreen('title'));
-  $('modeStoryBtn').addEventListener('click', () => startNewRun('story'));
-  $('modeHardBtn').addEventListener('click', () => startNewRun('hard'));
-  $('modeSurvivalBtn').addEventListener('click', () => startNewRun('survival'));
+  $('creditsBackBtn').addEventListener('click', () => showScreen(creditsOrigin === 'title' ? 'title' : 'settings'));
+  $('modeStoryBtn').addEventListener('click', () => prepareNewRun('story'));
+  $('modeHardBtn').addEventListener('click', () => prepareNewRun('hard'));
+  $('modeSurvivalBtn').addEventListener('click', () => prepareNewRun('survival'));
+  $('dailyStartBtn').addEventListener('click', () => prepareNewRun('survival', Number($('dailyStartBtn').dataset.dailySeed), {
+    source: 'daily', dailyDate: $('dailyStartBtn').dataset.dailyDate, origin: 'title'
+  }));
+  $('fateOpenBtn').addEventListener('click', openFateModal);
+  $('fatePreviewBtn').addEventListener('click', previewFateInput);
+  $('fateCodeText').addEventListener('input', () => { pendingFate = null; $('fateStartBtn').disabled = true; $('fatePreview').hidden = true; });
+  $('fateStartBtn').addEventListener('click', startFateReplay);
+  $('closeFateBtn').addEventListener('click', () => $('fateModal').classList.remove('open'));
+  $('fateModal').addEventListener('click', event => { if (event.target === $('fateModal')) $('fateModal').classList.remove('open'); });
   $('titleBtn').addEventListener('click', () => {
     saveState();
     showScreen('title');
@@ -2540,13 +3796,14 @@
     meta.settings.seMuted = $('seMutedSetting').checked;
     meta.settings.haptics = $('hapticsSetting').checked;
     meta.settings.lightVisuals = $('lightVisualsSetting').checked;
+    meta.settings.detailedJudgement = $('detailedJudgementSetting').checked;
     saveMeta();
     applySettings();
   }
   for (const id of [
     'fontSizeSetting', 'reducedMotionSetting', 'confirmChoicesSetting', 'autoScrollSetting',
     'bgmVolumeSetting', 'seVolumeSetting', 'bgmMutedSetting', 'seMutedSetting',
-    'hapticsSetting', 'lightVisualsSetting'
+    'hapticsSetting', 'lightVisualsSetting', 'detailedJudgementSetting'
   ]) {
     $(id).addEventListener('change', saveSettingsFromControls);
   }
@@ -2572,20 +3829,27 @@
   $('resetBtn').addEventListener('click', resetGame);
   if ($('seedBtn')) $('seedBtn').addEventListener('click', showSeed);
   if ($('shareBtn')) $('shareBtn').addEventListener('click', shareGame);
-  if ($('dataBtn')) $('dataBtn').addEventListener('click', () => { $('saveTransferText').value = ''; $('dataModal').classList.add('open'); });
+  if ($('dataBtn')) $('dataBtn').addEventListener('click', () => {
+    $('saveTransferText').value = '';
+    $('importPreview').hidden = true;
+    pendingImport = null;
+    $('dataModal').classList.add('open');
+  });
   if ($('closeDataBtn')) $('closeDataBtn').addEventListener('click', () => $('dataModal').classList.remove('open'));
   if ($('dataModal')) $('dataModal').addEventListener('click', e => { if (e.target === $('dataModal')) $('dataModal').classList.remove('open'); });
   if ($('exportSaveBtn')) $('exportSaveBtn').addEventListener('click', exportSave);
   if ($('downloadSaveBtn')) $('downloadSaveBtn').addEventListener('click', downloadSave);
   if ($('importSaveBtn')) $('importSaveBtn').addEventListener('click', importSave);
+  if ($('saveTransferText')) $('saveTransferText').addEventListener('input', previewImportText);
+  if ($('importTargetSlot')) $('importTargetSlot').addEventListener('change', previewImportText);
   if ($('appMenu')) {
     $('appMenu').querySelectorAll('button').forEach(button => {
       button.addEventListener('click', () => { $('appMenu').open = false; });
     });
   }
   document.addEventListener('keydown', e => {
-    if (ui.rulesModal.classList.contains('open') || $('dataModal').classList.contains('open')) {
-      if (e.key === 'Escape') { ui.rulesModal.classList.remove('open'); $('dataModal').classList.remove('open'); }
+    if (ui.rulesModal.classList.contains('open') || $('dataModal').classList.contains('open') || $('fateModal').classList.contains('open')) {
+      if (e.key === 'Escape') { ui.rulesModal.classList.remove('open'); $('dataModal').classList.remove('open'); $('fateModal').classList.remove('open'); }
       return;
     }
     if (ui.gameScreen.hidden || state.ended) return;
@@ -2637,7 +3901,19 @@
           return clone(state);
         },
         screen: name => showScreen(name),
-        transfer: () => clone(makeTransferPayload()),
+        transfer: (scope = 'all') => clone(makeTransferPayload(scope)),
+        records: () => clone(workspace),
+        setRecords: value => {
+          workspace = RECORDS.normalizeWorkspace(clone(value));
+          const mirror = RECORDS.activeMirror(workspace);
+          if (mirror) { state = normalizeState(mirror); hasActiveRun = true; }
+          else hasActiveRun = false;
+          writeWorkspace(workspace, false);
+          return clone(workspace);
+        },
+        catalog: category => clone(catalogDefinitions(category)),
+        daily: instant => clone(RECORDS.dailyInfo(instant || new Date())),
+        fatePreview: code => clone(RECORDS.previewFateCode(code)),
         evaluate: () => { evaluateAchievements(false); return clone(meta); },
         survivalEvents: () => clone(SURVIVAL ? SURVIVAL.events : []),
         survivalCurrent: () => clone(currentSurvivalEvent()),
@@ -2781,7 +4057,7 @@
           });
           registration.update().catch(() => {});
           globalThis.__TABENAI_PWA__ = {
-            version: '4.7.0',
+            version: '4.8.0',
             scope: registration.scope,
             hasWaitingUpdate: () => !!registration.waiting,
             checkForUpdate: updateApp,

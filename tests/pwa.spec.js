@@ -22,10 +22,13 @@ test('manifestとアイコンはGitHub Pagesサブパス相対で取得できる
 
   const engineResponse = await request.get('./survival-engine.js');
   expect(engineResponse.ok()).toBe(true);
+  const recordsResponse = await request.get('./records-engine.js');
+  expect(recordsResponse.ok()).toBe(true);
   const musicResponse = await request.get('./music-engine.js');
   expect(musicResponse.ok()).toBe(true);
   const workerSource = await (await request.get('./sw.js')).text();
   expect(workerSource).toContain("'./survival-engine.js'");
+  expect(workerSource).toContain("'./records-engine.js'");
   expect(workerSource).toContain("'./music-engine.js'");
 });
 
@@ -63,7 +66,7 @@ test('新版検出は自動適用せず、明示更新操作でskipWaitingする
     version: globalThis.__TABENAI_PWA__.version,
     scope: globalThis.__TABENAI_PWA__.scope
   }));
-  expect(pwa.version).toBe('4.7.0');
+  expect(pwa.version).toBe('4.8.0');
   expect(pwa.scope.endsWith('/tabenai-to-shinu/')).toBe(true);
 
   const workerSource = await (await request.get('./sw.js')).text();

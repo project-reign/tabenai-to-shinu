@@ -3,6 +3,27 @@ import '../survival-engine.js';
 const requested = Number(process.argv[2] || 10_001);
 const seedCount = Math.max(1, Math.floor(Number.isFinite(requested) ? requested : 10_001));
 const matrix = globalThis.TabenaiSurvival.simulatePolicies(seedCount);
+const rareRunDistributions = Object.fromEntries(Object.keys(matrix.policies).map(policy => {
+  const bins = { zero: 0, one: 0, two: 0, threeOrMore: 0 };
+  let totalRare = 0;
+  let pityRuns = 0;
+  for (let seed = 1; seed <= seedCount; seed += 1) {
+    const played = globalThis.TabenaiSurvival.playSeed(seed, { policy });
+    const seen = Math.max(0, Number(played.rare && played.rare.seen) || 0);
+    totalRare += seen;
+    if (Number(played.rare && played.rare.pity) > 0) pityRuns += 1;
+    if (seen === 0) bins.zero += 1;
+    else if (seen === 1) bins.one += 1;
+    else if (seen === 2) bins.two += 1;
+    else bins.threeOrMore += 1;
+  }
+  return [policy, {
+    bins,
+    averageRarePerRun: totalRare / seedCount,
+    pityRuns,
+    pityRunRate: pityRuns / seedCount
+  }];
+}));
 const fixedPlayLogs = [
   { label: '食べられる物をほぼ全部食べる', seed: 4_500_101, policy: 'allConsume' },
   { label: '危険そうな物を拒否する慎重プレイ', seed: 4_500_202, policy: 'cautiousVisible' },
@@ -59,7 +80,8 @@ const report = {
       pityTriggers: result.rare.pityTriggers,
       maxDryStreak: result.rare.maxDryStreak,
       pityLimit: result.rare.pityLimit,
-      rateByDanger: result.rare.rateByDanger
+      rateByDanger: result.rare.rateByDanger,
+      perRun: rareRunDistributions[name]
     },
     conditionalHits: result.conditionalHits,
     milestoneHits: result.milestoneHits,

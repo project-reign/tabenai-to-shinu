@@ -308,7 +308,7 @@ test('AudioContextは最初のtrusted action後だけ生成され、reload後は
   await context.close();
 });
 
-test('BGM/SE・mute・haptics・lightVisualsをmeta/reload/format2に保持し、旧meta/v1をdefault補完する', async ({ page }) => {
+test('BGM/SE・mute・haptics・lightVisualsをmeta/reload/formatVersion 3に保持し、旧meta/v1をdefault補完する', async ({ page }) => {
   await openApp(page);
   await waitForPresentation(page);
   await page.evaluate(() => globalThis.__TABENAI_DEBUG__.screen('settings'));
@@ -335,7 +335,11 @@ test('BGM/SE・mute・haptics・lightVisualsをmeta/reload/format2に保持し�
   const saved = await page.evaluate(({ metaKey }) => JSON.parse(localStorage.getItem(metaKey)).settings, { metaKey: META_KEY });
   expect(saved).toMatchObject(expected);
   const transfer = await page.evaluate(() => globalThis.__TABENAI_DEBUG__.transfer());
-  expect(transfer.formatVersion).toBe(2);
+  expect(transfer.formatVersion).toBe(3);
+  expect(transfer.slots).toHaveLength(3);
+  expect(transfer.codex).toBeTruthy();
+  expect(transfer.history).toEqual(expect.any(Array));
+  expect(transfer.dailyRecords).toBeTruthy();
   expect(transfer.meta.settings).toMatchObject(expected);
 
   await page.reload();

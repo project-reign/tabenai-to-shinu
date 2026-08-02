@@ -276,8 +276,9 @@ test('正式BGM 6曲のmanifestと決定論的Web Audio scoreが一致する', a
 test('クレジット／ライセンス画面と開発ギャラリーから全正式素材を監査できる', async ({ browser }) => {
   const context = await browser.newContext({ serviceWorkers: 'block' });
   const page = await context.newPage();
-  await page.goto(APP_URL);
+  await page.goto(new URL('?debug=1', APP_URL).href);
   await waitForPresentation(page);
+  await page.evaluate(() => globalThis.__TABENAI_DEBUG__.screen('title'));
   await expect(page.locator('#titleScreen')).toBeVisible();
   await page.locator('.title-manage > summary').click();
   await page.locator('#titleCreditsBtn').click();
