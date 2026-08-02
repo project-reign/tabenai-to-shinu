@@ -16,10 +16,8 @@ async function startModeInSlot(page, modeButton, slotId = 'slot-1') {
   await page.locator(modeButton).click();
   await expect(page.locator('#slotScreen')).toBeVisible();
   await expect(page.locator(`[data-slot="${slotId}"]`)).toBeVisible();
-  await Promise.all([
-    page.waitForEvent('load'),
-    page.locator(`[data-slot-start="${slotId}"]`).click()
-  ]);
+  await page.locator(`[data-slot-start="${slotId}"]`).click();
+  await expect(page.locator('#gameScreen')).toBeVisible();
 }
 
 test('PWA起動時にタイトル導線とプレイ可能・ロードマップの全モードを表示する', async ({ page }) => {
@@ -27,7 +25,7 @@ test('PWA起動時にタイトル導線とプレイ可能・ロードマップ�
 
   await expect(page.locator('#titleScreen')).toBeVisible();
   await expect(page.locator('#titleScreen h1')).toHaveText('食べないと死ぬ');
-  await expect(page.locator('.title-version')).toHaveText('v1.0.0-rc.2');
+  await expect(page.locator('.title-version')).toHaveText('v1.0.0-rc.3');
   await expect(page.locator('#continueBtn')).toBeDisabled();
   await expect(page.locator('#newGameBtn')).toHaveText('はじめから');
   await expect(page.locator('#recordsBtn')).toHaveText('記録');
@@ -207,7 +205,7 @@ test('設定を永続化し、選択確認・自動スクロール・動きと�
   await page.locator('#fontSizeSetting').selectOption('large');
   await page.locator('#reducedMotionSetting').check();
   await page.locator('#confirmChoicesSetting').check();
-  await page.locator('#autoScrollSetting').uncheck();
+  await page.locator('#autoScrollSetting').selectOption('off');
   await page.reload();
 
   await expect(page.locator('html')).toHaveAttribute('data-font-size', 'large');
@@ -216,7 +214,7 @@ test('設定を永続化し、選択確認・自動スクロール・動きと�
   await expect(page.locator('#fontSizeSetting')).toHaveValue('large');
   await expect(page.locator('#reducedMotionSetting')).toBeChecked();
   await expect(page.locator('#confirmChoicesSetting')).toBeChecked();
-  await expect(page.locator('#autoScrollSetting')).not.toBeChecked();
+  await expect(page.locator('#autoScrollSetting')).toHaveValue('off');
 
   await page.locator('#settingsBackBtn').click();
   await page.locator('#newGameBtn').click();

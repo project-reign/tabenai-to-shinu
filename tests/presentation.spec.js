@@ -578,11 +578,11 @@ test('presentation主要assetをService Workerへprecacheし完全offlineで再�
   await openApp(page);
   await waitForPresentation(page);
   const expectedAssets = await page.evaluate(async () => {
-    const manifestUrl = './assets/manifest.json?v=1.0.0-rc.2';
+    const manifestUrl = './assets/manifest.json?v=1.0.0-rc.3';
     const manifest = await (await fetch(manifestUrl)).json();
     return [
-      './music-engine.js?v=1.0.0-rc.2',
-      './presentation-engine.js?v=1.0.0-rc.2',
+      './music-engine.js?v=1.0.0-rc.3',
+      './presentation-engine.js?v=1.0.0-rc.3',
       manifestUrl,
       ...Object.values(manifest.assets)
         .flatMap((group) => Object.values(group))

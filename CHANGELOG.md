@@ -1,5 +1,32 @@
 # Changelog
 
+## [1.0.0-rc.3] - 2026-08-03
+
+### Fixed
+
+- Replaced immediate BGM／SE voice termination on `hidden`, `pagehide`, and `freeze` with a clickless 32 ms gain ramp, an 8 ms stop tail, idempotent `onended` cleanup, a matching master-bus fade, and delayed AudioContext suspension.
+- Treats touch `pointerdown` as an unlock candidate only. `touchend`／click performs the unlock or resume without allowing an asynchronous pointer attempt to block the valid iPhone gesture or duplicate the operation.
+- Keeps audio unlocked and the correct BGM scheduler active across new game, continue, daily game, ending restart, and fate-code starts by replacing in-page game-start reloads with same-document state initialization.
+- Makes each choice an atomic scene／event-token transaction: both choices disable immediately, duplicate pointer／click／keyboard inputs are rejected, and the next token remains locked for at least 350 ms. Save, achievement, codex, history, and SE side effects commit once.
+- Suppresses only the second synthetic click from a short, stationary, single-touch double tap on non-interactive space and restores the prior scroll position. Controls, links, inputs, sliders, text selection, scrolling, and pinch zoom remain untouched.
+- Replaces the boolean auto-scroll setting with `context`／`choices`／`off`, migrates legacy `true` to `context` and `false` to `off`, and avoids scrolling when the target is already visible or pinning the document to either edge.
+
+### Added
+
+- A compact `第○日　HP ○　空腹 ○` line at the top of the event card so context-mode scrolling keeps the next event and essential status together.
+- Ten RC3 regressions, including OfflineAudioContext discontinuity measurement, hard-stop absence, lifecycle repetition, five audio-preserving launch routes, double taps and 50-input bursts, single save／timeline／SE receipts, blank-space scroll stability, setting migration, and four iPhone viewport sizes.
+- An RC3 QA report and iPhone home-screen PWA retest checklist based on the RC2 device findings.
+
+### Changed
+
+- Updated application, package, record metadata, version-qualified engine／manifest URLs, and Service Worker cache revision to `1.0.0-rc.3`. Run schema `version: 4`, transfer `formatVersion: 3`, workspace version, storage keys, and fate-code format are unchanged.
+
+### Compatibility and validation
+
+- Does not change `survival-engine.js`, STORY／HARD content or canonical digests, SURVIVAL balance or seeded results, routes, refusals, slots, records, achievements, formal assets, BGM themes, or SE definitions.
+- Passes 140 Playwright tests, asset validation, production build, all 44 STORY／HARD scenes and 102 transitions, and 500,000 SURVIVAL runs with zero exceptions, loops, invalid values, deck violations, or runs above the two-rare cap.
+- Keeps complete offline relaunch, explicit update, manifest／asset／audio failure fallback, 3 slots, codex 174, achievements 33, history 30, art 41, BGM 6, and SE 13.
+
 ## [1.0.0-rc.2] - 2026-08-02
 
 ### Fixed

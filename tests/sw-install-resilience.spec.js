@@ -170,16 +170,16 @@ test('初回installでasset manifestが503でもcore shellがactivateしoffline�
   expect(failureHits.manifest).toBeGreaterThan(0);
   const cacheState = await page.evaluate(async () => {
     const names = await caches.keys();
-    const coreName = names.find(name => name === 'tabenai-to-shinu-core-1.0.0-rc.2');
+    const coreName = names.find(name => name === 'tabenai-to-shinu-core-1.0.0-rc.3');
     const indexUrl = new URL('./index.html', location.href).href;
-    const manifestUrl = new URL('./assets/manifest.json?v=1.0.0-rc.2', location.href).href;
+    const manifestUrl = new URL('./assets/manifest.json?v=1.0.0-rc.3', location.href).href;
     return {
       names,
       coreHasIndex: coreName ? Boolean(await (await caches.open(coreName)).match(indexUrl)) : false,
       manifestCached: Boolean(await caches.match(manifestUrl))
     };
   });
-  expect(cacheState.names).toContain('tabenai-to-shinu-core-1.0.0-rc.2');
+  expect(cacheState.names).toContain('tabenai-to-shinu-core-1.0.0-rc.3');
   expect(cacheState.coreHasIndex).toBe(true);
   expect(cacheState.manifestCached).toBe(false);
 
@@ -208,8 +208,8 @@ test('presentation precacheのSVG 1枚が404でもcoreをactivateし404を保存
       healthyCached: Boolean(await caches.match(healthyUrl))
     };
   });
-  expect(cacheState.names).toContain('tabenai-to-shinu-core-1.0.0-rc.2');
-  expect(cacheState.names).toContain('tabenai-to-shinu-presentation-1.0.0-rc.2');
+  expect(cacheState.names).toContain('tabenai-to-shinu-core-1.0.0-rc.3');
+  expect(cacheState.names).toContain('tabenai-to-shinu-presentation-1.0.0-rc.3');
   expect(cacheState.failedCached).toBe(false);
   expect(cacheState.healthyCached).toBe(true);
 
@@ -223,7 +223,7 @@ test('presentation precacheのSVG 1枚が404でもcoreをactivateし404を保存
   await context.close();
 });
 
-test('旧Service Workerのunversioned script cacheとRC2 HTMLを混在させない', async ({ browser }) => {
+test('旧Service Workerのunversioned script cacheとRC3 HTMLを混在させない', async ({ browser }) => {
   failureMode = 'healthy';
   const context = await browser.newContext({ serviceWorkers: 'allow' });
   const page = await context.newPage();
@@ -240,7 +240,7 @@ test('旧Service Workerのunversioned script cacheとRC2 HTMLを混在させな�
   await expect.poll(() => page.evaluate(() => Boolean(navigator.serviceWorker.controller))).toBe(true);
 
   await page.goto(appUrl);
-  await expect(page.locator('.title-version')).toHaveText('v1.0.0-rc.2');
+  await expect(page.locator('.title-version')).toHaveText('v1.0.0-rc.3');
   await expect(page.locator('#settingsBtn')).toBeEnabled();
   await page.locator('#settingsBtn').click();
   await expect(page.locator('#settingsScreen')).toBeVisible();
@@ -250,14 +250,14 @@ test('旧Service Workerのunversioned script cacheとRC2 HTMLを混在させな�
     recordVersion: globalThis.TabenaiRecords.version,
     hasRareNormalizer: typeof globalThis.TabenaiRecords.normalizeRareEncounterLog === 'function',
     versionedRecordsLoaded: performance.getEntriesByType('resource')
-      .some(entry => entry.name.includes('/records-engine.js?v=1.0.0-rc.2')),
+      .some(entry => entry.name.includes('/records-engine.js?v=1.0.0-rc.3')),
     staleUnversionedCached: false
   }));
   loading.staleUnversionedCached = await page.evaluate(async () => Boolean(
     await caches.match(new URL('./records-engine.js', location.href).href)
   ));
   expect(loading).toEqual({
-    recordVersion: '1.0.0-rc.2',
+    recordVersion: '1.0.0-rc.3',
     hasRareNormalizer: true,
     versionedRecordsLoaded: true,
     staleUnversionedCached: true

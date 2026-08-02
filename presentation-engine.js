@@ -38,6 +38,9 @@
     death: [34, 48, 34],
     escape: [12, 28, 12]
   });
+  const CLICKLESS_FADE_SECONDS = 0.032;
+  const VOICE_STOP_TAIL_SECONDS = 0.008;
+  const CONTEXT_SUSPEND_DELAY_MS = 48;
 
   const clamp = (value, min, max) => Math.max(min, Math.min(max, Number(value)));
   const isObject = value => !!value && typeof value === 'object' && !Array.isArray(value);
@@ -175,6 +178,10 @@
       this.lifecyclePaused = false;
       this.resumeGestureArmed = false;
       this.gestureOperation = null;
+      this.pendingTouchGesture = null;
+      this.lastConsumedGestureAt = -Infinity;
+      this.lastConsumedGestureType = null;
+      this.lifecycleSuspendTimer = null;
       this.debugAudioLifecycle = options.debug === true;
       this.audioLifecycleLog = [];
       this.audioLifecycleSequence = 0;
@@ -196,7 +203,7 @@
         : null;
       this._boundMotionChange = () => this._applyPreferenceClasses();
       this._boundVisibility = () => this._handleVisibility();
-      this._boundGesture = event => this._unlockFromGesture(event);
+      this._boundGesture = event => this._handleGestureEvent(event);
       this._boundPageHide = event => this._pauseForLifecycle('pagehide', { persisted: event.persisted === true });
       this._boundPageShow = event => this._armGestureResume('pageshow', { persisted: event.persisted === true });
       this._boundFreeze = () => this._pauseForLifecycle('freeze');
@@ -209,13 +216,14 @@
     _attachEnvironmentListeners() {
       document.addEventListener('pointerdown', this._boundGesture, true);
       document.addEventListener('touchend', this._boundGesture, true);
+      document.addEventListener('click', this._boundGesture, true);
       document.addEventListener('keydown', this._boundGesture, true);
       document.addEventListener('visibilitychange', this._boundVisibility);
       window.addEventListener('pagehide', this._boundPageHide);
       window.addEventListener('pageshow', this._boundPageShow);
       document.addEventListener('freeze', this._boundFreeze);
       document.addEventListener('resume', this._boundResume);
-      this.audioLifecycleListenerCount = 8;
+      this.audioLifecycleListenerCount = 9;
       if (this.prefersMotionQuery) {
         if (typeof this.prefersMotionQuery.addEventListener === 'function') {
           this.prefersMotionQuery.addEventListener('change', this._boundMotionChange);
@@ -288,7 +296,25 @@
       if (this.audioLifecycleLog.length > 64) this.audioLifecycleLog.splice(0, this.audioLifecycleLog.length - 64);
     }
 
-    async _unlockFromGesture(event) {
+    _handleGestureEvent(event) {
+      if (!event || event.isTrusted !== true) return false;
+      const eventAt = typeof performance !== 'undefined' && performance.now
+        ? performance.now()
+        : Date.now();
+      if (event.type === 'pointerdown' && event.pointerType === 'touch') {
+        this.pendingTouchGesture = {
+          pointerId: Number.isFinite(Number(event.pointerId)) ? Number(event.pointerId) : null,
+          at: eventAt
+        };
+        this._logAudioLifecycle('touch-unlock-candidate');
+        return false;
+      }
+      if (event.type === 'touchend') this.pendingTouchGesture = null;
+      if (event.type === 'click' && eventAt - this.lastConsumedGestureAt < 450) return false;
+      return this._unlockFromGesture(event, eventAt);
+    }
+
+    async _unlockFromGesture(event, eventAt = Date.now()) {
       if (!event || event.isTrusted !== true || this.gestureOperation) return false;
       let operation;
       if (this.resumeGestureArmed) {
@@ -303,7 +329,12 @@
       }
       this.gestureOperation = operation;
       try {
-        return await operation;
+        const unlocked = await operation;
+        if (unlocked) {
+          this.lastConsumedGestureAt = eventAt;
+          this.lastConsumedGestureType = event.type;
+        }
+        return unlocked;
       } finally {
         if (this.gestureOperation === operation) this.gestureOperation = null;
       }
@@ -342,23 +373,68 @@
       }
     }
 
-    _flushSeVoices() {
-      const now = this.audioContext ? this.audioContext.currentTime : 0;
+    _rampAudioParam(param, target, now, duration) {
+      if (!param) return false;
+      const safeTarget = Math.max(0.0001, Number(target) || 0.0001);
+      try {
+        if (typeof param.cancelScheduledValues === 'function') param.cancelScheduledValues(now);
+        const current = Math.max(0.0001, Number(param.value) || 0.0001);
+        param.setValueAtTime(current, now);
+        if (typeof param.linearRampToValueAtTime === 'function') {
+          param.linearRampToValueAtTime(safeTarget, now + duration);
+        } else {
+          param.exponentialRampToValueAtTime(safeTarget, now + duration);
+        }
+        return true;
+      } catch (_) {
+        return false;
+      }
+    }
+
+    _releaseSeVoice(voice) {
+      if (!voice || voice.released) return false;
+      voice.released = true;
+      if (voice.releaseTimer !== null) {
+        clearTimeout(voice.releaseTimer);
+        voice.releaseTimer = null;
+      }
+      this.activeSeVoices.delete(voice);
+      try { voice.oscillator.disconnect(); } catch (_) {}
+      try { voice.gain.disconnect(); } catch (_) {}
+      return true;
+    }
+
+    _stopSeVoice(voice, fadeSeconds = CLICKLESS_FADE_SECONDS) {
+      if (!voice || voice.stopped || voice.released || !this.audioContext) return false;
+      voice.stopped = true;
+      const now = this.audioContext.currentTime;
+      const fade = clamp(fadeSeconds, 0.02, 0.04);
+      this._rampAudioParam(voice.gain && voice.gain.gain, 0.0001, now, fade);
+      try {
+        voice.oscillator.stop(now + fade + VOICE_STOP_TAIL_SECONDS);
+      } catch (_) {
+        voice.releaseTimer = setTimeout(
+          () => this._releaseSeVoice(voice),
+          Math.ceil((fade + VOICE_STOP_TAIL_SECONDS) * 1000)
+        );
+      }
+      return true;
+    }
+
+    _flushSeVoices(fadeSeconds = CLICKLESS_FADE_SECONDS) {
       const count = this.activeSeVoices.size;
       for (const voice of [...this.activeSeVoices]) {
-        try {
-          if (voice.gain && voice.gain.gain) {
-            if (typeof voice.gain.gain.cancelScheduledValues === 'function') voice.gain.gain.cancelScheduledValues(now);
-            voice.gain.gain.setValueAtTime(0.0001, now);
-          }
-        } catch (_) {}
-        try { voice.oscillator.stop(now); } catch (_) {}
-        this.activeSeVoices.delete(voice);
-        try { voice.oscillator.disconnect(); } catch (_) {}
-        try { voice.gain.disconnect(); } catch (_) {}
+        this._stopSeVoice(voice, fadeSeconds);
       }
       this.lastCueAt.clear();
       return count;
+    }
+
+    _clearLifecycleSuspendTimer() {
+      if (this.lifecycleSuspendTimer !== null) {
+        clearTimeout(this.lifecycleSuspendTimer);
+        this.lifecycleSuspendTimer = null;
+      }
     }
 
     _pauseForLifecycle(reason, detail = {}) {
@@ -368,15 +444,22 @@
       this.resumeGestureArmed = this.audioUnlocked;
       if (this.resumeGestureArmed) this._logAudioLifecycle('gesture-resume-armed', { reason });
       if (this.currentBgm) this.currentBgm.pause();
-      const flushedSe = this._flushSeVoices();
+      this._clearLifecycleSuspendTimer();
+      const flushedSe = this._flushSeVoices(CLICKLESS_FADE_SECONDS);
       const flushedBgm = this.musicEngine
-        ? this.musicEngine.pause({ flush: true, fadeSeconds: 0.02 })
+        ? this.musicEngine.pause({ flush: true, fadeSeconds: CLICKLESS_FADE_SECONDS })
         : false;
-      this._logAudioLifecycle('scheduler-stop-flush', { reason, flushedSe, flushedBgm });
+      this._logAudioLifecycle('scheduler-stop-flush', {
+        reason, flushedSe, flushedBgm, fadeSeconds: CLICKLESS_FADE_SECONDS
+      });
       if (this.audioContext && this.audioContext.state === 'running') {
-        this.audioContext.suspend()
-          .then(() => this._logAudioLifecycle('context-suspend', { reason }))
-          .catch(() => { this.audioFailures += 1; });
+        this.lifecycleSuspendTimer = setTimeout(() => {
+          this.lifecycleSuspendTimer = null;
+          if (!this.lifecyclePaused || !this.audioContext || this.audioContext.state !== 'running') return;
+          this.audioContext.suspend()
+            .then(() => this._logAudioLifecycle('context-suspend', { reason, afterFade: true }))
+            .catch(() => { this.audioFailures += 1; });
+        }, CONTEXT_SUSPEND_DELAY_MS);
       }
       return true;
     }
@@ -391,6 +474,7 @@
 
     async _resumeAfterGesture() {
       if (!this.audioUnlocked || !this.lifecyclePaused || document.hidden) return false;
+      this._clearLifecycleSuspendTimer();
       this.lifecyclePaused = false;
       try {
         if (this.audioContext && this.audioContext.state === 'suspended') {
@@ -471,7 +555,7 @@
         this.lastCueAt.set(key, now);
         if (this.activeSeVoices.size >= 12) {
           const oldest = this.activeSeVoices.values().next().value;
-          try { oldest.oscillator.stop(now + 0.01); } catch (_) {}
+          this._stopSeVoice(oldest, 0.025);
         }
         const duration = clamp(spec.duration || 0.08, 0.025, 0.5);
         const oscillator = this.audioContext.createOscillator();
@@ -483,13 +567,9 @@
         gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
         oscillator.connect(gain);
         gain.connect(this.audioContext.destination);
-        const voice = { oscillator, gain };
+        const voice = { oscillator, gain, stopped: false, released: false, releaseTimer: null };
         this.activeSeVoices.add(voice);
-        oscillator.onended = () => {
-          this.activeSeVoices.delete(voice);
-          try { oscillator.disconnect(); } catch (_) {}
-          try { gain.disconnect(); } catch (_) {}
-        };
+        oscillator.onended = () => this._releaseSeVoice(voice);
         oscillator.start(now);
         oscillator.stop(now + duration + 0.01);
         this.cueCount += 1;
@@ -733,6 +813,9 @@
         assetFailures: this.assetFailures,
         audioFailures: this.audioFailures,
         activeSeVoices: this.activeSeVoices.size,
+        stoppingSeVoices: [...this.activeSeVoices].filter(voice => voice.stopped && !voice.released).length,
+        pendingTouchGesture: !!this.pendingTouchGesture,
+        lastConsumedGestureType: this.lastConsumedGestureType,
         music: this.musicEngine ? this.musicEngine.snapshot() : null,
         lastHook: this.lastHook,
         lastHookToken: this.lastHookToken,

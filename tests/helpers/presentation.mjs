@@ -49,10 +49,13 @@ export async function installMediaSpies(context) {
       suspends: 0,
       oscillatorStarts: 0,
       oscillatorStops: 0,
+      oscillatorStopTimes: [],
       audioPlay: 0,
       audioPause: 0,
       audioSources: [],
       gains: [],
+      gainEvents: [],
+      disconnects: 0,
       vibrations: []
     };
 
@@ -77,6 +80,7 @@ export async function installMediaSpies(context) {
       }
 
       createOscillator() {
+        const context = this;
         const oscillator = {
           type: 'sine',
           onended: null,
@@ -86,8 +90,13 @@ export async function installMediaSpies(context) {
           },
           connect() {},
           start() { calls.oscillatorStarts += 1; },
-          stop() { calls.oscillatorStops += 1; },
-          disconnect() {}
+          stop(when = 0) {
+            calls.oscillatorStops += 1;
+            calls.oscillatorStopTimes.push(when);
+            const delay = Math.max(0, (Number(when) - context.currentTime) * 1000);
+            setTimeout(() => { if (typeof oscillator.onended === 'function') oscillator.onended(); }, delay);
+          },
+          disconnect() { calls.disconnects += 1; }
         };
         return oscillator;
       }
@@ -95,13 +104,14 @@ export async function installMediaSpies(context) {
       createGain() {
         return {
           gain: {
-            setValueAtTime(value) { calls.gains.push(value); },
-            exponentialRampToValueAtTime() {},
-            linearRampToValueAtTime() {},
-            cancelScheduledValues() {}
+            value: 1,
+            setValueAtTime(value, time) { this.value = value; calls.gains.push(value); calls.gainEvents.push(['set', value, time]); },
+            exponentialRampToValueAtTime(value, time) { this.value = value; calls.gainEvents.push(['exponential', value, time]); },
+            linearRampToValueAtTime(value, time) { this.value = value; calls.gainEvents.push(['linear', value, time]); },
+            cancelScheduledValues(time) { calls.gainEvents.push(['cancel', time]); }
           },
           connect() {},
-          disconnect() {}
+          disconnect() { calls.disconnects += 1; }
         };
       }
     }

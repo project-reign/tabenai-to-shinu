@@ -44,10 +44,7 @@ async function startStoryInSlot(page, slotId) {
   await page.locator('#newGameBtn').click();
   await page.locator('#modeStoryBtn').click();
   await expect(page.locator('#slotScreen')).toBeVisible();
-  await Promise.all([
-    page.waitForURL(/\?resume=1$/, { waitUntil: 'domcontentloaded' }),
-    page.locator(`[data-slot-start="${slotId}"]`).click()
-  ]);
+  await page.locator(`[data-slot-start="${slotId}"]`).click();
   await expect(page.locator('#gameScreen')).toBeVisible();
 }
 
@@ -200,10 +197,8 @@ test('使用中スロットの新規開始は明示確認なしに上書きし�
   expect(await page.evaluate(() => globalThis.__TABENAI_DEBUG__.records().slots[0].run.seed)).toBe(483_001);
 
   page.once('dialog', dialog => dialog.accept());
-  await Promise.all([
-    page.waitForURL(/\?resume=1$/, { waitUntil: 'domcontentloaded' }),
-    page.locator('[data-slot-start="slot-1"]').click()
-  ]);
+  await page.locator('[data-slot-start="slot-1"]').click();
+  await expect(page.locator('#gameScreen')).toBeVisible();
   const replacement = await page.evaluate(saveKey => JSON.parse(localStorage.getItem(saveKey)), SAVE_KEY);
   expect(replacement.mode).toBe('hard');
   expect(replacement.seed).not.toBe(483_001);
@@ -468,15 +463,13 @@ test('同じ運命コードは同じseed・明示選択列から同じイベン�
     await expect(page.locator('#fatePreview')).toContainText('明示選択 5回');
     await page.locator('#fateStartBtn').click();
     await expect(page.locator('#slotScreen')).toBeVisible();
-    await Promise.all([
-      page.waitForURL(/\?resume=1$/, { waitUntil: 'domcontentloaded' }),
-      page.locator('[data-slot-start="slot-1"]').click()
-    ]);
+    await page.locator('[data-slot-start="slot-1"]').click();
+    await expect(page.locator('#gameScreen')).toBeVisible();
     for (let index = 0; index < choices.length; index += 1) {
       await page.locator(choices[index] === 0 ? '#choiceA' : '#choiceB').click();
       await expect.poll(() => page.evaluate(key => JSON.parse(localStorage.getItem(key)).choiceCount, SAVE_KEY)).toBe(index + 1);
-      // The UI intentionally locks choices for 180ms to prevent accidental double taps.
-      await page.waitForTimeout(220);
+      // The UI intentionally locks choices for 350ms to prevent accidental double taps.
+      await page.waitForTimeout(370);
     }
     return page.evaluate(key => {
       const run = JSON.parse(localStorage.getItem(key));
@@ -523,10 +516,8 @@ test('JST日付境界を固定し、今日の献立を初回オンライン後�
   }));
   await page.locator('#dailyStartBtn').click();
   await expect(page.locator('#slotContext')).toContainText(`今日の献立 ${daily.date}`);
-  await Promise.all([
-    page.waitForURL(/\?resume=1$/, { waitUntil: 'domcontentloaded' }),
-    page.locator('[data-slot-start="slot-1"]').click()
-  ]);
+  await page.locator('[data-slot-start="slot-1"]').click();
+  await expect(page.locator('#gameScreen')).toBeVisible();
   await page.waitForFunction(() => Boolean(navigator.serviceWorker.controller));
   const online = await page.evaluate(({ saveKey, dailyKey, date }) => ({
     run: JSON.parse(localStorage.getItem(saveKey)),
@@ -850,10 +841,8 @@ test('日替わり同seed再挑戦だけdailyDateを維持し、運命コード�
     seed: Number(document.querySelector('#dailyStartBtn').dataset.dailySeed)
   }));
   await page.locator('#dailyStartBtn').click();
-  await Promise.all([
-    page.waitForURL(/\?resume=1$/, { waitUntil: 'domcontentloaded' }),
-    page.locator('[data-slot-start="slot-1"]').click()
-  ]);
+  await page.locator('[data-slot-start="slot-1"]').click();
+  await expect(page.locator('#gameScreen')).toBeVisible();
 
   await page.goto(DEBUG_URL);
   await page.waitForFunction(() => Boolean(globalThis.__TABENAI_DEBUG__));
@@ -864,10 +853,11 @@ test('日替わり同seed再挑戦だけdailyDateを維持し、運命コード�
     ended.ending = { code: 'true', title: '生還' };
     api.setState(ended);
   });
-  await Promise.all([
-    page.waitForURL(/\?resume=1$/, { waitUntil: 'domcontentloaded' }),
-    page.locator('#sameSeedRestart').click()
-  ]);
+  await page.locator('#sameSeedRestart').click();
+  await expect(page.locator('#slotScreen')).toBeVisible();
+  page.once('dialog', dialog => dialog.accept());
+  await page.locator('[data-slot-start="slot-1"]').click();
+  await expect(page.locator('#gameScreen')).toBeVisible();
   let run = await page.evaluate(key => JSON.parse(localStorage.getItem(key)), SAVE_KEY);
   expect(run.seed).toBe(daily.seed);
   expect(run.recording.dailyDate).toBe(daily.date);
@@ -881,10 +871,8 @@ test('日替わり同seed再挑戦だけdailyDateを維持し、運命コード�
   await page.locator('#fateCodeText').fill(fateCode);
   await page.locator('#fatePreviewBtn').click();
   await page.locator('#fateStartBtn').click();
-  await Promise.all([
-    page.waitForURL(/\?resume=1$/, { waitUntil: 'domcontentloaded' }),
-    page.locator('[data-slot-start="slot-2"]').click()
-  ]);
+  await page.locator('[data-slot-start="slot-2"]').click();
+  await expect(page.locator('#gameScreen')).toBeVisible();
   run = await page.evaluate(key => JSON.parse(localStorage.getItem(key)), SAVE_KEY);
   expect(run).toMatchObject({ seed: 492_102, recording: { dailyDate: null, fateReplay: true } });
 
@@ -892,11 +880,8 @@ test('日替わり同seed再挑戦だけdailyDateを維持し、運命コード�
   await page.locator('#continueBtn').click();
   await page.locator('[data-slot-continue="slot-1"]').click();
   page.once('dialog', dialog => dialog.accept());
-  await Promise.all([
-    page.waitForEvent('framenavigated'),
-    page.evaluate(() => document.querySelector('#resetBtn').click())
-  ]);
-  await page.waitForLoadState('domcontentloaded');
+  await page.evaluate(() => document.querySelector('#resetBtn').click());
+  await expect(page.locator('#gameScreen')).toBeVisible();
   run = await page.evaluate(key => JSON.parse(localStorage.getItem(key)), SAVE_KEY);
   expect(run.recording.dailyDate).toBeNull();
   expect(run.recording.fateReplay).toBe(false);
@@ -913,10 +898,8 @@ test('運命コードは不一致入力で状態を消費せずseed 0をreload�
   await page.locator('#fateCodeText').fill(fateCode);
   await page.locator('#fatePreviewBtn').click();
   await page.locator('#fateStartBtn').click();
-  await Promise.all([
-    page.waitForURL(/\?resume=1$/, { waitUntil: 'domcontentloaded' }),
-    page.locator('[data-slot-start="slot-1"]').click()
-  ]);
+  await page.locator('[data-slot-start="slot-1"]').click();
+  await expect(page.locator('#gameScreen')).toBeVisible();
 
   const snapshot = () => page.evaluate(key => {
     const run = JSON.parse(localStorage.getItem(key));

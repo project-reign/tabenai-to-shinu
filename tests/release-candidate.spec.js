@@ -2,7 +2,7 @@ import { expect, test } from '@playwright/test';
 import { collectBrowserProblems } from './helpers/presentation.mjs';
 
 const DEBUG_URL = './?debug=1';
-const APP_VERSION = '1.0.0-rc.2';
+const APP_VERSION = '1.0.0-rc.3';
 const STORY_ENDINGS = [
   'death', 'starve', 'ancient', 'monster_clear', 'party', 'true', 'shield',
   'salad', 'human_again', 'regeneration_loop', 'overgrowth', 'shadow_exit', 'blank', 'refuse'
@@ -17,7 +17,7 @@ async function openDebug(page) {
   await page.waitForFunction(() => Boolean(globalThis.__TABENAI_DEBUG__ && globalThis.TabenaiSurvival));
 }
 
-test('RC2表示は版情報だけに限定し、保存schemaと正式版タイトルを維持する', async ({ page, request }) => {
+test('RC3表示は版情報だけに限定し、保存schemaと正式版タイトルを維持する', async ({ page, request }) => {
   await page.goto('./');
   await expect(page).toHaveTitle(`食べないと死ぬ：50日目の晩餐 v${APP_VERSION}`);
   await expect(page.locator('.title-version')).toHaveText(`v${APP_VERSION}`);
@@ -27,7 +27,7 @@ test('RC2表示は版情報だけに限定し、保存schemaと正式版タイ�
 
   await page.locator('#settingsBtn').click();
   await page.locator('#settingsCreditsBtn').click();
-  await expect(page.locator('#creditsScreen')).toContainText('Release Candidate 2');
+  await expect(page.locator('#creditsScreen')).toContainText('Release Candidate 3');
   await expect(page.locator('#creditsScreen')).toContainText('完成版公開前の品質確認版');
 
   const worker = await (await request.get('./sw.js')).text();

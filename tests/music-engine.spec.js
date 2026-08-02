@@ -169,3 +169,59 @@ test('未対応・壊れたWeb Audio環境でも例外を漏らさない', () =>
   expect(failures).toHaveLength(1);
   expect(() => music.destroy()).not.toThrow();
 });
+
+test('visibility flushは現在値を保持して32ms fade後にだけvoiceを停止する', () => {
+  const context = new FakeAudioContext();
+  const music = globalThis.TabenaiMusic.create({
+    audioContext: context,
+    scheduleIntervalMs: 250,
+    lookAheadSeconds: 0.8,
+    maxActiveVoices: 12
+  });
+  music.play('bgm.normal');
+  const voices = [...music.voices];
+  expect(voices.length).toBeGreaterThan(0);
+  context.currentTime = 2;
+  const stopCounts = voices.map(voice => voice.oscillator.stops.length);
+  music.pause({ flush: true, fadeSeconds: 0.032 });
+
+  voices.forEach((voice, index) => {
+    expect(voice.oscillator.stops.length).toBe(stopCounts[index] + 1);
+    expect(voice.oscillator.stops.at(-1)).toBeGreaterThanOrEqual(2.04);
+    expect(voice.oscillator.stops).not.toContain(2);
+    expect(voice.gain.gain.events).toEqual(expect.arrayContaining([
+      ['cancel', 2],
+      ['linear', 0.0001, 2.032]
+    ]));
+    expect(voice.oscillator.disconnected).toBe(false);
+    expect(voice.gain.disconnected).toBe(false);
+  });
+  expect(music.masterGain.gain.events).toContainEqual(['linear', 0.0001, 2.032]);
+  expect(music.snapshot()).toMatchObject({ schedulerActive: false, stoppingVoices: voices.length });
+  music.destroy();
+});
+
+test('OfflineAudioContextでclickless fade後の最大サンプル不連続を抑える', async ({ page }) => {
+  await page.goto('./');
+  const result = await page.evaluate(async () => {
+    const sampleRate = 48_000;
+    const context = new OfflineAudioContext(1, sampleRate / 2, sampleRate);
+    const music = globalThis.TabenaiMusic.create({
+      audioContext: context,
+      scheduleIntervalMs: 250,
+      lookAheadSeconds: 0.4,
+      maxActiveVoices: 12
+    });
+    music.play('bgm.normal');
+    music.pause({ flush: true, fadeSeconds: 0.032 });
+    const buffer = await context.startRendering();
+    const samples = buffer.getChannelData(0);
+    let maximumDelta = 0;
+    for (let index = 1; index < samples.length; index += 1) {
+      maximumDelta = Math.max(maximumDelta, Math.abs(samples[index] - samples[index - 1]));
+    }
+    return { maximumDelta, sampleCount: samples.length };
+  });
+  expect(result.sampleCount).toBe(24_000);
+  expect(result.maximumDelta).toBeLessThan(0.08);
+});

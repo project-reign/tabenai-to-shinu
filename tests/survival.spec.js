@@ -381,10 +381,8 @@ test('iPhone 390×844で怪食サバイバルを開始し、二択へ短く到�
   await expect(page.locator('#modeSurvivalBtn')).toContainText('怪食サバイバル');
   await page.locator('#modeSurvivalBtn').click();
   await expect(page.locator('#slotScreen')).toBeVisible();
-  await Promise.all([
-    page.waitForEvent('load'),
-    page.locator('[data-slot-start="slot-1"]').click()
-  ]);
+  await page.locator('[data-slot-start="slot-1"]').click();
+  await expect(page.locator('#gameScreen')).toBeVisible();
 
   await expect(page.locator('#gameScreen')).toBeVisible();
   await expect(page.locator('#modeBadge')).toHaveText('SURVIVAL 50');

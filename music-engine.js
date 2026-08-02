@@ -15,6 +15,8 @@
   const DEFAULT_INTERVAL_MS = 90;
   const MAX_ACTIVE_VOICES = 28;
   const CROSSFADE_SECONDS = 0.72;
+  const CLICKLESS_FADE_SECONDS = 0.032;
+  const VOICE_STOP_TAIL_SECONDS = 0.008;
   const WAVES = new Set(['sine', 'triangle', 'square', 'sawtooth']);
 
   const clamp = (value, min, max) => Math.max(min, Math.min(max, Number(value)));
@@ -400,7 +402,10 @@
         gain.gain.exponentialRampToValueAtTime(SILENCE, startTime + event.duration);
         oscillator.connect(gain);
         gain.connect(session.bus);
-        const voice = { oscillator, gain, sessionId: session.id, layer: event.layer, stopped: false };
+        const voice = {
+          oscillator, gain, sessionId: session.id, layer: event.layer,
+          stopped: false, released: false, releaseTimer: null
+        };
         this.voices.add(voice);
         this.scheduledVoices += 1;
         this.peakVoices = Math.max(this.peakVoices, this.voices.size);
@@ -414,38 +419,44 @@
     }
 
     _releaseVoice(voice) {
-      if (!voice || !this.voices.has(voice)) return;
+      if (!voice || voice.released) return;
+      voice.released = true;
+      if (voice.releaseTimer !== null) {
+        clearTimeout(voice.releaseTimer);
+        voice.releaseTimer = null;
+      }
       this.voices.delete(voice);
       try { voice.oscillator.disconnect(); } catch (_) {}
       try { voice.gain.disconnect(); } catch (_) {}
     }
 
-    _stopVoice(voice, when = this._now(), fade = 0.04) {
-      if (!voice || voice.stopped) return;
+    _stopVoice(voice, when = this._now(), fade = CLICKLESS_FADE_SECONDS) {
+      if (!voice || voice.stopped || voice.released) return false;
       voice.stopped = true;
-      this._rampParam(voice.gain && voice.gain.gain, SILENCE, this._now(), fade);
-      try { voice.oscillator.stop(when + fade + 0.01); } catch (_) {
-        this._releaseVoice(voice);
+      const now = Math.max(this._now(), Number(when) || 0);
+      const fadeSeconds = clamp(fade, 0.005, 2);
+      const stopAt = now + fadeSeconds + VOICE_STOP_TAIL_SECONDS;
+      this._rampParam(voice.gain && voice.gain.gain, SILENCE, now, fadeSeconds);
+      try {
+        voice.oscillator.stop(stopAt);
+      } catch (_) {
+        voice.releaseTimer = this._unref(setTimeout(
+          () => this._releaseVoice(voice),
+          Math.ceil((fadeSeconds + VOICE_STOP_TAIL_SECONDS) * 1000)
+        ));
       }
+      return true;
     }
 
-    _flushScheduledVoices() {
+    _flushScheduledVoices(options = {}) {
       const session = this.session;
       const hadScheduler = Boolean(session && session.timer !== null);
       const hadVoices = this.voices.size > 0;
       this._clearScheduler(session);
       const now = this._now();
+      const fadeSeconds = clamp(options.fadeSeconds ?? CLICKLESS_FADE_SECONDS, 0.02, 0.04);
       for (const voice of [...this.voices]) {
-        try {
-          if (voice.gain && voice.gain.gain) {
-            if (typeof voice.gain.gain.cancelScheduledValues === 'function') {
-              voice.gain.gain.cancelScheduledValues(now);
-            }
-            voice.gain.gain.setValueAtTime(SILENCE, now);
-          }
-        } catch (_) {}
-        try { voice.oscillator.stop(now); } catch (_) {}
-        this._releaseVoice(voice);
+        this._stopVoice(voice, now, fadeSeconds);
       }
       if (session && !session.retired && !session.finished) {
         session.nextTime = now + 0.09;
@@ -541,7 +552,7 @@
       const fadeSeconds = clamp(options.fadeSeconds ?? (next ? 0.18 : 0.06), 0.005, 2);
       this._rampMaster(this._now(), fadeSeconds);
       if (!next) {
-        if (options.flush === true) this._flushScheduledVoices();
+        if (options.flush === true) this._flushScheduledVoices({ fadeSeconds });
         else this._clearScheduler();
       } else {
         this.lastResumeFadeSeconds = fadeSeconds;
@@ -573,20 +584,24 @@
     }
 
     _disposeNodes(fade = 0.02) {
-      if (this.session) this._retireSession(this.session, fade);
+      const fadeSeconds = clamp(fade || CLICKLESS_FADE_SECONDS, 0.02, 0.04);
+      const now = this._now();
+      if (this.masterGain) this._rampParam(this.masterGain.gain, SILENCE, now, fadeSeconds);
+      if (this.session) this._retireSession(this.session, fadeSeconds);
       this.session = null;
       this.currentKey = null;
-      for (const voice of [...this.voices]) this._stopVoice(voice, this._now(), fade);
-      if (this.masterGain) {
-        try { this.masterGain.disconnect(); } catch (_) {}
-      }
+      for (const voice of [...this.voices]) this._stopVoice(voice, now, fadeSeconds);
+      const oldMaster = this.masterGain;
+      if (oldMaster) this._unref(setTimeout(() => {
+        try { oldMaster.disconnect(); } catch (_) {}
+      }, Math.ceil((fadeSeconds + VOICE_STOP_TAIL_SECONDS) * 1000)));
       this.masterGain = null;
       this.supported = false;
     }
 
     destroy() {
       if (this.destroyed) return;
-      this._disposeNodes(0.01);
+      this._disposeNodes(CLICKLESS_FADE_SECONDS);
       this.context = null;
       this.destination = null;
       this.destroyed = true;
@@ -604,6 +619,7 @@
         lightVisuals: this.lightVisuals,
         visible: this.visible,
         activeVoices: this.voices.size,
+        stoppingVoices: [...this.voices].filter(voice => voice.stopped && !voice.released).length,
         maxActiveVoices: this.maxActiveVoices,
         peakVoices: this.peakVoices,
         scheduledVoices: this.scheduledVoices,
