@@ -450,16 +450,20 @@ test('10,000超のシードでデッキ制約・レア率・pity・全到達・�
     maxEncounters: 0,
     recentThree: 0
   }));
-  expect(result.rare.minChance).toBeCloseTo(0.03, 8);
-  expect(result.rare.maxChance).toBeCloseTo(0.07, 8);
+  expect(result.rare.cap).toBe(2);
+  expect(result.rare.minBaseChance).toBeCloseTo(0.008, 8);
+  expect(result.rare.maxBaseChance).toBeCloseTo(0.015, 8);
+  expect(result.rare.maxEffectiveChance).toBeCloseTo(0.04, 8);
   expect(result.rare.pityTriggers).toBeGreaterThan(0);
-  expect(result.rare.maxDryStreak).toBeLessThanOrEqual(result.rare.pityLimit);
-  expect(result.rare.rateByDanger.map(bucket => bucket.chance)).toEqual([0.03, 0.04, 0.05, 0.06, 0.07]);
-  for (const bucket of result.rare.rateByDanger) {
+  expect(result.rare.maxDryStreak).toBeLessThanOrEqual(45);
+  expect(result.rare.rateByPeriod.map(bucket => bucket.chance)).toEqual([0.008, 0.01, 0.012, 0.015]);
+  for (const bucket of result.rare.rateByPeriod) {
     expect(bucket.draws).toBeGreaterThan(1_000);
-    expect(bucket.naturalHits / bucket.draws).toBeGreaterThan(bucket.chance - 0.012);
-    expect(bucket.naturalHits / bucket.draws).toBeLessThan(bucket.chance + 0.012);
+    expect(bucket.naturalHits / bucket.draws).toBeGreaterThan(bucket.chance - 0.006);
+    expect(bucket.naturalHits / bucket.draws).toBeLessThan(bucket.chance + 0.006);
   }
+  expect(result.rare.allRuns.bins.threeOrMore).toBe(0);
+  expect(result.rare.clearRuns.bins.threeOrMore).toBe(0);
 
   const events = await page.evaluate(() => globalThis.__TABENAI_DEBUG__.survivalEvents());
   const conditionalIds = events.filter(event => event.category === 'conditional').map(event => event.id);

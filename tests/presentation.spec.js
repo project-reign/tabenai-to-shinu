@@ -140,6 +140,7 @@ test('visual layersと全presentation hookはゲームstate/rngを変更しな�
     ['normal', { mode: 'story', sceneId: 'riceball', category: 'common', token: 'normal:1', icon: '🍙', title: 'normal' }],
     ['warning', { mode: 'story', sceneId: 'redmushroom', category: 'common', status: '毒', token: 'warning:1', icon: '🍄', title: 'warning' }],
     ['rare', { mode: 'survival', sceneId: 'ordinary-meal', category: 'rare', token: 'rare:1', icon: '🍱', title: 'rare' }],
+    ['conditional', { mode: 'survival', sceneId: 'tako-return', category: 'conditional', token: 'conditional:1', icon: '🐙', title: 'conditional' }],
     ['milestone', { mode: 'survival', sceneId: 'milestone-stockpile', category: 'milestone', token: 'milestone:1', icon: '📦', title: 'milestone' }],
     ['final', { mode: 'survival', sceneId: 'final-pair', category: 'final', token: 'final:1', icon: '📦', title: 'final' }]
   ];

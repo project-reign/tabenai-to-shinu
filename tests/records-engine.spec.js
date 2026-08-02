@@ -30,7 +30,7 @@ function run(seed, mode = 'story', overrides = {}) {
 }
 
 test('記録エンジンは3スロット・formatVersion 3・履歴30件の契約を固定する', () => {
-  expect(records.version).toBe('4.8.0');
+  expect(records.version).toBe('4.9.0');
   expect(records.formatVersion).toBe(3);
   expect(records.slotCount).toBe(3);
   expect(records.historyLimit).toBe(30);

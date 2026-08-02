@@ -181,6 +181,7 @@
     "normal": { "bgmKey": "bgm.normal", "moodKey": "mood.normal" },
     "warning": { "bgmKey": "bgm.normal", "seKey": "se.warning", "moodKey": "mood.warning" },
     "rare": { "bgmKey": "bgm.rare", "seKey": "se.rare", "moodKey": "mood.rare" },
+    "conditional": { "bgmKey": "bgm.normal", "moodKey": "mood.milestone" },
     "milestone": { "bgmKey": "bgm.final", "seKey": "se.milestone", "moodKey": "mood.milestone" },
     "final": { "bgmKey": "bgm.final", "seKey": "se.milestone", "moodKey": "mood.milestone" },
     "death": { "bgmKey": "bgm.death", "seKey": "se.death", "moodKey": "mood.death" },

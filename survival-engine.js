@@ -3,7 +3,17 @@
 
   const MAX_HP = 100;
   const MAX_HUNGER = 100;
-  const PITY_LIMIT = 14;
+  const TRUE_RARE_CAP = 2;
+  const SOFT_PITY_START_DAY = 35;
+  const SOFT_PITY_START_MISSES = 31;
+  const SOFT_PITY_STEP = 0.002;
+  const SOFT_PITY_MAX_CHANCE = 0.04;
+  const RARE_RATE_PERIODS = Object.freeze([
+    Object.freeze({ label: '1-19', minDay: 1, maxDay: 19, chance: 0.008 }),
+    Object.freeze({ label: '20-34', minDay: 20, maxDay: 34, chance: 0.01 }),
+    Object.freeze({ label: '35-44', minDay: 35, maxDay: 44, chance: 0.012 }),
+    Object.freeze({ label: '45-49', minDay: 45, maxDay: 49, chance: 0.015 })
+  ]);
   const DAILY_HUNGER_COST = 2;
   const MAX_AILMENT = 12;
   const HUMAN_LIKE_MISTAKE_RATE = 0.35;
@@ -466,8 +476,30 @@
   }
 
   function rareRate(day) {
-    const stage = clamp(Math.floor((Math.max(1, Number(day) || 1) - 1) / 10), 0, 4);
-    return Number((0.03 + stage * 0.01).toFixed(2));
+    const currentDay = Math.max(1, Number(day) || 1);
+    const period = RARE_RATE_PERIODS.find(item => currentDay >= item.minDay && currentDay <= item.maxDay);
+    return period ? period.chance : RARE_RATE_PERIODS[RARE_RATE_PERIODS.length - 1].chance;
+  }
+
+  function softPityBonus(day, survivalState) {
+    const survival = survivalState && typeof survivalState === 'object' ? survivalState : {};
+    const currentDay = Math.max(1, Number(day) || 1);
+    const rareSeen = Math.max(0, Math.floor(Number(survival.rareSeen) || 0));
+    const rareMisses = Math.max(0, Math.floor(Number(survival.rareMisses) || 0));
+    if (rareSeen !== 0 || currentDay < SOFT_PITY_START_DAY || rareMisses < SOFT_PITY_START_MISSES) return 0;
+    const baseChance = rareRate(currentDay);
+    const steppedBonus = (currentDay - SOFT_PITY_START_DAY + 1) * SOFT_PITY_STEP;
+    return Number(Math.max(0, Math.min(SOFT_PITY_MAX_CHANCE - baseChance, steppedBonus)).toFixed(3));
+  }
+
+  function rareChances(day, survivalState) {
+    const baseChance = rareRate(day);
+    const pityBonus = softPityBonus(day, survivalState);
+    return {
+      baseChance,
+      pityBonus,
+      effectiveChance: Number(Math.min(SOFT_PITY_MAX_CHANCE, baseChance + pityBonus).toFixed(3))
+    };
   }
 
   function conditionMatches(event, run) {
@@ -586,9 +618,13 @@
       eventId: event.id,
       category: event.category,
       rareChance: selection.rareChance || 0,
+      rareBaseChance: selection.rareBaseChance || 0,
+      rarePityBonus: selection.rarePityBonus || 0,
       rareRoll: selection.rareRoll,
       naturalHit: !!selection.naturalHit,
       pityForced: !!selection.pityForced,
+      rareCapped: !!selection.rareCapped,
+      pityCounter: Math.max(0, Math.floor(Number(selection.pityCounter) || 0)),
       previousCount,
       previousLastDay,
       previousRecent
@@ -600,6 +636,9 @@
       eventId: event.id,
       category: event.category,
       rareChance: selection.rareChance || 0,
+      rareBaseChance: selection.rareBaseChance || 0,
+      rarePityBonus: selection.rarePityBonus || 0,
+      naturalHit: !!selection.naturalHit,
       pityForced: !!selection.pityForced
     });
     if (survival.history.length > 200) survival.history = survival.history.slice(-200);
@@ -625,17 +664,20 @@
       });
     }
 
-    const chance = rareRate(run.day);
-    const rareRoll = random();
-    const naturalHit = rareRoll < chance;
-    const pityEligible = survival.rareMisses >= PITY_LIMIT;
+    const chances = rareChances(run.day, survival);
+    const rareCapped = survival.rareSeen >= TRUE_RARE_CAP;
+    const rareRoll = rareCapped ? null : random();
+    const naturalRollHit = !rareCapped && rareRoll < chances.baseChance;
+    const pityRollHit = !rareCapped && !naturalRollHit && chances.pityBonus > 0 && rareRoll < chances.effectiveChance;
     const rareCandidates = selectPool('rare', run);
-    const wantsRare = (naturalHit || pityEligible) && rareCandidates.length > 0;
+    const wantsRare = !rareCapped && (naturalRollHit || pityRollHit) && rareCandidates.length > 0;
     const pool = wantsRare ? rareCandidates : selectPool('normal', run);
     const fallback = pool.length ? pool : [byId.get('stored-bread')];
     const selected = weightedPick(fallback, random()) || byId.get('stored-bread');
     const selectedRare = selected.category === 'rare';
-    const pityForced = selectedRare && pityEligible && !naturalHit;
+    const naturalHit = selectedRare && naturalRollHit;
+    const pityForced = selectedRare && pityRollHit;
+    const pityCounter = survival.rareMisses;
 
     if (selectedRare) {
       survival.longestRareDrought = Math.max(survival.longestRareDrought, survival.rareMisses);
@@ -647,7 +689,16 @@
       survival.rareMisses += 1;
       survival.longestRareDrought = Math.max(survival.longestRareDrought, survival.rareMisses);
     }
-    return lockSelection(run, selected, { rareChance: chance, rareRoll, naturalHit, pityForced });
+    return lockSelection(run, selected, {
+      rareChance: rareCapped ? 0 : chances.effectiveChance,
+      rareBaseChance: rareCapped ? 0 : chances.baseChance,
+      rarePityBonus: rareCapped ? 0 : chances.pityBonus,
+      rareRoll,
+      naturalHit,
+      pityForced,
+      rareCapped,
+      pityCounter
+    });
   }
 
   function current(run) {
@@ -1166,6 +1217,59 @@
     };
   }
 
+  const RARE_DROUGHT_BUCKETS = Object.freeze([
+    Object.freeze({ label: '0-9', min: 0, max: 9 }),
+    Object.freeze({ label: '10-19', min: 10, max: 19 }),
+    Object.freeze({ label: '20-29', min: 20, max: 29 }),
+    Object.freeze({ label: '30-39', min: 30, max: 39 }),
+    Object.freeze({ label: '40+', min: 40, max: Infinity })
+  ]);
+
+  function freshRareRunDistribution() {
+    return {
+      runs: 0,
+      bins: { zero: 0, one: 0, two: 0, threeOrMore: 0 },
+      totalRare: 0,
+      averageRarePerRun: 0,
+      naturalHitRuns: 0,
+      naturalHitRunRate: 0,
+      pityHitRuns: 0,
+      pityHitRunRate: 0,
+      capReachedRuns: 0,
+      capReachedRunRate: 0,
+      longestDroughtDistribution: Object.fromEntries(RARE_DROUGHT_BUCKETS.map(bucket => [bucket.label, 0])),
+      eventEncounters: Object.fromEntries(events.filter(event => event.category === 'rare').map(event => [event.id, 0]))
+    };
+  }
+
+  function recordRareRun(distribution, run, eventCounts) {
+    const seen = Math.max(0, Math.floor(Number(run.survival.rareSeen) || 0));
+    const longestDrought = Math.max(0, Math.floor(Number(run.survival.longestRareDrought) || 0));
+    distribution.runs += 1;
+    distribution.totalRare += seen;
+    if (seen === 0) distribution.bins.zero += 1;
+    else if (seen === 1) distribution.bins.one += 1;
+    else if (seen === 2) distribution.bins.two += 1;
+    else distribution.bins.threeOrMore += 1;
+    if (Number(run.survival.naturalRareSeen) > 0) distribution.naturalHitRuns += 1;
+    if (Number(run.survival.pityCount) > 0) distribution.pityHitRuns += 1;
+    if (seen >= TRUE_RARE_CAP) distribution.capReachedRuns += 1;
+    const droughtBucket = RARE_DROUGHT_BUCKETS.find(bucket => longestDrought >= bucket.min && longestDrought <= bucket.max);
+    if (droughtBucket) distribution.longestDroughtDistribution[droughtBucket.label] += 1;
+    for (const [eventId, count] of Object.entries(eventCounts || {})) {
+      if (Object.hasOwn(distribution.eventEncounters, eventId)) distribution.eventEncounters[eventId] += count;
+    }
+  }
+
+  function finalizeRareRunDistribution(distribution) {
+    const divisor = distribution.runs || 1;
+    distribution.averageRarePerRun = distribution.totalRare / divisor;
+    distribution.naturalHitRunRate = distribution.naturalHitRuns / divisor;
+    distribution.pityHitRunRate = distribution.pityHitRuns / divisor;
+    distribution.capReachedRunRate = distribution.capReachedRuns / divisor;
+    return distribution;
+  }
+
   function simulateSeeds(count, policy = 'random') {
     const seedCount = Math.max(1, Math.floor(Number(count) || 1));
     const policyName = normalizePolicyName(policy);
@@ -1190,12 +1294,19 @@
       violations: { cooldown: 0, oneShot: 0, maxEncounters: 0, recentThree: 0 },
       rare: {
         observed: 0,
-        minChance: 0.03,
-        maxChance: 0.07,
+        cap: TRUE_RARE_CAP,
+        minChance: RARE_RATE_PERIODS[0].chance,
+        maxChance: SOFT_PITY_MAX_CHANCE,
+        minBaseChance: RARE_RATE_PERIODS[0].chance,
+        maxBaseChance: RARE_RATE_PERIODS[RARE_RATE_PERIODS.length - 1].chance,
+        maxEffectiveChance: SOFT_PITY_MAX_CHANCE,
         pityTriggers: 0,
         maxDryStreak: 0,
-        pityLimit: PITY_LIMIT,
-        rateByDanger: [0.03, 0.04, 0.05, 0.06, 0.07].map(chance => ({ chance, draws: 0, naturalHits: 0 }))
+        pityLimit: SOFT_PITY_START_MISSES,
+        softPityStartDay: SOFT_PITY_START_DAY,
+        rateByPeriod: RARE_RATE_PERIODS.map(period => ({ ...period, draws: 0, naturalHits: 0, pityHits: 0 })),
+        allRuns: freshRareRunDistribution(),
+        clearRuns: freshRareRunDistribution()
       },
       conditionalHits: {},
       milestoneHits: { 10: 0, 20: 0, 30: 0, 40: 0 },
@@ -1219,6 +1330,7 @@
       let outcomeType = null;
       let terminalDay = 1;
       let reachedDay50 = false;
+      const runRareEventCounts = {};
       try {
         run = simulationRun(seed);
         const random = () => simulationRandom(run);
@@ -1237,10 +1349,12 @@
           result.totalEvents += 1;
           const selection = run.survival.currentSelection;
           if (selection && !['milestone', 'final'].includes(event.category)) {
-            const stage = clamp(Math.floor((run.day - 1) / 10), 0, 4);
-            const bucket = result.rare.rateByDanger[stage];
-            bucket.draws += 1;
-            if (selection.naturalHit) bucket.naturalHits += 1;
+            const bucket = result.rare.rateByPeriod.find(period => run.day >= period.minDay && run.day <= period.maxDay);
+            if (bucket && selection.rareRoll !== null && selection.rareRoll !== undefined) {
+              bucket.draws += 1;
+              if (selection.naturalHit) bucket.naturalHits += 1;
+              if (selection.pityForced) bucket.pityHits += 1;
+            }
             const priorCount = Number(selection.previousCount || 0);
             if (event.oneShot && priorCount > 0) result.violations.oneShot += 1;
             if (priorCount >= event.maxEncounters) result.violations.maxEncounters += 1;
@@ -1250,6 +1364,7 @@
           if (event.category === 'rare') {
             result.rare.observed += 1;
             if (selection && selection.pityForced) result.rare.pityTriggers += 1;
+            runRareEventCounts[event.id] = (runRareEventCounts[event.id] || 0) + 1;
           }
           if (event.category === 'conditional') result.conditionalHits[event.id] += 1;
           if (event.category === 'milestone') result.milestoneHits[run.day] += 1;
@@ -1300,7 +1415,7 @@
         if (outcomeType === 'clear') {
           result.achievementHits.wild_fifty += 1;
           if (run.survival.rareSeen > 0) result.achievementHits.rare_encounter += 1;
-          if (run.survival.naturalRareSeen >= 3) result.achievementHits.luck_is_skill += 1;
+          if (run.survival.naturalRareSeen >= TRUE_RARE_CAP) result.achievementHits.luck_is_skill += 1;
           const companions = ['tako', 'jr', 'beanChild', 'clone'].filter(key => run.companions[key]).length + (run.flags.shadowAwake ? 1 : 0);
           if (companions === 0) result.achievementHits.solo_survivor += 1;
           if (run.stats.skipped >= 20) result.achievementHits.refusal_master += 1;
@@ -1315,6 +1430,8 @@
       if (run) {
         result.rare.maxDryStreak = Math.max(result.rare.maxDryStreak, run.survival.longestRareDrought);
         result.dailyDamageTotal += Number(run.survival.dailyDamageTaken) || 0;
+        recordRareRun(result.rare.allRuns, run, runRareEventCounts);
+        if (outcomeType === 'clear') recordRareRun(result.rare.clearRuns, run, runRareEventCounts);
       }
       if (reachedDay50) result.day50Reached += 1;
       const classified = Object.hasOwn(result.outcomes, outcomeType) ? outcomeType : 'other';
@@ -1326,11 +1443,13 @@
         distribution[dayKey] = (distribution[dayKey] || 0) + 1;
       }
     }
-    const naturalDraws = result.rare.rateByDanger.reduce((sum, bucket) => sum + bucket.draws, 0);
-    const naturalHits = result.rare.rateByDanger.reduce((sum, bucket) => sum + bucket.naturalHits, 0);
+    const naturalDraws = result.rare.rateByPeriod.reduce((sum, bucket) => sum + bucket.draws, 0);
+    const naturalHits = result.rare.rateByPeriod.reduce((sum, bucket) => sum + bucket.naturalHits, 0);
     result.rare.naturalDraws = naturalDraws;
     result.rare.naturalHits = naturalHits;
     result.rare.naturalRate = naturalDraws ? naturalHits / naturalDraws : 0;
+    finalizeRareRunDistribution(result.rare.allRuns);
+    finalizeRareRunDistribution(result.rare.clearRuns);
     result.day50ReachRate = result.day50Reached / seedCount;
     result.averageSurvivalDays = result.survivalDaysTotal / seedCount;
     result.averageDailyDamage = result.dailyDamageTotal / seedCount;
@@ -1347,9 +1466,14 @@
 
   globalThis.TabenaiSurvival = Object.freeze({
     events,
-    pityLimit: PITY_LIMIT,
+    trueRareCap: TRUE_RARE_CAP,
+    pityLimit: SOFT_PITY_START_MISSES,
+    softPityStartDay: SOFT_PITY_START_DAY,
+    softPityMaxChance: SOFT_PITY_MAX_CHANCE,
     normalizeState,
     rareRate,
+    softPityBonus,
+    rareChances,
     prepare,
     current,
     resolve,

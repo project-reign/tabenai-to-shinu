@@ -245,12 +245,30 @@ test('5ポリシーを各10,001シードで実ゲーム同等に集計し最終�
       .toBe(result.outcomes.death);
     expect(Object.values(result.deathDayDistribution.starve).reduce((sum, count) => sum + count, 0), name)
       .toBe(result.outcomes.starve);
-    expect(result.rare.minChance, name).toBeCloseTo(0.03, 8);
-    expect(result.rare.maxChance, name).toBeCloseTo(0.07, 8);
-    expect(result.rare.pityTriggers, name).toBeGreaterThan(0);
-    expect(result.rare.maxDryStreak, name).toBeLessThanOrEqual(result.rare.pityLimit);
-    expect(result.rare.naturalRate, name).toBeGreaterThan(0.02);
-    expect(result.rare.naturalRate, name).toBeLessThan(0.08);
+    expect(result.rare.cap, name).toBe(2);
+    expect(result.rare.minBaseChance, name).toBeCloseTo(0.008, 8);
+    expect(result.rare.maxBaseChance, name).toBeCloseTo(0.015, 8);
+    expect(result.rare.maxEffectiveChance, name).toBeCloseTo(0.04, 8);
+    expect(result.rare.maxDryStreak, name).toBeLessThanOrEqual(45);
+    expect(result.rare.naturalRate, name).toBeGreaterThan(0.005);
+    expect(result.rare.naturalRate, name).toBeLessThan(0.02);
+    expect(result.rare.allRuns.bins.threeOrMore, name).toBe(0);
+    if (name === 'allRefuse') {
+      expect(result.rare.pityTriggers, name).toBe(0);
+      expect(result.rare.clearRuns.runs, name).toBe(0);
+    } else {
+      expect(result.rare.pityTriggers, name).toBeGreaterThan(0);
+      expect(result.rare.clearRuns.runs, name).toBe(result.outcomes.clear);
+      expect(result.rare.clearRuns.bins.zero / result.rare.clearRuns.runs, name).toBeGreaterThanOrEqual(0.45);
+      expect(result.rare.clearRuns.bins.zero / result.rare.clearRuns.runs, name).toBeLessThanOrEqual(0.55);
+      expect(result.rare.clearRuns.bins.one / result.rare.clearRuns.runs, name).toBeGreaterThanOrEqual(0.35);
+      expect(result.rare.clearRuns.bins.one / result.rare.clearRuns.runs, name).toBeLessThanOrEqual(0.45);
+      expect(result.rare.clearRuns.bins.two / result.rare.clearRuns.runs, name).toBeGreaterThanOrEqual(0.05);
+      expect(result.rare.clearRuns.bins.two / result.rare.clearRuns.runs, name).toBeLessThanOrEqual(0.10);
+      expect(result.rare.clearRuns.bins.threeOrMore, name).toBe(0);
+      expect(result.rare.clearRuns.averageRarePerRun, name).toBeGreaterThanOrEqual(0.55);
+      expect(result.rare.clearRuns.averageRarePerRun, name).toBeLessThanOrEqual(0.75);
+    }
   }
 
   const random = matrix.policies.random;

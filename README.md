@@ -1,6 +1,6 @@
 # 食べないと死ぬ：50日目の晩餐
 
-二つの選択肢だけで50日目を目指す、ブラウザ向け怪食サバイバル・ノベルです。v4.8.0「食卓の記憶庫」は、STORY 50、HARD 50、SURVIVAL 50「怪食サバイバル」の結果と演出を変えず、3セーブスロット、永続図鑑、詳細リザルト、運命コード、JST日替わりの「今日の献立」を追加します。
+二つの選択肢だけで50日目を目指す、ブラウザ向け怪食サバイバル・ノベルです。v4.9.0はSTORY 50とHARD 50を変えず、SURVIVAL 50のtrue rareを「一周で一回起こるか、起こらないか」の頻度へ整えます。v4.8.0の3セーブスロット、永続図鑑、詳細リザルト、運命コード、JST日替わりの「今日の献立」はそのまま利用できます。
 
 ## 遊ぶ
 
@@ -27,8 +27,9 @@ STORY 50はv4.3.0の50日間をそのまま維持します。HARD 50は同じシ
 
 保存されたシードから毎日のイベントデッキを組み、原則として1イベントの解決で1日進みます。イベントは `common`、`uncommon`、`rare`、`conditional`、`milestone`、`final` に分類され、通常イベント16件以上、条件付きイベント8件以上、レアイベント6件以上を収録します。
 
-- レア基本率は3%。危険段階に応じて上昇し、最大7%
-- 長期間レアに遭遇しない場合はpityで救済
+- true rareの基礎率は1〜19日目0.8%、20〜34日目1.0%、35〜44日目1.2%、45〜49日目1.5%
+- true rareが0回のランだけ、35日目以降に実効率を最大4%まで段階的に上げる保証なしsoft pityを適用
+- true rareは一ラン2回まで。一度発生した後はsoft pityを解除し、conditional／milestone／finalは上限へ数えない
 - イベントごとにcooldown、oneShot、最大遭遇回数を設定可能
 - 直近3件の通常イベントは原則として再抽選しない
 - 選ばれたイベントIDを決定時点で保存し、再読込でも再抽選しない
@@ -54,6 +55,12 @@ SURVIVAL 50では「野生の50日」「稀少遭遇」「運も実力」「孤�
 - タイトルへ戻る
 
 新版が待機中になると画面下部へ通知が表示されます。「更新する」を選ぶまで現在の版を維持するため、プレイ中の不意な再読み込みはありません。進行は更新前に既存localStorageキーへ自動保存されます。
+
+## v4.9.0 レアイベント頻度とプレイテンポの最終調整
+
+`rare`だけをtrue rareとして扱い、`conditional`は「因縁／仲間」、`milestone`は「節目」、`final`は「最終局面」として抽選・記録・演出を分離しました。soft pityは後半に少しだけ発生率を足しますが、発生を保証しません。true rareが一度出ると加算を解除し、2回に達すると以後のtrue rare抽選を止めます。レアが0回でも四箱と最終拒否を含む全生還ルートへ到達できます。
+
+公開画面は従来どおり正確な確率、roll、pity、内部IDを表示しません。設定の「詳細な判定情報」または `?debug=1` だけが基礎率、加算率、判定roll、未遭遇回数を表示します。10本の固定seedプレイログと、全ラン／完走ランを分けた校正結果は [`docs/v49-rare-balance-playlogs.md`](docs/v49-rare-balance-playlogs.md) に記録します。
 
 ## v4.8.0 周回・記録基盤「食卓の記憶庫」
 
@@ -135,7 +142,7 @@ Service Workerはcore shell、presentation precache、lazy runtimeの三つの�
 - 演出素材の有無、読込順、音声・触覚設定によってゲーム結果や保存PRNGを変えない
 - 3スロット、図鑑、ランID、運命コード、日替わりseedの生成でもゲーム保存PRNGを消費しない
 
-ランの保存スキーマは v4.2.1 と同じ `version: 4` のままです。3スロットは `tabenai-to-shinu-run-slots-v1` へ保存し、active slotだけを従来キー `tabenai-to-shinu-50days-v4` へ互換mirrorします。モードがない旧セーブには自動的に `mode: "story"` を追加します。実績・設定は `tabenai-to-shinu-meta-v1`、図鑑、履歴、日替わり記録は各専用キーへ分離します。アプリの表示バージョン `4.8.0`、workspace `version: 1`、ラン `version: 4`、移行JSON `formatVersion: 3` は別の概念です。
+ランの保存スキーマは v4.2.1 と同じ `version: 4` のままです。3スロットは `tabenai-to-shinu-run-slots-v1` へ保存し、active slotだけを従来キー `tabenai-to-shinu-50days-v4` へ互換mirrorします。モードがない旧セーブには自動的に `mode: "story"` を追加します。実績・設定は `tabenai-to-shinu-meta-v1`、図鑑、履歴、日替わり記録は各専用キーへ分離します。アプリの表示バージョン `4.9.0`、workspace `version: 1`、ラン `version: 4`、移行JSON `formatVersion: 3` は別の概念です。
 
 セーブ移行JSONはSURVIVAL 50の決定済みイベントを含むランデータと、実績・記録・設定、図鑑、ラン履歴、日替わり記録を保持します。旧run、旧meta、`formatVersion: 1`、`formatVersion: 2`、`formatVersion: 3` を読み込めます。
 
@@ -163,9 +170,9 @@ npm test
 npm run simulate:survival
 ```
 
-固定seedによる全摂取・慎重・バランスの完全な日別トレースは [`docs/survival-balance-playlogs.md`](docs/survival-balance-playlogs.md) にあります。
+固定seedによる全摂取・慎重・バランスの決定論的検証ログは [`docs/survival-balance-playlogs.md`](docs/survival-balance-playlogs.md)、v4.9のrare 0／1／2回を含む10本の確認ログは [`docs/v49-rare-balance-playlogs.md`](docs/v49-rare-balance-playlogs.md) にあります。
 
-v4.5.0までの32件とv4.6.0で追加した14件、v4.7.0で追加した15件、合計61件の既存Playwrightテストを削除・弱体化せず、v4.8.0では保存・図鑑・履歴・運命コード・日替わり・公開表示分離・旧形式保護・レア遭遇ログの回帰テストを追加し、全108件を実行します。
+v4.8.0までの既存109件を削除・弱体化せず、v4.9.0では日別基礎率、保証なしsoft pity、2回上限、rare 0回の全生還、演出分類、公開／debug表示分離を4件追加し、全113件を実行します。
 
 - 44シーンの全102選択遷移と条件付き遷移
 - 全拒否選択
@@ -184,7 +191,7 @@ v4.5.0までの32件とv4.6.0で追加した14件、v4.7.0で追加した15件�
 - SURVIVAL 50の全イベントが常時二択であることと、全食物・飲料・薬イベントの拒否権
 - イベントデッキ、判定、結末のシード再現性とリロード時の再抽選防止
 - cooldown、oneShot、最大遭遇回数、直近3件の再抽選抑制
-- 危険段階別の3〜7%レア率、pity、全条件付きイベントへの到達
+- 日別0.8〜1.5%のtrue rare基礎率、35日目以降だけ最大4%となる保証なしsoft pity、2回上限、全条件付きイベントへの到達
 - 10日ごとの固定節目、四箱すべてと開封拒否、複数の生還ルート
 - random／allRefuse／allConsume／omniscientConservative／humanLikeを各10,001シードで実行し、実ゲーム同等の死亡・餓死、50日目到達率、平均生存日数を集計
 - random 50〜65%、allConsume 45〜75%、humanLike 70〜90%、allRefuse 0〜5%の生還率と、randomのdeath 5〜25%／starve 15〜40%を固定レンジとして検証
@@ -196,7 +203,7 @@ v4.5.0までの32件とv4.6.0で追加した14件、v4.7.0で追加した15件�
 - v4.3旧セーブのSTORY 50移行
 - 旧meta、formatVersion 1／2、ランとメタを含む新旧セーブ移行JSON
 - SURVIVAL 50を含むPWAオフライン再起動とiPhone 390×844表示
-- アセットIDの安定した解決、四層の描画、全9演出フック
+- アセットIDの安定した解決、四層の描画、conditionalを含む全10演出フック
 - 未知ID、manifest失敗、画像404でも絵文字・本文・常時二択を維持するフォールバック
 - 初回install時のasset manifest 503とprecache SVG一枚の404をcore installから分離し、404を保存せず完全offlineで再起動
 - event content、カードsubject、画像altの意味整合と、不一致イベントでの画像なしフォールバック
