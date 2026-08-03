@@ -1,6 +1,18 @@
 # 食べないと死ぬ：50日目の晩餐
 
-二つの選択肢だけで50日目を目指す、ブラウザ向け怪食サバイバル・ノベルです。1.0.0-rc.2は、現在ある50日版を完成作品として公開できるか判定するRelease Candidateです。STORY 50、HARD 50、SURVIVAL 50の物語、数値、分岐、シード結果、レア頻度はv4.9.0から変更せず、RC1の全ルート・保存・アクセシビリティQAへiPhoneの復帰音とダブルタップ操作の修正を加えています。
+二つの選択肢だけで50日目を目指す、ブラウザ向け怪食サバイバル・ノベルです。1.0.0-rc.3は、現在ある50日版を完成作品として公開できるか判定するRelease Candidateです。STORY 50、HARD 50、SURVIVAL 50の物語、数値、分岐、シード結果、レア頻度はv4.9.0から変更せず、RC2のiPhone実機結果を受けて終了時の音、初回音声、二重選択、余白ダブルタップ、自動スクロールを仕上げています。
+
+## 1.0.0-rc.3 操作感Hotfix
+
+アプリ終了、スリープ、バックグラウンド移行時は、BGMとSEの現在のgainを保持して予約値を取り消し、32 msで無音へ移してからvoiceを停止します。停止はfade完了の8 ms後、nodeの切断と管理Setからの除去は`onended`だけで行い、AudioContextもfade後にsuspendします。同じvoiceの二重停止や即時`stop(now)`はありません。
+
+iPhoneのtouch `pointerdown`は解除候補として記録するだけにし、`touchend`または後続clickでAudioContextを解除します。タイトルからの新規開始・続き、今日の献立、エンディング後の新しい運命、運命コードはいずれも同一documentでゲーム画面へ移るため、メニュー操作なしで正しいBGMを継続します。
+
+選択はscene／event token付きの原子的transactionとして扱います。最初の入力でA／Bを同時に無効化し、同じtokenの再実行を拒否して、次の場面も入力開始から350 msまでは再選択できません。保存、実績、図鑑、履歴、SEは一回だけ確定します。
+
+非操作領域では近接した短時間の単一touchだけ二度目の合成clickを抑止し、縦スクロール、ピンチズーム、ボタン、リンク、入力、スライダー、テキスト選択は対象外です。選択後の画面移動は「次の出来事へ」「選択肢へ」「自動で移動しない」の3種になり、既存の`true`は「次の出来事へ」、`false`は「自動で移動しない」へ移行します。イベントカード上部には日付・HP・空腹の小型表示を追加しました。
+
+ラン `version: 4`、移行JSON `formatVersion: 3`、ゲーム結果、保存、正式アート41点、BGM 6曲、SE 13種は変更しません。詳細は [RC3 QA報告書](docs/RC3_QA_REPORT.md) と [iPhone実機再確認表](docs/RC3_IPHONE_RETEST_CHECKLIST.md) にあります。
 
 ## 1.0.0-rc.2 iPhone復帰音・ダブルタップHotfix
 
@@ -35,7 +47,7 @@ https://project-reign.github.io/tabenai-to-shinu/
 - **つづきから**：3スロットの一覧から保存中のランを再開
 - **はじめから**：STORY 50、HARD 50、SURVIVAL 50と保存先スロットを選択
 - **記録**：実績、図鑑、エンディング、最大30件のラン履歴、通算統計
-- **設定**：文字サイズ、動きを減らす、選択確認、自動スクロール、BGM／効果音の個別音量とミュート、触覚、軽量モード（画像とBGM編成）
+- **設定**：文字サイズ、動きを減らす、選択確認、選択後の画面移動3種、BGM／効果音の個別音量とミュート、触覚、軽量モード（画像とBGM編成）
 
 タイトルには、その日のJST日付から決まるSURVIVAL 50「今日の献立」も表示します。通信やオンラインランキングは使わず、同じ日付なら全端末で同じseedになります。
 
@@ -160,7 +172,7 @@ Service Workerはcore shell、presentation precache、lazy runtimeの三つの�
 - 演出素材の有無、読込順、音声・触覚設定によってゲーム結果や保存PRNGを変えない
 - 3スロット、図鑑、ランID、運命コード、日替わりseedの生成でもゲーム保存PRNGを消費しない
 
-ランの保存スキーマは v4.2.1 と同じ `version: 4` のままです。3スロットは `tabenai-to-shinu-run-slots-v1` へ保存し、active slotだけを従来キー `tabenai-to-shinu-50days-v4` へ互換mirrorします。モードがない旧セーブには自動的に `mode: "story"` を追加します。実績・設定は `tabenai-to-shinu-meta-v1`、図鑑、履歴、日替わり記録は各専用キーへ分離します。アプリの表示バージョン `1.0.0-rc.2`、workspace `version: 1`、ラン `version: 4`、移行JSON `formatVersion: 3` は別の概念です。
+ランの保存スキーマは v4.2.1 と同じ `version: 4` のままです。3スロットは `tabenai-to-shinu-run-slots-v1` へ保存し、active slotだけを従来キー `tabenai-to-shinu-50days-v4` へ互換mirrorします。モードがない旧セーブには自動的に `mode: "story"` を追加します。実績・設定は `tabenai-to-shinu-meta-v1`、図鑑、履歴、日替わり記録は各専用キーへ分離します。アプリの表示バージョン `1.0.0-rc.3`、workspace `version: 1`、ラン `version: 4`、移行JSON `formatVersion: 3` は別の概念です。
 
 セーブ移行JSONはSURVIVAL 50の決定済みイベントを含むランデータと、実績・記録・設定、図鑑、ラン履歴、日替わり記録を保持します。旧run、旧meta、`formatVersion: 1`、`formatVersion: 2`、`formatVersion: 3` を読み込めます。
 
